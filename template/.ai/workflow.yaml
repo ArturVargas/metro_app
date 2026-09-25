@@ -1,0 +1,25 @@
+version: product-development-v1.1
+
+stages:
+  - discovery
+  - idea-validation
+  - specification
+  - architecture
+  - implementation-plan
+  - implementation
+  - verification
+  - release
+  - observability
+  - early-user-feedback
+  - product-learning
+
+rules:
+  - Las etapas son opcionales; cada iniciativa empieza donde corresponde.
+  - Los cambios arquitecturales requieren ADR.
+  - Las salidas de una etapa son editables antes de continuar.
+  - Clasifica cada iniciativa como spike, bounded o architectural antes de implementar.
+  - La complejidad descubierta puede elevar la clasificación, nunca reducirla silenciosamente.
+  - Activa `design-brief` sólo para una pantalla, flujo, landing o rediseño material; no aplica a trabajo sin UI.
+  - Usa `reference-pack` sólo cuando referencias externas significativas aclaren decisiones de UX o dirección visual.
+  - El sistema de diseño y marca existentes prevalecen sobre cualquier dirección visual nueva.
+  - Registra calidad de diseño en `verification` sólo cuando exista UI y de forma proporcional al alcance.
