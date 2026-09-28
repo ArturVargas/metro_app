@@ -7,8 +7,9 @@ Lee esta sección para eventos de producto, errores, alertas, privacidad, despli
 ## Orden de lectura
 
 1. [`telemetry.md`](telemetry.md) para requisitos confirmados y decisiones abiertas.
-2. [Mapa de arquitectura](../architecture/system-map.md) para saber qué componente emite cada señal.
-3. [`standards/observability.md`](../../../standards/observability.md) y [`standards/release-readiness.md`](../../../standards/release-readiness.md) antes de liberar.
+2. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para ranuras de preview A/B/C en Cloudflare y promoción manual al baseline.
+3. [Mapa de arquitectura](../architecture/system-map.md) para saber qué componente emite cada señal.
+4. [`standards/observability.md`](../../../standards/observability.md) y [`standards/release-readiness.md`](../../../standards/release-readiness.md) antes de liberar.
 
 ## Skills relacionados
 
