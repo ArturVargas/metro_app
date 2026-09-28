@@ -1,0 +1,79 @@
+name: Deploy Cloudflare slot
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: Stable Cloudflare slot to replace
+        required: true
+        type: choice
+        options:
+          - base
+          - a
+          - b
+          - c
+      ref:
+        description: Git branch, tag, or full commit SHA to deploy
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.ref }} to ${{ inputs.slot }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout requested source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.10.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate game
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm build:web
+
+      - name: Verify static output
+        run: |
+          test -f apps/game/dist/index.html
+          test ! -e apps/game/dist/_worker.js
+
+      - name: Read source commit
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy stable slot
+        id: cloudflare
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          packageManager: pnpm
+          wranglerVersion: 4.143.0
+          command: >-
+            pages deploy apps/game/dist
+            --project-name metro-app-${{ inputs.slot }}
+            --branch main
+            --commit-hash ${{ steps.source.outputs.sha }}
+            --commit-dirty=false

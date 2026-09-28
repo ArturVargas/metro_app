@@ -6,6 +6,7 @@
 
 - Existe una misión común para todas las personas del grupo.
 - Cada misión tiene un brief público para participantes y un contrato interno para evaluación y ejecución.
+- El brief público enlaza una versión Base desplegada y común para todas las personas.
 - La rúbrica interna no se publica ni se usa para sugerir una solución técnica preferida.
 - La interacción comunitaria ocurre en un grupo de WhatsApp.
 - Hermes Agent monitorea el grupo y responde mensajes.

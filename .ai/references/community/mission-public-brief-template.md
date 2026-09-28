@@ -17,7 +17,7 @@ No incluyas la rúbrica interna, los pesos de evaluación ni una solución técn
 [Describe un resultado observable sin indicar cómo implementarlo.]
 
 **Contexto**  
-[Incluye el estado actual del producto y los enlaces, imágenes o reglas necesarios para entender la misión.]
+[Incluye el enlace estable a la versión Base, el estado actual del producto y las imágenes o reglas necesarias para entender la misión.]
 
 **Puedes cambiar**
 
@@ -55,4 +55,5 @@ Los tres prompts elegidos por el grupo se convertirán en las versiones A, B y C
 - El alcance y los límites no se contradicen.
 - Los criterios describen resultados y no una implementación específica.
 - Todos los enlaces y referencias funcionan.
+- La versión Base desplegada corresponde al commit indicado en el contrato interno.
 - El pie fijo conserva las reglas aprobadas.

@@ -28,7 +28,7 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 - LLM ligero como redactor de feedback.
 - GitHub Issues y Projects como fuente de verdad y auditoría.
 - GitHub como origen de issues, ramas y pull requests de las variantes A/B/C.
-- Cloudflare (Pages o equivalente) hospeda ranuras permanentes A/B/C con URLs estables; cada misión sobrescribe el build de la ranura.
+- Cuatro proyectos de Cloudflare Pages hospedan ranuras permanentes Base/A/B/C con URLs estables; cada misión parte de Base y sobrescribe A/B/C con los resultados elegidos.
 - La promoción de una variante al baseline de la siguiente misión es decisión del responsable de producto, no automática por tráfico ni por segunda votación.
 
 ## Límites
@@ -56,7 +56,7 @@ packages/
 
 Antes de redactar la Misión 1 se debe definir y crear un baseline técnico neutral. El baseline establece plataforma, estructura mínima, validaciones y despliegue de previews; no implementa la solución funcional o visual que la misión pedirá a los participantes.
 
-El baseline aprobado contiene un workspace `pnpm`, el cliente Expo, un tablero adaptable con ocho estaciones estáticas, exportación web y validaciones de lint, tipos y build en GitHub Actions. Excluye mecánicas, simulación, telemetría, backend y servicio de previews.
+El baseline aprobado contiene un workspace `pnpm`, el cliente Expo, un tablero adaptable con ocho estaciones estáticas, exportación web y validaciones de lint, tipos y build en GitHub Actions. Excluye mecánicas, simulación, telemetría y backend. Su build aprobado se publica en la ranura Base de Cloudflare.
 
 ## Identidad y datos personales
 

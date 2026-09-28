@@ -7,9 +7,10 @@ Lee esta sección para eventos de producto, errores, alertas, privacidad, despli
 ## Orden de lectura
 
 1. [`telemetry.md`](telemetry.md) para requisitos confirmados y decisiones abiertas.
-2. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para ranuras de preview A/B/C en Cloudflare y promoción manual al baseline.
-3. [Mapa de arquitectura](../architecture/system-map.md) para saber qué componente emite cada señal.
-4. [`standards/observability.md`](../../../standards/observability.md) y [`standards/release-readiness.md`](../../../standards/release-readiness.md) antes de liberar.
+2. [`cloudflare-deployments.md`](cloudflare-deployments.md) para publicar Base o una variante A/B/C.
+3. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para las cuatro ranuras estables y la promoción manual al baseline.
+4. [Mapa de arquitectura](../architecture/system-map.md) para saber qué componente emite cada señal.
+5. [`standards/observability.md`](../../../standards/observability.md) y [`standards/release-readiness.md`](../../../standards/release-readiness.md) antes de liberar.
 
 ## Skills relacionados
 

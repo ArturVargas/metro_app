@@ -26,10 +26,11 @@
 - Definir y crear un baseline técnico neutral antes de redactar la Misión 1.
 - Cliente universal con Expo, React Native Web, TypeScript y SVG; simulación separada en TypeScript puro.
 - Alcance del baseline técnico: workspace, cliente Expo, tablero estático de ocho estaciones, exportación web y validación continua.
+- Cuatro ranuras Cloudflare Pages configuradas para Base/A/B/C; Base publicada y A/B/C reservadas para prompts ganadores.
 
 ## Próxima decisión
 
-Revisar y ejecutar el [plan del baseline técnico](../../../docs/superpowers/plans/2026-09-28-metro-app-technical-baseline.md).
+Definir y redactar la Misión 1 usando la versión Base desplegada.
 
 ## Skills relacionados
 

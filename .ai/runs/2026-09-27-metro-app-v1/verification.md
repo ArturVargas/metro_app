@@ -43,3 +43,18 @@ Confirmed absent: game mechanics, backend, telemetry, hosting/preview service, e
 ### Release decision
 
 **Ready for merge** as the validation gate for the universal game baseline. Preview deployment remains explicitly out of scope until a later mission chooses a hosting provider.
+
+## Cloudflare Base/A/B/C
+
+Esta sección registra la configuración de hosting realizada después de cerrar el baseline.
+
+| Comprobación | Resultado |
+| --- | --- |
+| Crear `metro-app-base` | Correcto |
+| Crear `metro-app-a` | Correcto; sin deployment inicial |
+| Crear `metro-app-b` | Correcto; sin deployment inicial |
+| Crear `metro-app-c` | Correcto; sin deployment inicial |
+| Desplegar Base desde `e765063f4ac3b0ceda1bb94158bac481fd106e6c` | Correcto |
+| `curl -L https://metro-app-base.pages.dev/` | HTTP 200 |
+
+La publicación inicial se ejecutó localmente y de forma supervisada con Wrangler 4.143.0. El workflow manual requiere configurar `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` en GitHub antes de su primera ejecución.
