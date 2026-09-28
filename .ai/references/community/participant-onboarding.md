@@ -68,6 +68,18 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > No gana el prompt más largo, sino el que permite construir mejor.
 
+### 4. Evaluación e intentos
+
+> 📊 **Evaluación e intentos**
+>
+> Para enviar un prompt deben mencionar al bot en el mensaje. El bot solo realizará evaluaciones los martes y jueves.
+>
+> Cada evaluación devuelve una puntuación sobre 100 y feedback para mejorar. Tienen un máximo de cinco intentos por misión, repartidos como prefieran entre esos dos días.
+>
+> Para entrar a la votación necesitan al menos 70 puntos. Si varias versiones superan ese puntaje, participará únicamente la más reciente.
+>
+> La puntuación solo indica que el prompt está listo para competir. La comunidad elige cuáles tres se construirán.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -91,4 +103,4 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 ## Estado
 
-El formato, los límites de contenido, la secuencia y los primeros tres mensajes están aprobados. Los mensajes restantes deben redactarse y aprobarse uno por uno.
+El formato, los límites de contenido, la secuencia y los primeros cuatro mensajes están aprobados. El quinto mensaje y el índice fijado todavía deben redactarse y aprobarse.
