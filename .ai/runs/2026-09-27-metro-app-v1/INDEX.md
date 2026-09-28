@@ -18,10 +18,11 @@
 - GitHub como fuente de verdad comunitaria.
 - Hermes como adaptador del grupo de WhatsApp.
 - Identidad seudónima sin teléfonos en GitHub.
+- Incorporación mediante mensajes breves y guía fija, sin exponer Jev a los participantes.
 
 ## Próxima decisión
 
-Resolver el mecanismo de voto dentro del grupo y su efecto sobre la privacidad de los votos.
+Definir y aprobar la secuencia exacta de mensajes de incorporación; después, resolver el mecanismo de voto dentro del grupo.
 
 ## Skills relacionados
 

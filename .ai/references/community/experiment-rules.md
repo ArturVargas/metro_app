@@ -8,6 +8,8 @@
 - La interacción comunitaria ocurre en un grupo de WhatsApp.
 - Hermes Agent monitorea el grupo y responde mensajes.
 - Hermes actúa como adaptador y coordinador; las decisiones verificables pertenecen al backend.
+- La incorporación se entrega como una secuencia de mensajes cortos y una guía fija en el grupo.
+- La comunicación para participantes habla de evaluación de calidad y feedback; no menciona Jev ni detalles internos del evaluador.
 
 ### Evaluación
 
@@ -23,7 +25,7 @@
 
 - Una propuesta necesita al menos 70 puntos para entrar a la votación final.
 - La puntuación solo determina elegibilidad; no ordena candidatos ni resuelve empates.
-- Entra a votación la versión calificable más reciente de cada participante.
+- Solo entra a votación la versión calificable más reciente de cada participante, con puntuación mayor o igual a 70.
 - Cada miembro elige tres prompts distintos y no puede votar por el propio.
 - Cada candidato muestra autor, texto completo y puntuación durante la votación.
 - El diseño aprobado requiere mantener los votos ocultos hasta el cierre.
