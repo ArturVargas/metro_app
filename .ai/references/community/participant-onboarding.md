@@ -11,6 +11,16 @@ Este archivo define el contenido que recibe la comunidad antes de la primera mis
 - Lenguaje directo para personas con experiencia técnica básica o nula.
 - La información se entrega antes de la primera misión, sin convertirla en un manual largo.
 
+## Secuencia aprobada
+
+1. **Bienvenida y propósito:** qué se construirá y por qué el grupo participa.
+2. **Qué es Metro App:** explicación breve del juego, su estado inicial y el resultado funcional buscado.
+3. **Cómo participar:** misión común, envío de prompts, uso del feedback y señales de contenido genérico o imposible de comprobar.
+4. **Evaluación e intentos:** puntuación, feedback, máximo de cinco intentos y requisito de 70 puntos para la versión calificable más reciente.
+5. **Votación y construcción:** selección comunitaria, asignación aleatoria A/B/C, condiciones equivalentes y trazabilidad del prompt.
+
+El mensaje fijado funciona como índice de estas explicaciones e incluye reglas esenciales y comandos disponibles.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -32,4 +42,4 @@ Este archivo define el contenido que recibe la comunidad antes de la primera mis
 
 ## Estado
 
-El formato y los límites de contenido están aprobados. La secuencia exacta de mensajes todavía debe redactarse y aprobarse.
+El formato, los límites de contenido y la secuencia están aprobados. El texto exacto de cada mensaje debe redactarse y aprobarse uno por uno.
