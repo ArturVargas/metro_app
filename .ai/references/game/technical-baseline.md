@@ -14,7 +14,7 @@ Para decisiones de plataforma lee primero [ADR-0004](../../adr/0004-universal-ga
 - Las estaciones son visibles y tienen nombres accesibles, pero todavía no son interactivas.
 - Exportación web estática.
 - Comandos compartidos para desarrollo web, lint, tipos y build.
-- GitHub Actions ejecuta lint, tipos y build en cada pull request.
+- GitHub Actions (`.github/workflows/game-checks.yml`) ejecuta instalación con lockfile congelado, lint, tipos y exportación web en cada pull request; no despliega previews.
 
 ## Fuera del baseline
 
