@@ -19,10 +19,11 @@
 - Hermes como adaptador del grupo de WhatsApp.
 - Identidad seudónima sin teléfonos en GitHub.
 - Incorporación mediante mensajes breves y guía fija, sin exponer Jev a los participantes.
+- Texto completo de incorporación y guía fijada para el grupo.
 
 ## Próxima decisión
 
-Definir y aprobar la secuencia exacta de mensajes de incorporación; después, resolver el mecanismo de voto dentro del grupo.
+Definir la estructura reutilizable de las misiones y, después, resolver el mecanismo de voto dentro del grupo.
 
 ## Skills relacionados
 

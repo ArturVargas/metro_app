@@ -94,6 +94,30 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > Ninguna versión se convierte automáticamente en la definitiva. Primero revisaremos qué funcionó y qué debemos aprender para la siguiente misión.
 
+## Mensaje fijado aprobado
+
+> 📌 **Metro App — Guía rápida**
+>
+> **Objetivo:** convertir buenas ideas en prompts claros que puedan producir mejoras reales y comprobables en el juego.
+>
+> **Martes y jueves**
+>
+> - Menciona al bot y envía tu prompt.
+> - Recibirás puntuación y feedback.
+> - Tienes hasta cinco intentos por misión.
+>
+> **Para entrar a votación**
+>
+> - Tu versión más reciente debe obtener 70 puntos o más.
+> - Cada persona vota por tres prompts distintos, excepto el propio.
+>
+> **Viernes**
+>
+> - Publicaremos los enlaces de las versiones A, B y C.
+> - Podrás probarlas, compararlas y compartir tus observaciones.
+>
+> Recuerda: un buen prompt explica qué debe cambiar, cómo debe funcionar, qué no debe modificarse y cómo comprobar el resultado.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -117,4 +141,4 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 ## Estado
 
-El formato, los límites de contenido y los cinco mensajes están aprobados. El índice fijado todavía debe redactarse y aprobarse.
+La incorporación está completa: el formato, los límites de contenido, los cinco mensajes y la guía fijada están aprobados.
