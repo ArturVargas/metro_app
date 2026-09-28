@@ -1,0 +1,22 @@
+version: metro-app-v1
+
+stages:
+  - discovery
+  - specification
+  - architecture
+  - implementation-plan
+  - implementation
+  - verification
+  - release
+  - observability
+  - product-learning
+
+rules:
+  - Cada iniciativa se clasifica como spike, bounded o architectural antes de implementar.
+  - Una aprobación cubre únicamente la etapa o decisión presentada.
+  - Toda decisión cerrada actualiza su referencia estable y el índice de su sección.
+  - Toda decisión difícil de revertir se registra como ADR.
+  - Propuestas, decisiones rechazadas y preguntas abiertas se mantienen separadas de las decisiones confirmadas.
+  - El juego y el sistema comunitario se despliegan y operan de forma independiente.
+  - No se versionan secretos, tokens, números telefónicos ni datos personales directos.
+  - Los agentes cargan solo el contexto indicado por la sección activa.

@@ -1,0 +1,82 @@
+project:
+  name: Metro App
+  summary: Juego de estrategia de transporte y experimento comunitario para mejorar prompts mediante contribuciones comparables al producto.
+  objective: Publicar un juego funcional y demostrar que los participantes producen prompts progresivamente más claros, verificables y útiles.
+
+actors:
+  - jugador
+  - participante de la comunidad
+  - responsable del producto
+  - Hermes Agent
+  - backend de evaluación
+  - agente de código
+
+requirements:
+  functional:
+    - Ejecutar el juego completo en web de escritorio y móvil.
+    - Evaluar hasta cinco intentos por participante y misión.
+    - Admitir a votación solo prompts con puntuación mínima de 70.
+    - Permitir que la comunidad seleccione tres prompts.
+    - Mostrar autor, prompt y puntuación de cada candidato durante la votación.
+    - Mantener los votos ocultos hasta el cierre o aprobar explícitamente un reemplazo de esta regla.
+    - Generar y comparar variantes A, B y C desde el mismo commit.
+  non_functional:
+    - Mantener juego y comunidad independientes en tiempo de ejecución.
+    - Conservar trazabilidad desde prompt hasta preview y pull request.
+    - Evitar datos personales directos y secretos en GitHub.
+    - Hacer idempotentes las evaluaciones y operaciones con GitHub.
+
+constraints:
+  technical:
+    - TypeSafe Jev realiza las decisiones tipadas de la rúbrica.
+    - GitHub Issues y Projects son la fuente de verdad comunitaria.
+    - Hermes conecta el grupo de WhatsApp con el backend.
+  business:
+    - El piloto no cobra a los participantes.
+    - La participación sostenida es deseable pero no define por sí sola el éxito.
+  operational:
+    - La primera ejecución de variantes es supervisada.
+    - La integración de una variante requiere aprobación técnica.
+
+source_of_truth:
+  game_code_and_data: GitHub repository
+  community_records: GitHub Issues and Projects
+  architecture_decisions: .ai/adr
+  stable_context: .ai/references
+
+confirmed_decisions:
+  - Jev evalúa y el backend calcula la puntuación; el LLM solo redacta feedback.
+  - Cada participante dispone de cinco intentos por misión.
+  - Setenta puntos habilitan la votación pero no ordenan candidatos.
+  - La comunidad elige tres prompts y el sistema asigna A, B y C aleatoriamente.
+  - Las variantes comparten las mismas condiciones de ejecución.
+  - GitHub sustituye a PostgreSQL en el MVP.
+  - Hermes es el adaptador del grupo y no el juez de las evaluaciones.
+
+rejected_options:
+  - PostgreSQL como fuente de verdad inicial.
+  - Linear además de GitHub para las tareas ganadoras.
+  - LLM como juez de la puntuación.
+  - Elegir ganadores automáticamente por puntaje.
+  - Conversaciones individuales como canal principal del experimento.
+
+risks:
+  - id: whatsapp-bridge
+    impact: high
+    likelihood: medium
+    mitigation: número dedicado, allowlist del grupo, comandos explícitos y plan de migración a integración oficial
+  - id: github-concurrency
+    impact: medium
+    likelihood: medium
+    mitigation: serialización, claves idempotentes y reconciliación de comentarios y campos
+  - id: vote-privacy-conflict
+    impact: medium
+    likelihood: high
+    mitigation: decisión pendiente entre voto público o canal auxiliar
+
+open_questions:
+  - ¿Los votos dentro del grupo serán públicos?
+  - ¿Cuál será la fórmula exacta de la rúbrica de 100 puntos?
+  - ¿Qué LLM ligero redactará el feedback?
+  - ¿Qué proveedor manejará la observabilidad de errores?
+  - ¿Qué servicio construirá y publicará los previews A/B/C?

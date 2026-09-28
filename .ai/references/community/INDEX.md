@@ -1,0 +1,24 @@
+# Comunidad — índice y guía de contexto
+
+## Cuándo usar esta sección
+
+Lee esta sección para misiones, intentos, evaluación de prompts, feedback, votación, variantes A/B/C o la interacción de Hermes en WhatsApp.
+
+## Orden de lectura
+
+1. [`experiment-rules.md`](experiment-rules.md) para reglas confirmadas y preguntas abiertas.
+2. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
+3. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
+4. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
+5. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
+
+## Skills relacionados
+
+- `superpowers:brainstorming`: cambios en reglas de participación o votación.
+- `architecture-workflow`: cambios en Jev, GitHub, Hermes, identidad o ejecución de agentes.
+- `superpowers:test-driven-development`: puntaje, límite de intentos, elegibilidad, voto y asignación A/B/C.
+- `superpowers:systematic-debugging`: fallos de webhooks, duplicados, comentarios o sincronización.
+
+## Reglas de actualización
+
+Registra aquí una regla solo después de su aprobación explícita. Si cambia el contrato entre sistemas, actualiza también el ADR y el mapa de arquitectura. Conserva las preguntas abiertas hasta que una decisión las cierre.
