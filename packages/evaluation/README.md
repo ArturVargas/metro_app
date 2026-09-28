@@ -35,6 +35,7 @@ See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md) for the Jev ↔ ba
 
 - Discriminated `Question` types (`NoulQuestion` / `ChoiceQuestion` / `ScoreQuestion` with `criteria` arrays)
 - Placeholder rubric `v0`: four Score dimensions — specificity, verifiability, scope/limits, actionable acceptance (generic prompt quality; **no mission solution hints**)
+- Mission rubric `rubric-m1-v1` (`m1-v1.ts`): same four Score ids with Mission 1 weights (verifiability 0.30, actionable-acceptance 0.30, specificity 0.25, scope-limits 0.15); criteria rewritten against mission-m1 public brief (**prompt quality only**, no implementation hints)
 - `scoreFromAnswers` → 0–100 composite + routing metadata
 - `validateEvaluationState` / `validateAnswersForQuestions`
 
