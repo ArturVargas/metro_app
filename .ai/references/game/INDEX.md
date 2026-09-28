@@ -7,8 +7,9 @@ Lee esta sección para reglas de partida, simulación, demanda, interfaz, accesi
 ## Orden de lectura
 
 1. Secciones 3 a 8 del [Product Brief](../../../docs/superpowers/specs/2026-09-27-metro-app-product-brief-design.md).
-2. [Mapa de arquitectura](../architecture/system-map.md) para conocer los límites con comunidad y telemetría.
-3. [Contexto operativo](../operations/INDEX.md) cuando el cambio produce eventos, errores o datos de sesión.
+2. [ADR-0004](../../adr/0004-universal-game-client-with-expo.md) para el stack del cliente y el límite de la simulación.
+3. [Mapa de arquitectura](../architecture/system-map.md) para conocer los límites con comunidad y telemetría.
+4. [Contexto operativo](../operations/INDEX.md) cuando el cambio produce eventos, errores o datos de sesión.
 
 ## Skills relacionados
 
@@ -20,6 +21,6 @@ Lee esta sección para reglas de partida, simulación, demanda, interfaz, accesi
 
 ## Estado
 
-Las reglas jugables y la dirección visual están aprobadas. Expo, React Native Web, TypeScript y SVG son la propuesta actual de stack, pero todavía deben consolidarse en la arquitectura escrita antes de implementar.
+Las reglas jugables y la dirección visual están aprobadas. El cliente usará Expo, React Native Web, TypeScript y `react-native-svg`; el motor de simulación será TypeScript puro y permanecerá separado de la interfaz.
 
 La definición y creación de un baseline técnico neutral preceden a la redacción de la Misión 1. Ese baseline debe permitir ejecutar, validar y desplegar las variantes bajo las mismas condiciones sin resolver por adelantado la mecánica que se encargue a la comunidad.

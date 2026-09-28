@@ -15,6 +15,6 @@ Este archivo es el punto de entrada para agentes y colaboradores. No leas todas 
 ## Estado actual
 
 - Product Brief: aprobado y versionado.
-- Arquitectura del juego: stack propuesto; falta confirmación final consolidada.
+- Arquitectura del juego: stack del cliente aprobado; falta cerrar el baseline técnico y el resto de la arquitectura.
 - Experimento comunitario: reglas principales confirmadas; mecanismo de voto dentro del grupo aún abierto.
 - Implementación: no iniciada.

@@ -13,7 +13,8 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 
 ### Juego
 
-- Cliente universal con motor de simulación local y determinista.
+- Cliente universal con Expo, React Native Web, TypeScript y `react-native-svg`.
+- Motor de simulación local y determinista escrito en TypeScript puro, sin dependencias de la interfaz.
 - Dataset de demanda preprocesado y versionado.
 - PostHog para análisis de sesiones de juego.
 - Servicio de observabilidad de errores por definir.
@@ -40,9 +41,10 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 
 ```text
 apps/
-  game/              Expo y React Native Web; propuesta pendiente de consolidación
+  game/              Expo, React Native Web y componentes universales
   community/         API para Hermes, Jev, LLM y GitHub
 packages/
+  simulation/        Motor determinista en TypeScript puro
   evaluation/        rúbrica, puntaje, contratos y validación
 .ai/                 contexto, decisiones, ADRs e iniciativas
 ```
@@ -59,7 +61,7 @@ Antes de redactar la Misión 1 se debe definir y crear un baseline técnico neut
 
 ## Decisiones abiertas
 
-- Stack definitivo del cliente multiplataforma y contenido exacto del baseline neutral.
+- Contenido exacto del baseline neutral del cliente.
 - Votación pública o mecanismo auxiliar para ocultarla dentro del requisito de grupo único.
 - Stack definitivo del backend comunitario ahora que no necesita PostgreSQL ni una interfaz web principal.
 - Proveedor de observabilidad de errores.

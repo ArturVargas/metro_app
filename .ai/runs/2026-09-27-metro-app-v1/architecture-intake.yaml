@@ -47,6 +47,7 @@ source_of_truth:
   stable_context: .ai/references
 
 confirmed_decisions:
+  - El cliente usa Expo, React Native Web, TypeScript y react-native-svg; la simulación se implementa en TypeScript puro y separada de la interfaz.
   - El stack y un baseline técnico neutral se definen antes de redactar la Misión 1.
   - Jev evalúa y el backend calcula la puntuación; el LLM solo redacta feedback.
   - Cada participante dispone de cinco intentos por misión.
@@ -78,7 +79,7 @@ risks:
     mitigation: decisión pendiente entre voto público o canal auxiliar
 
 open_questions:
-  - ¿Cuál será el stack definitivo del cliente y qué incluye exactamente el baseline neutral?
+  - ¿Qué incluye exactamente el baseline neutral del cliente?
   - ¿Los votos dentro del grupo serán públicos?
   - ¿Cuál será la fórmula exacta de la rúbrica de 100 puntos?
   - ¿Qué LLM ligero redactará el feedback?

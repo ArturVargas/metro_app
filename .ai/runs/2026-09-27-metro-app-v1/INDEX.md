@@ -24,10 +24,11 @@
 - Plantilla del brief público con siete bloques variables y un pie fijo de participación.
 - Plantilla del contrato interno con identidad, evaluación, código base, ejecución A/B/C, GitHub y publicación.
 - Definir y crear un baseline técnico neutral antes de redactar la Misión 1.
+- Cliente universal con Expo, React Native Web, TypeScript y SVG; simulación separada en TypeScript puro.
 
 ## Próxima decisión
 
-Elegir el stack del cliente multiplataforma y después cerrar el contenido exacto del baseline técnico.
+Cerrar el contenido exacto del baseline técnico del cliente.
 
 ## Skills relacionados
 
