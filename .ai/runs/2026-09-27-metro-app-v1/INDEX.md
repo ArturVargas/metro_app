@@ -22,10 +22,11 @@
 - Texto completo de incorporación y guía fijada para el grupo.
 - Separación de cada misión en brief público y contrato interno.
 - Plantilla del brief público con siete bloques variables y un pie fijo de participación.
+- Plantilla del contrato interno con identidad, evaluación, código base, ejecución A/B/C, GitHub y publicación.
 
 ## Próxima decisión
 
-Definir la plantilla detallada del contrato interno de las misiones.
+Definir y redactar la primera misión del experimento.
 
 ## Skills relacionados
 

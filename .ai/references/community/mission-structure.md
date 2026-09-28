@@ -34,6 +34,8 @@ El sistema y los agentes reciben:
 - Campos, etiquetas e issues de GitHub.
 - Riesgos, rollback y aprobación final.
 
+La plantilla aprobada está en [`mission-internal-contract-template.md`](mission-internal-contract-template.md). Organiza esta información en seis bloques: identidad, evaluación, código base, ejecución A/B/C, GitHub y publicación.
+
 ## Reglas de consistencia
 
 - Las dos capas usan el mismo identificador y versión.
@@ -44,4 +46,4 @@ El sistema y los agentes reciben:
 
 ## Estado
 
-La separación en dos capas y la plantilla detallada del brief público están aprobadas. La plantilla del contrato interno todavía debe diseñarse y aprobarse.
+La separación en dos capas y las plantillas del brief público y del contrato interno están aprobadas.

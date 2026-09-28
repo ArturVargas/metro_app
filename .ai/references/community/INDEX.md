@@ -10,10 +10,11 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 2. [`participant-onboarding.md`](participant-onboarding.md) para el contexto y las instrucciones que recibe el grupo.
 3. [`mission-structure.md`](mission-structure.md) para entender las dos capas de cada misión.
 4. [`mission-public-brief-template.md`](mission-public-brief-template.md) para redactar y revisar el mensaje público de una misión.
-5. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
-6. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
-7. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
-8. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
+5. [`mission-internal-contract-template.md`](mission-internal-contract-template.md) para configurar evaluación, ejecución, trazabilidad y publicación.
+6. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
+7. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
+8. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
+9. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
 
 ## Skills relacionados
 
