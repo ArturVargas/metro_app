@@ -47,6 +47,10 @@ packages/
 .ai/                 contexto, decisiones, ADRs e iniciativas
 ```
 
+## Secuencia de arranque
+
+Antes de redactar la Misión 1 se debe definir y crear un baseline técnico neutral. El baseline establece plataforma, estructura mínima, validaciones y despliegue de previews; no implementa la solución funcional o visual que la misión pedirá a los participantes.
+
 ## Identidad y datos personales
 
 - Los participantes se representan mediante identificadores seudónimos estables.
@@ -55,6 +59,7 @@ packages/
 
 ## Decisiones abiertas
 
+- Stack definitivo del cliente multiplataforma y contenido exacto del baseline neutral.
 - Votación pública o mecanismo auxiliar para ocultarla dentro del requisito de grupo único.
 - Stack definitivo del backend comunitario ahora que no necesita PostgreSQL ni una interfaz web principal.
 - Proveedor de observabilidad de errores.

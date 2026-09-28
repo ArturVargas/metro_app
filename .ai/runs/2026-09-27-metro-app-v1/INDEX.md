@@ -23,10 +23,11 @@
 - Separación de cada misión en brief público y contrato interno.
 - Plantilla del brief público con siete bloques variables y un pie fijo de participación.
 - Plantilla del contrato interno con identidad, evaluación, código base, ejecución A/B/C, GitHub y publicación.
+- Definir y crear un baseline técnico neutral antes de redactar la Misión 1.
 
 ## Próxima decisión
 
-Definir y redactar la primera misión del experimento.
+Elegir el stack del cliente multiplataforma y después cerrar el contenido exacto del baseline técnico.
 
 ## Skills relacionados
 

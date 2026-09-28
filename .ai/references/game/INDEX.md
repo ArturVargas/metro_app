@@ -21,3 +21,5 @@ Lee esta sección para reglas de partida, simulación, demanda, interfaz, accesi
 ## Estado
 
 Las reglas jugables y la dirección visual están aprobadas. Expo, React Native Web, TypeScript y SVG son la propuesta actual de stack, pero todavía deben consolidarse en la arquitectura escrita antes de implementar.
+
+La definición y creación de un baseline técnico neutral preceden a la redacción de la Misión 1. Ese baseline debe permitir ejecutar, validar y desplegar las variantes bajo las mismas condiciones sin resolver por adelantado la mecánica que se encargue a la comunidad.
