@@ -18,7 +18,7 @@
 
 ### Evaluación
 
-- Cada participante puede solicitar hasta cinco evaluaciones por misión.
+- Límite: **5 evaluaciones por misión por participante** (contador individual; no es un tope de 5 para la misión ni para el grupo).
 - TypeSafe Jev evalúa los criterios de una rúbrica versionada.
 - El backend convierte los criterios en una puntuación de 0 a 100.
 - El LLM ligero redacta feedback breve y estructurado; no puede cambiar la puntuación ni añadir criterios.

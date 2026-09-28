@@ -17,9 +17,9 @@
 ### Flujo de evaluación
 
 1. Mención explícita al bot en el grupo.
-2. Validar ventana (martes/jueves) e intentos restantes (máximo cinco por misión).
+2. Validar ventana (martes/jueves) e intentos restantes (**máximo 5 evaluaciones por misión por participante**; no es un tope compartido de la misión ni del grupo).
 3. Construir el estado de evaluación: brief público de la misión + prompt del participante.
-4. Derivar preguntas Jev desde la rúbrica versionada (criterios atómicos).
+4. Derivar preguntas Jev Score (y Noul/Choice auxiliares) desde la rúbrica versionada por misión.
 5. Obtener respuestas tipadas de Jev.
 6. Calcular la puntuación 0–100 en código (`packages/evaluation`), no en el LLM ni en Hermes.
 7. Generar feedback con LLM o plantilla de respaldo.
@@ -28,7 +28,26 @@
 
 ### Rúbrica y criterios
 
-Cada criterio de la rúbrica se modela como una o más preguntas Jev atómicas, con criterios situacionales y opciones de escape cuando aplique. Los pesos viven en el contrato interno de la misión. La fórmula exacta de agregación a 100 puntos permanece abierta (ver condiciones de reapertura y reglas del experimento).
+Cada dimensión de la rúbrica se modela preferentemente como una pregunta Jev **`Score`** con un arreglo de criterios situacionales (niveles 0–4) y opciones de escape cuando aplique. Pueden coexistir `Noul` / `Choice` para gates o chequeos auxiliares. Ver sección de scoring compuesto más abajo.
+
+
+### Scoring compuesto (Score paralelo)
+
+- Una evaluación usa **varias preguntas `Score` en paralelo** (una por dimensión de la rúbrica), no una sola nota global de Jev.
+- Cada `Score` responde con un nivel situacional **0–4**. El backend normaliza `nivel / 4` → **0–1**.
+- La puntuación de misión es una **suma ponderada en código** de esas dimensiones normalizadas, escalada a **0–100**. Ni Jev, ni el LLM, ni Hermes calculan ese total.
+- Los **pesos y criterios se versionan por misión** (contrato interno). El spike de `packages/evaluation` usa pesos placeholder iguales que suman 1 hasta cerrar la fórmula del experimento.
+- WhatsApp **nunca nombra Jev**; solo comunica calidad y feedback.
+
+### Confianza y enrutado
+
+- En respuestas **`Choice` y `Score`**, Jev puede aportar una banda de confianza `high` / `medium` / `low`. El backend la usa solo como **metadato de enrutado**: auto / caution / defer (p. ej. publicar feedback automático, revisar con cautela, o diferir a humano). No altera la fórmula 0–100.
+- **`Noul` no tiene confianza.** Para enrutado se usan **bandas de probabilidad** del propio Noul, no el campo de confianza de Choice/Score.
+
+### Límite de intentos
+
+- Tope duro: **5 evaluaciones por misión por participante**. Cada persona tiene su propio contador por misión; agotar los cinco de un participante no consume los de otro ni cierra la misión para el grupo.
+
 
 ### Propiedad del código
 
@@ -45,7 +64,7 @@ Cada criterio de la rúbrica se modela como una o más preguntas Jev atómicas, 
 
 ## Consecuencias
 
-- Antes de la Misión 1 hay que versionar rúbrica, pesos (cuando se cierren), prompt de feedback y plantilla de respaldo.
+- Antes de la Misión 1 hay que versionar rúbrica por misión (criterios Score + pesos), prompt de feedback y plantilla de respaldo. El patrón de agregación (normalizar 0–4 → 0–1, suma ponderada → 0–100) está fijado; los pesos numéricos por misión pueden seguir abiertos hasta el contrato interno.
 - El adaptador TypeSafe vive detrás de `packages/evaluation`; el resto del monorepo no importa SDKs ni secretos de Jev.
 - `apps/community` depende de contratos tipados de este paquete, no de detalles de WhatsApp ni de Cloudflare.
 - El CI del juego (`game-checks`) no debe depender de este paquete en tiempo de ejecución.
@@ -54,6 +73,6 @@ Cada criterio de la rúbrica se modela como una o más preguntas Jev atómicas, 
 
 - Las decisiones tipadas de Jev no alcanzan concordancia suficiente con revisiones humanas (también ADR-0001).
 - El costo o la latencia de Jev impiden feedback dentro del ritmo del grupo.
-- La fórmula o los pesos de la rúbrica exigen un modelo distinto al de preguntas atómicas + agregación en código.
+- El patrón Score-compuesto (normalizar niveles + suma ponderada en código) no alcanza concordancia o los pesos por misión exigen otro modelo de agregación.
 - Aparece un canal oficial distinto de Hermes que cambie el contrato de entrada/salida.
 - Se necesita invocar TypeSafe desde otro paquete o app sin pasar por `packages/evaluation`.

@@ -1,4 +1,5 @@
 import type { Answer, EvaluationState, Question } from "./types.js";
+import { MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT } from "./types.js";
 
 export type ValidationIssue = {
   code: string;
@@ -41,6 +42,12 @@ export function validateEvaluationState(
       code: "attempt_invalid",
       message: "attempt must be an integer >= 1",
     });
+  } else if (state.attempt > MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT) {
+    issues.push({
+      code: "attempt_exceeded",
+      message:
+        `attempt exceeds max ${MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT} evaluaciones por misión por participante`,
+    });
   }
   return issues;
 }
@@ -56,6 +63,28 @@ export function validateAnswersForQuestions(
       issues.push({
         code: "answer_missing",
         message: `Missing answer for question ${q.id}`,
+      });
+      continue;
+    }
+    const a = byId.get(q.id)!;
+    if (a.kind !== q.kind) {
+      issues.push({
+        code: "kind_mismatch",
+        message: `Answer kind ${a.kind} does not match question ${q.id} kind ${q.kind}`,
+      });
+    }
+    if (q.kind === "score" && a.kind === "score" && a.value !== null) {
+      if (!Number.isInteger(a.value) || a.value < 0 || a.value > 4) {
+        issues.push({
+          code: "score_level_invalid",
+          message: `Score answer for ${q.id} must be integer 0–4 or null`,
+        });
+      }
+    }
+    if (q.kind === "score" && q.criteria.length !== 5) {
+      issues.push({
+        code: "score_criteria_count",
+        message: `Score question ${q.id} must define exactly 5 situational levels`,
       });
     }
   }
