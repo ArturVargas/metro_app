@@ -8,7 +8,7 @@
 
 Hermes Agent monitorea el grupo, identifica al participante y comunica mensajes al backend. El backend valida intentos, llama a Jev y al LLM, calcula el resultado y persiste en GitHub. Hermes publica en el grupo la respuesta estructurada que recibe; no modifica puntajes ni toma decisiones de elegibilidad.
 
-La interfaz usará comandos o menciones explícitas para separar acciones del experimento de la conversación normal. Los nombres exactos de los comandos se definirán antes de implementar.
+La interfaz requiere una mención explícita al bot para separar acciones del experimento de la conversación normal. Hermes solo procesa evaluaciones los martes y jueves. Los nombres exactos de comandos adicionales se definirán antes de implementar.
 
 ## Alternativas consideradas
 

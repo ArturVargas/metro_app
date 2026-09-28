@@ -20,6 +20,8 @@ requirements:
     - Mostrar autor, prompt y puntuación de cada candidato durante la votación.
     - Mantener los votos ocultos hasta el cierre o aprobar explícitamente un reemplazo de esta regla.
     - Generar y comparar variantes A, B y C desde el mismo commit.
+    - Procesar evaluaciones solo cuando el participante menciona al bot durante martes o jueves.
+    - Publicar cada viernes tres enlaces jugables para las versiones A, B y C.
   non_functional:
     - Mantener juego y comunidad independientes en tiempo de ejecución.
     - Conservar trazabilidad desde prompt hasta preview y pull request.

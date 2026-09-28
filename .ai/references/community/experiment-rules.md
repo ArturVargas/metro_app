@@ -8,6 +8,9 @@
 - La interacción comunitaria ocurre en un grupo de WhatsApp.
 - Hermes Agent monitorea el grupo y responde mensajes.
 - Hermes actúa como adaptador y coordinador; las decisiones verificables pertenecen al backend.
+- Hermes solo procesa una participación cuando la persona menciona explícitamente al bot.
+- Las evaluaciones están disponibles únicamente los martes y jueves.
+- Cada viernes se publican tres enlaces correspondientes a las versiones A, B y C para que el grupo pueda probarlas, compararlas y compartirlas.
 - La incorporación se entrega como una secuencia de mensajes cortos y una guía fija en el grupo.
 - La comunicación para participantes habla de evaluación de calidad y feedback; no menciona Jev ni detalles internos del evaluador.
 
@@ -44,6 +47,7 @@
 ## Abierto
 
 - Resolver cómo mantener los votos ocultos si toda la interacción debe permanecer dentro del grupo; las encuestas nativas muestran conteos en tiempo real y admiten hasta doce opciones.
+- Definir horarios y zona horaria para abrir y cerrar evaluaciones, votación y publicación de resultados.
 - Definir los nombres definitivos de los comandos de Hermes.
 - Definir la fórmula y pesos exactos de la rúbrica de 100 puntos.
 - Elegir el proveedor y modelo del LLM ligero.

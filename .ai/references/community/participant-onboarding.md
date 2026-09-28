@@ -77,8 +77,10 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 - Cada evaluación devuelve una puntuación y feedback accionable.
 - Cada participante tiene un máximo de cinco intentos por misión.
 - Solo la versión calificable más reciente, con puntuación mayor o igual a 70, entra a la votación.
+- El bot solo evalúa mensajes que lo mencionen y solo durante martes y jueves.
 - La comunidad elige tres prompts y estos producen las versiones A, B y C.
 - Las versiones muestran qué participante y qué prompt las originaron.
+- Cada viernes se publican los enlaces A, B y C para probar, comparar y compartir los resultados.
 - Qué señales de AI slop deben evitarse: texto vago, inflado, repetitivo, contradictorio o imposible de comprobar.
 
 ## Contenido que no se comunica
