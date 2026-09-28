@@ -16,7 +16,7 @@ Este archivo define el contenido que recibe la comunidad antes de la primera mis
 1. **Bienvenida y propósito:** qué se construirá y por qué el grupo participa.
 2. **Qué es Metro App:** explicación breve del juego, su estado inicial y el resultado funcional buscado.
 3. **Cómo participar:** misión común, envío de prompts, uso del feedback y señales de contenido genérico o imposible de comprobar.
-4. **Evaluación e intentos:** puntuación, feedback, máximo de cinco intentos y requisito de 70 puntos para la versión calificable más reciente.
+4. **Evaluación e intentos:** puntuación, feedback, máximo de cinco intentos; solo cuenta el intento más reciente (si ese intento tiene menos de 70 puntos, no entra a votación).
 5. **Votación y construcción:** selección comunitaria, asignación aleatoria A/B/C, condiciones equivalentes y trazabilidad del prompt.
 
 El mensaje fijado funciona como índice de estas explicaciones e incluye reglas esenciales y comandos disponibles.
@@ -126,7 +126,7 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 - Cómo enviar, revisar y optimizar un prompt.
 - Cada evaluación devuelve una puntuación y feedback accionable.
 - Cada participante tiene un máximo de cinco intentos por misión.
-- Solo la versión calificable más reciente, con puntuación mayor o igual a 70, entra a la votación.
+- Solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
 - El bot solo evalúa mensajes que lo mencionen y solo durante martes y jueves.
 - La comunidad elige tres prompts y estos producen las versiones A, B y C.
 - Las versiones muestran qué participante y qué prompt las originaron.

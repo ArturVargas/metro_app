@@ -18,15 +18,15 @@
 
 | Criterio | Qué comprueba | Evidencia esperada | Peso |
 | --- | --- | --- | ---: |
-| verifiability | Señales checkables vs brief (unir estaciones, líneas visibles, demo web) | Parte del prompt que demuestra verificabilidad | 30 |
-| actionable-acceptance | Criterios de listo que un agente podría seguir | Acceptance en el prompt | 30 |
-| specificity | Outcome e inputs concretos sin imponer stack | Specs concretas | 25 |
+| verifiability | Resultados observables y pruebas para decidir si funciona (selección/conexión de estaciones, línea visible, comprobación en web) | Señales comprobables en el prompt | 30 |
+| actionable-acceptance | Contexto e instrucciones suficientes para que un agente cambie el producto sin inventar requisitos | Acceptance accionable en el prompt | 30 |
+| specificity | Outcome e inputs concretos; no penaliza Expo/React Native (son del proyecto); sí penaliza tech contradictoria o dependencias innecesarias | Specs concretas y coherentes | 25 |
 | scope-limits | In/out (8 estaciones, sin pasajeros, sin backend juego) | Límites explícitos | 15 |
 
 - **Total:** 100 puntos.
 - **Umbral de elegibilidad:** 70 puntos.
 - **Máximo:** cinco evaluaciones por participante.
-- **Versión elegible:** la versión calificable más reciente con 70 puntos o más.
+- **Versión elegible:** solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
 - **Versión de la rúbrica:** `rubric-m1-v1`
 - **Versión del prompt de feedback:** `PENDIENTE`
 - **Proveedor y modelo de feedback:** `PENDIENTE`
@@ -38,16 +38,18 @@ Cada criterio debe evaluar la calidad del prompt frente al brief público. No de
 
 - **Repositorio:** `ArturVargas/metro_app`
 - **Commit base:** `PENDIENTE`
+- **Preview base:** `https://metro-app-base.pages.dev/`
 - **Archivos o áreas permitidas:** `PENDIENTE`
 - **Archivos o áreas protegidas:** `PENDIENTE`
 - **Dependencias permitidas:** `PENDIENTE`
 - **Comandos de instalación:** `PENDIENTE`
+- **Comandos de build:** `PENDIENTE`
 - **Comandos de validación:** `PENDIENTE`
-- **Criterios públicos relacionados:** unir estaciones ↔ verifiability / actionable-acceptance; líneas visibles ↔ verifiability; build web en <1 min ↔ actionable-acceptance; 8 estaciones / sin pasajeros / sin backend del juego ↔ scope-limits
+- **Criterios públicos relacionados:** selección/conexión de estaciones + línea visible + comprobación web ↔ verifiability / actionable-acceptance; 8 estaciones / sin pasajeros / sin backend del juego ↔ scope-limits; outcome e inputs coherentes con el stack del proyecto ↔ specificity
 
 ## 4. Ejecución A/B/C
 
-Las tres variantes usan exactamente estos valores:
+Las tres variantes usan exactamente estos valores (condiciones idénticas A/B/C — `PENDIENTE` hasta fijarlas):
 
 - **Agente y versión:** `PENDIENTE`
 - **Modelo:** `PENDIENTE`
@@ -75,12 +77,14 @@ GitHub usa identificadores seudónimos. No se almacenan números telefónicos ni
 
 ## 6. Publicación
 
-- **Preview A:** `PENDIENTE`
-- **Preview B:** `PENDIENTE`
-- **Preview C:** `PENDIENTE`
+- **Preview A:** `PENDIENTE` (hasta que existan ganadores)
+- **Preview B:** `PENDIENTE` (hasta que existan ganadores)
+- **Preview C:** `PENDIENTE` (hasta que existan ganadores)
 - **Prueba rápida común:** `PENDIENTE`
 - **Resultado de pruebas:** `PENDIENTE`
 - **Aprobación técnica:** `PENDIENTE`
 - **Riesgos conocidos:** `PENDIENTE`
 - **Procedimiento para revertir:** `PENDIENTE`
 - **Mensaje del viernes:** `PENDIENTE`
+
+<!-- TODO: fechas, horarios y zona horaria concretos están PENDIENTE — deben definirse antes de publicar el brief en WhatsApp. -->
