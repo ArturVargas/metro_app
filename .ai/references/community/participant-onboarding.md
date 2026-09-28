@@ -80,6 +80,20 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > La puntuación solo indica que el prompt está listo para competir. La comunidad elige cuáles tres se construirán.
 
+### 5. Votación y versiones
+
+> 🗳️ **Votación y versiones**
+>
+> Al cerrar los envíos, el bot publicará los prompts que alcanzaron 70 puntos o más.
+>
+> Cada participante elegirá tres prompts distintos y no podrá votar por el propio. Los tres más votados se asignarán aleatoriamente a las versiones A, B y C.
+>
+> Las tres versiones se construirán desde el mismo punto y bajo las mismas condiciones. Siempre podremos ver quién escribió cada prompt y qué versión produjo.
+>
+> Cada viernes publicaremos tres enlaces para que prueben A, B y C, comparen los resultados y compartan lo que observaron.
+>
+> Ninguna versión se convierte automáticamente en la definitiva. Primero revisaremos qué funcionó y qué debemos aprender para la siguiente misión.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -103,4 +117,4 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 ## Estado
 
-El formato, los límites de contenido, la secuencia y los primeros cuatro mensajes están aprobados. El quinto mensaje y el índice fijado todavía deben redactarse y aprobarse.
+El formato, los límites de contenido y los cinco mensajes están aprobados. El índice fijado todavía debe redactarse y aprobarse.
