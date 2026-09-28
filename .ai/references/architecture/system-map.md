@@ -23,7 +23,8 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 
 - Hermes Agent como adaptador del grupo de WhatsApp.
 - Backend sin base de datos relacional propia.
-- TypeSafe Jev como evaluador tipado.
+- TypeSafe Jev como evaluador tipado (`Noul` / `Choice` / `Score` únicamente; ver [ADR-0006](../../adr/0006-jev-backend-integration.md)).
+- `packages/evaluation` posee rúbricas versionadas, preguntas, scoring 0–100 y validación; `apps/community` las consumirá.
 - LLM ligero como redactor de feedback.
 - GitHub Issues y Projects como fuente de verdad y auditoría.
 - GitHub como origen de issues, ramas, pull requests y previews A/B/C.
