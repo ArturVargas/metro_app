@@ -51,6 +51,23 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > Todavía no estamos intentando construir todas las funciones posibles. Cada misión trabajará sobre una parte específica para avanzar sin perder el control del producto.
 
+### 3. Cómo participar
+
+> ✍️ **¿Cómo participamos?**
+>
+> En cada misión todos recibirán el mismo objetivo, contexto y límites. Su tarea será escribir un prompt que explique:
+>
+> - Qué quieren cambiar.
+> - Cómo debe funcionar.
+> - Qué no debe modificarse.
+> - Cómo comprobar que funciona.
+>
+> Pueden usar una IA para ayudarse, pero deben revisar el resultado. Eviten frases vagas como “mejora el juego” o “hazlo más profesional”.
+>
+> En vez de “haz más clara la congestión”, escriban algo comprobable: “Con 10 pasajeros, la estación cambia a amarillo; con 12, cambia a rojo y muestra la cuenta de 30 segundos”.
+>
+> No gana el prompt más largo, sino el que permite construir mejor.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -72,4 +89,4 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 ## Estado
 
-El formato, los límites de contenido, la secuencia y los primeros dos mensajes están aprobados. Los mensajes restantes deben redactarse y aprobarse uno por uno.
+El formato, los límites de contenido, la secuencia y los primeros tres mensajes están aprobados. Los mensajes restantes deben redactarse y aprobarse uno por uno.
