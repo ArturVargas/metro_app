@@ -14,8 +14,9 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 6. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
 7. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
 8. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
-9. [ADR-0006](../../adr/0006-jev-backend-integration.md) para el contrato Jev ↔ backend, rúbrica en `packages/evaluation` y flujo de evaluación.
-10. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
+9. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para hosting de ranuras A/B/C y reglas de promoción al baseline.
+10. [ADR-0006](../../adr/0006-jev-backend-integration.md) para el contrato Jev ↔ backend, rúbrica en `packages/evaluation` y flujo de evaluación.
+11. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
 
 ## Skills relacionados
 

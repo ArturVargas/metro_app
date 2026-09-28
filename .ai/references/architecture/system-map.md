@@ -27,7 +27,9 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 - `packages/evaluation` posee rúbricas versionadas, preguntas, scoring 0–100 y validación; `apps/community` las consumirá.
 - LLM ligero como redactor de feedback.
 - GitHub Issues y Projects como fuente de verdad y auditoría.
-- GitHub como origen de issues, ramas, pull requests y previews A/B/C.
+- GitHub como origen de issues, ramas y pull requests de las variantes A/B/C.
+- Cloudflare (Pages o equivalente) hospeda ranuras permanentes A/B/C con URLs estables; cada misión sobrescribe el build de la ranura.
+- La promoción de una variante al baseline de la siguiente misión es decisión del responsable de producto, no automática por tráfico ni por segunda votación.
 
 ## Límites
 
@@ -68,4 +70,4 @@ El baseline aprobado contiene un workspace `pnpm`, el cliente Expo, un tablero a
 - Stack definitivo del backend comunitario ahora que no necesita PostgreSQL ni una interfaz web principal.
 - Proveedor de observabilidad de errores.
 - Proveedor y modelo del LLM ligero.
-- Forma exacta de ejecutar y desplegar previews A/B/C.
+- Detalle operativo de la ejecución del agente de código que produce los builds A/B/C (Cloudflare ya aceptado como destino de las ranuras).

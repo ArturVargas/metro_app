@@ -46,6 +46,17 @@
 - La primera ejecución será supervisada.
 - Integrar una variante al producto requiere aprobación técnica del responsable.
 
+### Hosting y promoción de A/B/C
+
+- Las previews del viernes se hospedan en Cloudflare (Pages o equivalente).
+- A, B y C son ranuras permanentes durante el experimento, con URLs estables (subdominios o rutas).
+- Cada misión redespliega las tres ranuras desde el mismo commit baseline bajo condiciones equivalentes y sobrescribe el build anterior de esa ranura.
+- Cada letra queda vinculada a autor, texto exacto del prompt, issue, rama, pull request y preview.
+- No hay promoción automática al baseline por tráfico ni por una segunda votación de popularidad.
+- Promover una variante como baseline de la siguiente misión requiere decisión del responsable de producto con checklist breve: jugable, no rompe las reglas y feedback cualitativo del viernes.
+- Telemetría ligera opcional puede informar esa decisión; no la decide.
+- El mensaje al grupo presenta tres enlaces el viernes; ninguno se vuelve definitivo automáticamente.
+
 ## Abierto
 
 - Resolver cómo mantener los votos ocultos si toda la interacción debe permanecer dentro del grupo; las encuestas nativas muestran conteos en tiempo real y admiten hasta doce opciones.
