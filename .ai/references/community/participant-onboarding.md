@@ -37,6 +37,20 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > Si el experimento funciona, terminaremos con un juego funcional creado a partir de las mejores contribuciones del grupo.
 
+### 2. Qué es Metro App
+
+> 🚇 **¿Qué es Metro App?**
+>
+> Metro App será un juego de estrategia inspirado en el transporte de Ciudad de México. No busca copiar la ciudad ni predecir su funcionamiento: será una ciudad abstracta con patrones de demanda inspirados en datos reales.
+>
+> En cada partida habrá ocho estaciones. La persona jugadora podrá crear hasta tres líneas y asignar cuatro trenes para mover pasajeros entre ellas.
+>
+> La demanda cambiará con el tiempo. Si una estación permanece llena durante 30 segundos, la partida termina. El objetivo será mantener la red funcionando durante siete días simulados.
+>
+> La primera versión será gratuita y se abrirá mediante un enlace, tanto en computadora como en teléfono. Queremos que sea pequeña, clara y completamente jugable.
+>
+> Todavía no estamos intentando construir todas las funciones posibles. Cada misión trabajará sobre una parte específica para avanzar sin perder el control del producto.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -58,4 +72,4 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 ## Estado
 
-El formato, los límites de contenido, la secuencia y el primer mensaje están aprobados. Los mensajes restantes deben redactarse y aprobarse uno por uno.
+El formato, los límites de contenido, la secuencia y los primeros dos mensajes están aprobados. Los mensajes restantes deben redactarse y aprobarse uno por uno.
