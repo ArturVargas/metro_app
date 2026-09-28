@@ -21,6 +21,22 @@ Este archivo define el contenido que recibe la comunidad antes de la primera mis
 
 El mensaje fijado funciona como índice de estas explicaciones e incluye reglas esenciales y comandos disponibles.
 
+## Mensajes aprobados
+
+### 1. Bienvenida y propósito
+
+> 👋 Bienvenidos.
+>
+> En este grupo vamos a construir juntos **Metro App**, un pequeño juego de estrategia sobre cómo diseñar y mejorar una red de transporte.
+>
+> También haremos un experimento: aprender a convertir ideas en instrucciones claras, específicas y comprobables que una herramienta de IA pueda transformar en cambios reales del producto.
+>
+> No necesitan saber programar. Su trabajo será entender cada misión, proponer una solución mediante un prompt y mejorarlo usando el feedback que recibirán.
+>
+> El objetivo no es escribir de forma complicada ni parecer técnico. El objetivo es comunicar una buena idea con suficiente claridad para que pueda construirse y probarse.
+>
+> Si el experimento funciona, terminaremos con un juego funcional creado a partir de las mejores contribuciones del grupo.
+
 ## Contenido obligatorio
 
 - Qué es Metro App y qué resultado se quiere construir.
@@ -42,4 +58,4 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 ## Estado
 
-El formato, los límites de contenido y la secuencia están aprobados. El texto exacto de cada mensaje debe redactarse y aprobarse uno por uno.
+El formato, los límites de contenido, la secuencia y el primer mensaje están aprobados. Los mensajes restantes deben redactarse y aprobarse uno por uno.
