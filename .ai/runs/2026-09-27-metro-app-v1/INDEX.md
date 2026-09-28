@@ -21,10 +21,11 @@
 - Incorporación mediante mensajes breves y guía fija, sin exponer Jev a los participantes.
 - Texto completo de incorporación y guía fijada para el grupo.
 - Separación de cada misión en brief público y contrato interno.
+- Plantilla del brief público con siete bloques variables y un pie fijo de participación.
 
 ## Próxima decisión
 
-Definir la plantilla detallada del brief público y, después, el contrato interno de las misiones.
+Definir la plantilla detallada del contrato interno de las misiones.
 
 ## Skills relacionados
 

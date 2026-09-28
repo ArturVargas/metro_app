@@ -19,6 +19,8 @@ La comunidad recibe:
 
 El brief público debe dar contexto suficiente para escribir un prompt útil sin revelar la rúbrica interna ni imponer una solución técnica.
 
+La plantilla aprobada está en [`mission-public-brief-template.md`](mission-public-brief-template.md). Contiene siete bloques variables —título, problema, objetivo, contexto, alcance permitido, elementos que deben mantenerse y criterios observables— más un pie fijo con las reglas de participación y la entrega del viernes.
+
 ## Capa 2: contrato interno
 
 El sistema y los agentes reciben:
@@ -42,4 +44,4 @@ El sistema y los agentes reciben:
 
 ## Estado
 
-La separación en dos capas está aprobada. La plantilla detallada de cada capa todavía debe diseñarse y aprobarse.
+La separación en dos capas y la plantilla detallada del brief público están aprobadas. La plantilla del contrato interno todavía debe diseñarse y aprobarse.
