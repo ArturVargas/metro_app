@@ -8,10 +8,11 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 
 1. [`experiment-rules.md`](experiment-rules.md) para reglas confirmadas y preguntas abiertas.
 2. [`participant-onboarding.md`](participant-onboarding.md) para el contexto y las instrucciones que recibe el grupo.
-3. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
-4. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
-5. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
-6. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
+3. [`mission-structure.md`](mission-structure.md) para diseñar briefs públicos y contratos internos de misión.
+4. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
+5. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
+6. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
+7. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
 
 ## Skills relacionados
 

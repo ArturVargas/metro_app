@@ -5,6 +5,8 @@
 ### Misión y canal
 
 - Existe una misión común para todas las personas del grupo.
+- Cada misión tiene un brief público para participantes y un contrato interno para evaluación y ejecución.
+- La rúbrica interna no se publica ni se usa para sugerir una solución técnica preferida.
 - La interacción comunitaria ocurre en un grupo de WhatsApp.
 - Hermes Agent monitorea el grupo y responde mensajes.
 - Hermes actúa como adaptador y coordinador; las decisiones verificables pertenecen al backend.

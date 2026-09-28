@@ -20,10 +20,11 @@
 - Identidad seudónima sin teléfonos en GitHub.
 - Incorporación mediante mensajes breves y guía fija, sin exponer Jev a los participantes.
 - Texto completo de incorporación y guía fijada para el grupo.
+- Separación de cada misión en brief público y contrato interno.
 
 ## Próxima decisión
 
-Definir la estructura reutilizable de las misiones y, después, resolver el mecanismo de voto dentro del grupo.
+Definir la plantilla detallada del brief público y, después, el contrato interno de las misiones.
 
 ## Skills relacionados
 
