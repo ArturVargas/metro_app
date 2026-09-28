@@ -25,10 +25,11 @@
 - Plantilla del contrato interno con identidad, evaluación, código base, ejecución A/B/C, GitHub y publicación.
 - Definir y crear un baseline técnico neutral antes de redactar la Misión 1.
 - Cliente universal con Expo, React Native Web, TypeScript y SVG; simulación separada en TypeScript puro.
+- Alcance del baseline técnico: workspace, cliente Expo, tablero estático de ocho estaciones, exportación web y validación continua.
 
 ## Próxima decisión
 
-Cerrar el contenido exacto del baseline técnico del cliente.
+Revisar y ejecutar el [plan del baseline técnico](../../../docs/superpowers/plans/2026-09-28-metro-app-technical-baseline.md).
 
 ## Skills relacionados
 

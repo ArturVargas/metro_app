@@ -47,6 +47,7 @@ source_of_truth:
   stable_context: .ai/references
 
 confirmed_decisions:
+  - El baseline incluye workspace pnpm, cliente Expo, ocho estaciones estáticas, exportación web y CI; excluye mecánicas, telemetría, backend y hosting.
   - El cliente usa Expo, React Native Web, TypeScript y react-native-svg; la simulación se implementa en TypeScript puro y separada de la interfaz.
   - El stack y un baseline técnico neutral se definen antes de redactar la Misión 1.
   - Jev evalúa y el backend calcula la puntuación; el LLM solo redacta feedback.
@@ -79,7 +80,6 @@ risks:
     mitigation: decisión pendiente entre voto público o canal auxiliar
 
 open_questions:
-  - ¿Qué incluye exactamente el baseline neutral del cliente?
   - ¿Los votos dentro del grupo serán públicos?
   - ¿Cuál será la fórmula exacta de la rúbrica de 100 puntos?
   - ¿Qué LLM ligero redactará el feedback?

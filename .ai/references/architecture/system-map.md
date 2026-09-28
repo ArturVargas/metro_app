@@ -53,6 +53,8 @@ packages/
 
 Antes de redactar la Misión 1 se debe definir y crear un baseline técnico neutral. El baseline establece plataforma, estructura mínima, validaciones y despliegue de previews; no implementa la solución funcional o visual que la misión pedirá a los participantes.
 
+El baseline aprobado contiene un workspace `pnpm`, el cliente Expo, un tablero adaptable con ocho estaciones estáticas, exportación web y validaciones de lint, tipos y build en GitHub Actions. Excluye mecánicas, simulación, telemetría, backend y servicio de previews.
+
 ## Identidad y datos personales
 
 - Los participantes se representan mediante identificadores seudónimos estables.
@@ -61,7 +63,6 @@ Antes de redactar la Misión 1 se debe definir y crear un baseline técnico neut
 
 ## Decisiones abiertas
 
-- Contenido exacto del baseline neutral del cliente.
 - Votación pública o mecanismo auxiliar para ocultarla dentro del requisito de grupo único.
 - Stack definitivo del backend comunitario ahora que no necesita PostgreSQL ni una interfaz web principal.
 - Proveedor de observabilidad de errores.
