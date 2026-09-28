@@ -1,0 +1,11 @@
+{
+  "name": "metro-app",
+  "private": true,
+  "packageManager": "pnpm@8.10.0",
+  "scripts": {
+    "dev:game": "pnpm --filter @metro/game start",
+    "lint": "pnpm --filter @metro/game lint",
+    "typecheck": "pnpm --filter @metro/game typecheck",
+    "build:web": "pnpm --filter @metro/game build:web"
+  }
+}

@@ -2,3 +2,34 @@
 *.env
 *.env.*
 !.env.example
+
+# dependencies
+node_modules/
+
+# Expo / Metro
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+/ios
+/android
+
+# debug / build
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.tsbuildinfo
+*.pem
+
+# local env
+.env*.local
