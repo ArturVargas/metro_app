@@ -24,7 +24,7 @@ El workflow [`.github/workflows/deploy-cloudflare-slot.yml`](../../../.github/wo
 - Secret `CLOUDFLARE_API_TOKEN` con permiso para desplegar Pages.
 - Secret `CLOUDFLARE_ACCOUNT_ID` de la cuenta propietaria.
 
-El workflow instala desde el lockfile, ejecuta lint, tipos y build, rechaza un `_worker.js` inesperado y despliega el artefacto estático a la ranura elegida. No se ejecuta automáticamente al hacer push.
+El workflow instala desde el lockfile, ejecuta lint, tipos y build, rechaza un `_worker.js` inesperado y despliega el artefacto estático a la ranura elegida. Ejecuta Wrangler con `pnpm dlx` porque `wrangler-action` intenta añadir Wrangler a la raíz del workspace y pnpm rechaza esa instalación. No se ejecuta automáticamente al hacer push.
 
 ## Despliegue local supervisado
 
