@@ -31,7 +31,7 @@
 
 - Una propuesta necesita al menos 70 puntos para entrar a la votación final.
 - La puntuación solo determina elegibilidad; no ordena candidatos ni resuelve empates.
-- Solo entra a votación la versión calificable más reciente de cada participante, con puntuación mayor o igual a 70.
+- Solo se considera el intento más reciente de cada participante. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación (no se rescata un intento anterior ≥70).
 - Cada miembro elige tres prompts distintos y no puede votar por el propio.
 - Cada candidato muestra autor, texto completo y puntuación durante la votación.
 - El diseño aprobado requiere mantener los votos ocultos hasta el cierre.

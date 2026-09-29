@@ -29,7 +29,7 @@ Completa únicamente decisiones ya aprobadas. Mantén los valores todavía abier
 - **Total:** 100 puntos.
 - **Umbral de elegibilidad:** 70 puntos.
 - **Máximo:** cinco evaluaciones por participante.
-- **Versión elegible:** la versión calificable más reciente con 70 puntos o más.
+- **Versión elegible:** solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
 - **Versión de la rúbrica:** `[id o ruta]`
 - **Versión del prompt de feedback:** `[id o ruta]`
 - **Proveedor y modelo de feedback:** `PENDIENTE`
