@@ -32,6 +32,16 @@ function failValidation(issues: ValidationIssue[]): void {
   throw new Error(issues.map((issue) => issue.message).join("; "));
 }
 
+function validFeedback(
+  feedback: EvaluateOptions["feedback"],
+): feedback is NonNullable<EvaluateOptions["feedback"]> {
+  if (!feedback?.text.trim() || !feedback.metadata.version.trim()) return false;
+  if (feedback.metadata.kind === "llm") {
+    return Boolean(feedback.metadata.provider.trim() && feedback.metadata.model.trim());
+  }
+  return true;
+}
+
 export async function evaluate(
   input: EvaluateInput,
   options: EvaluateOptions = {},
@@ -68,7 +78,9 @@ export async function evaluate(
 
   const score = scoreFromAnswers(state, answers, rubricM1V1Questions);
   score.eligible = score.total >= ELIGIBILITY_THRESHOLD;
-  const feedback = options.feedback ?? buildTemplateFeedback(score);
+  const feedback = validFeedback(options.feedback)
+    ? options.feedback
+    : buildTemplateFeedback(score);
 
   return {
     state,

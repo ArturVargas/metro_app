@@ -9,12 +9,10 @@ import { requireGitHubStoreConfig } from "./github/config.js";
 import { GitHubIssueStore } from "./github/issue-store.js";
 
 export type RecordStore = {
-  assertAttemptAllowed(
-    missionId: string,
-    participantId: string,
-    attempt: number,
-  ): Promise<void>;
-  addAttemptComment(attempt: AttemptResult): Promise<AttemptResult>;
+  recordAttempt(
+    input: EvaluateInput,
+    runEvaluation: () => Promise<AttemptResult>,
+  ): Promise<AttemptResult>;
 };
 
 export type CommunityEvaluateOptions = {
@@ -33,22 +31,17 @@ export async function evaluate(
     ? options.store ??
       new GitHubIssueStore(requireGitHubStoreConfig(options.env ?? process.env))
     : undefined;
-  if (store) {
-    await store.assertAttemptAllowed(
-      input.missionId,
-      input.participantId,
-      input.attempt,
-    );
-  }
-  const result = await evaluateWithJev(input, {
-    client: options.client,
-    env: options.env,
-    feedback: options.feedback,
-  });
-  if (!options.record) return result;
-  if (result.evaluator.provider !== "typesafe") {
-    throw new Error("A mock evaluation cannot be recorded");
-  }
-  if (!store) throw new Error("Record store was not initialized");
-  return store.addAttemptComment(result);
+  const runEvaluation = async (): Promise<AttemptResult> => {
+    const result = await evaluateWithJev(input, {
+      client: options.client,
+      env: options.env,
+      feedback: options.feedback,
+    });
+    if (options.record && result.evaluator.provider !== "typesafe") {
+      throw new Error("A mock evaluation cannot be recorded");
+    }
+    return result;
+  };
+  if (!store) return runEvaluation();
+  return store.recordAttempt(input, runEvaluation);
 }

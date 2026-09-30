@@ -35,8 +35,7 @@ describe("community evaluate", () => {
       client: new MockJevClient({ levels: { verifiability: 3, "actionable-acceptance": 3, specificity: 3, "scope-limits": 3 } }),
       record: false,
       store: {
-        async assertAttemptAllowed() {},
-        async addAttemptComment() {
+        async recordAttempt() {
           called = true;
           return input as unknown as AttemptResult;
         },
@@ -52,8 +51,8 @@ describe("community evaluate", () => {
       client: liveClient,
       record: true,
       store: {
-        async assertAttemptAllowed() {},
-        async addAttemptComment(attempt) {
+        async recordAttempt(_input, runEvaluation) {
+          const attempt = await runEvaluation();
           return {
             ...attempt,
             githubIssueUrl: "https://github.com/example/issues/7",
@@ -80,11 +79,8 @@ describe("community evaluate", () => {
           client,
           record: true,
           store: {
-            async assertAttemptAllowed() {
+            async recordAttempt() {
               throw new Error("maximum of 5 evaluations reached");
-            },
-            async addAttemptComment(attempt) {
-              return attempt;
             },
           },
         }),
@@ -101,8 +97,8 @@ describe("community evaluate", () => {
           client: new MockJevClient(),
           record: true,
           store: {
-            async assertAttemptAllowed() {},
-            async addAttemptComment(attempt) {
+            async recordAttempt(_input, runEvaluation) {
+              const attempt = await runEvaluation();
               persisted = true;
               return attempt;
             },

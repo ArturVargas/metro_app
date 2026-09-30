@@ -10,6 +10,8 @@ No Hermes or LLM provider yet. Evaluations return versioned template feedback un
 - `--record` requires a TypeSafe result and writes it with `GitHubIssueStore` (one issue per participant × mission, one comment per attempt).
 - Default Jev client is the mock. Live TypeSafe only when `JEV_MODE=http`.
 - GitHub history determines the next attempt. Attempts must be sequential and stop after five.
+- The MVP runs one community-writer process. Its keyed lock covers admission, evaluation, and persistence for each participant × mission.
+- Exact retries reuse the existing comment and resync labels instead of consuming another attempt.
 
 See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md) and [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md).
 
@@ -86,3 +88,4 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 - Do not store phones, tokens, or secrets on issues or in the repo.
 - Do not wire this app into `@metro/game` CI (`game-checks` stays game-only).
 - Do not call Hermes or an LLM from this app.
+- Do not run multiple community-writer processes until admission moves to a durable distributed queue or lease.

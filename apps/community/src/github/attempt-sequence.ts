@@ -1,6 +1,6 @@
 import { MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT } from "@metro/evaluation";
 
-function attemptNumber(
+export function attemptNumberFromComment(
   body: string,
   missionId: string,
   participantId: string,
@@ -20,7 +20,7 @@ export function assertNextAttempt(
   requestedAttempt: number,
 ): void {
   const attempts = commentBodies
-    .map((body) => attemptNumber(body, missionId, participantId))
+    .map((body) => attemptNumberFromComment(body, missionId, participantId))
     .filter((attempt): attempt is number => attempt !== null)
     .sort((a, b) => a - b);
 

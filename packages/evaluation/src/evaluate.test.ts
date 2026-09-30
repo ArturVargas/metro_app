@@ -62,6 +62,37 @@ describe("evaluate", () => {
     assert.equal(result.state.participantPrompt, input.participantPrompt);
   });
 
+  it("falls back to the versioned template when supplied feedback is invalid", async () => {
+    const result = await evaluate(input, {
+      client: new MockJevClient(),
+      feedback: {
+        text: "   ",
+        metadata: { kind: "template", version: "" },
+      },
+    });
+    assert.match(result.feedback, /Puntaje: 100\/100/);
+    assert.deepEqual(result.feedbackMetadata, {
+      kind: "template",
+      version: "feedback-template-m1-v1",
+    });
+  });
+
+  it("does not invent a strength when every dimension scores zero", async () => {
+    const result = await evaluate(input, {
+      client: new MockJevClient({
+        levels: {
+          verifiability: 0,
+          "actionable-acceptance": 0,
+          specificity: 0,
+          "scope-limits": 0,
+        },
+      }),
+    });
+    assert.equal(result.score.total, 0);
+    assert.match(result.feedback, /Fortaleza: No se identificó una fortaleza concreta/);
+    assert.doesNotMatch(result.feedback, /propone resultados que pueden comprobarse/);
+  });
+
   it("rejects an unsupported rubric and an invalid attempt", async () => {
     await assert.rejects(
       () => evaluate({ ...input, rubricVersion: "v0" }, { client: new MockJevClient() }),

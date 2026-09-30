@@ -42,7 +42,10 @@ export function buildTemplateFeedback(score: ScoreResult): {
     .filter((dimension) => dimension.level !== 4)
     .sort((a, b) => (a.normalized ?? 0) - (b.normalized ?? 0))
     .slice(0, 2);
-  const strength = strongest ? COPY[strongest.questionId]?.strength : "El prompt puede evaluarse frente a la misión.";
+  const strength =
+    strongest?.level !== null && strongest?.level !== undefined && strongest.level >= 2
+      ? COPY[strongest.questionId]?.strength
+      : "No se identificó una fortaleza concreta; la siguiente versión debe desarrollar al menos un criterio de la misión.";
   const problems = weakest.length
     ? weakest.map((dimension) => `- ${COPY[dimension.questionId]?.name}: ${COPY[dimension.questionId]?.problem}`)
     : ["- No hay problemas prioritarios en esta evaluación."];
