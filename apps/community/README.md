@@ -1,12 +1,12 @@
 # `@metro/community`
 
-Community backend: evaluate a participant prompt with Jev (mock by default) and optionally persist the attempt on GitHub.
+Community backend: evaluate a participant prompt with Jev (mock by default), fill participant feedback, and optionally persist the attempt on GitHub.
 
-No Hermes. No LLM feedback (`feedback` is `""`).
+No Hermes. Feedback defaults to a short Spanish stub (`FEEDBACK_MODE=stub`). `local` and `http` are reserved and throw `not configured` (no LLM call).
 
 ## Status
 
-- `evaluate()` → `@metro/evaluation` for `rubric-m1-v1` → `AttemptResult`.
+- `evaluate()` scores `rubric-m1-v1` via `@metro/evaluation`, then fills `AttemptResult.feedback` before any `--record` write.
 - `--record` writes that result with `GitHubIssueStore` (one issue per participant × mission, one comment per attempt).
 - Default Jev client is the mock. Live TypeSafe only when `JEV_MODE=http`.
 
@@ -30,6 +30,7 @@ Participant-facing text never names **Jev**.
 | Variable | Required | Description |
 | --- | --- | --- |
 | `JEV_MODE` | No | `mock` (default) or `http`. CLI `--mock` forces the mock. |
+| `FEEDBACK_MODE` | No | `stub` (default). `local` selects `LocalLlmFeedbackGenerator` and `http` selects `HttpFeedbackGenerator`; both throw `not configured`. |
 | `TYPESAFE_API_KEY` | http only | TypeSafe bearer key. `JEV_API_KEY` is a fallback name. **Never commit secrets.** |
 | `TYPESAFE_BASE_URL` | No | Default `https://api.typesafe.ai` |
 | `TYPESAFE_DEFAULT_MODEL` or `JEV_MODEL` | No | Default `jev-latest` |
@@ -45,7 +46,7 @@ Request shape for `JEV_MODE=http`: `POST /v1/systemone` with `{ model, state, qu
 From the monorepo root, after `pnpm install`. `--fixture` paths are relative to `apps/community` when run via `pnpm --filter`.
 
 ```bash
-# Mock Jev (default). Prints AttemptResult JSON. No network.
+# Mock Jev + stub feedback (default). Prints AttemptResult JSON. No network, no GitHub.
 pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 
 # Flags instead of a fixture
@@ -73,7 +74,8 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 
 ## Public surface
 
-- `evaluate(input, { client, record, store, env })`
+- `evaluate(input, { client, record, store, env, feedback, feedbackGenerator })`
+- `StubFeedbackGenerator` / `createFeedbackGenerator()` (`FEEDBACK_MODE`)
 - `GitHubIssueStore.findOrCreateIssue` / `addAttemptComment`
 - `requireGitHubStoreConfig()` / `readGitHubEnvConfig()`
 
@@ -82,4 +84,4 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 - Do not open PRs from automation unless Artur explicitly says OK.
 - Do not store phones, tokens, or secrets on issues or in the repo.
 - Do not wire this app into `@metro/game` CI (`game-checks` stays game-only).
-- Do not call Hermes or an LLM from this app.
+- Do not call Hermes. Do not add a live LLM call; `FEEDBACK_MODE=local` and `http` stay unconfigured.

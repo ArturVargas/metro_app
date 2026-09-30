@@ -12,10 +12,17 @@ const input = {
 };
 
 describe("community evaluate", () => {
-  it("does not touch the store unless --record", async () => {
+  it("fills stub feedback and does not touch the store unless record", async () => {
     let called = false;
     const result = await evaluate(input, {
-      client: new MockJevClient({ levels: { verifiability: 3, "actionable-acceptance": 3, specificity: 3, "scope-limits": 3 } }),
+      client: new MockJevClient({
+        levels: {
+          verifiability: 3,
+          "actionable-acceptance": 3,
+          specificity: 3,
+          "scope-limits": 3,
+        },
+      }),
       record: false,
       store: {
         async addAttemptComment() {
@@ -25,16 +32,20 @@ describe("community evaluate", () => {
       },
     });
     assert.equal(called, false);
-    assert.equal(result.feedback, "");
+    assert.match(result.feedback, /75\/100/);
+    assert.match(result.feedback, /Elegible/);
+    assert.doesNotMatch(result.feedback, /jev/i);
     assert.equal(result.score.rubricVersion, "rubric-m1-v1");
   });
 
-  it("persists when record is set", async () => {
+  it("persists feedback already filled", async () => {
+    let seen = "";
     const result = await evaluate(input, {
       client: new MockJevClient(),
       record: true,
       store: {
         async addAttemptComment(attempt) {
+          seen = attempt.feedback;
           return {
             ...attempt,
             githubIssueUrl: "https://github.com/example/issues/7",
@@ -44,7 +55,17 @@ describe("community evaluate", () => {
       },
     });
     assert.equal(result.githubIssueUrl, "https://github.com/example/issues/7");
-    assert.equal(result.feedback, "");
+    assert.equal(result.feedback, seen);
+    assert.match(seen, /0\/100/);
+    assert.doesNotMatch(seen, /jev/i);
+  });
+
+  it("keeps an explicit feedback string", async () => {
+    const result = await evaluate(input, {
+      client: new MockJevClient(),
+      feedback: "texto fijo",
+    });
+    assert.equal(result.feedback, "texto fijo");
   });
 
   it("requires a token when recording without an injected store", async () => {

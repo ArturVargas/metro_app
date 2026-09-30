@@ -1,5 +1,16 @@
 export { evaluate, type CommunityEvaluateOptions, type RecordStore } from "./evaluate.js";
 export {
+  createFeedbackGenerator,
+  readFeedbackMode,
+  type FeedbackMode,
+} from "./feedback/env.js";
+export {
+  HttpFeedbackGenerator,
+  LocalLlmFeedbackGenerator,
+} from "./feedback/pending.js";
+export { StubFeedbackGenerator } from "./feedback/stub.js";
+export type { FeedbackGenerator, FeedbackInput } from "./feedback/types.js";
+export {
   GitHubIssueStore,
   type IssueRef,
   type PersistAttemptResult,
