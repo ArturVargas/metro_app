@@ -35,13 +35,24 @@ Las tres llamadas usaron `jev-latest`; TypeSafe resolvió `jev-1.13.0`. No se en
 
 `V/A/E/L` significa verificabilidad, instrucciones accionables, especificidad y límites de alcance. El backend generó en los tres casos feedback con puntaje, elegibilidad, fortaleza, hasta dos problemas y sugerencias, pregunta de revisión y metadatos `feedback-template-m1-v1`.
 
+### Repetibilidad cerca del umbral
+
+Una verificación independiente repitió tres veces el control cercano al umbral, con el mismo brief y prompt, sin `--record` y sin exponer secretos.
+
+| Repetición | Total | Elegible | Niveles V/A/E/L | Modelo resuelto |
+| ---: | ---: | --- | --- | --- |
+| 1 | 63.8 | No | 3 / 2 / 3 / 2 | `jev-1.13.0` |
+| 2 | 63.8 | No | 3 / 2 / 3 / 2 | `jev-1.13.0` |
+| 3 | 63.8 | No | 3 / 2 / 3 / 2 | `jev-1.13.0` |
+
+El swing fue 0: no cambió el total, la elegibilidad, los niveles ni el modelo resuelto. Las tres repeticiones coinciden con la ejecución inicial de 63.8, por lo que existen cuatro observaciones idénticas de este control.
+
 ## Conclusión
 
 La prueba cumple el criterio del spike: `15 < 63.8 < 100`, el control débil queda debajo de 70 y el fuerte queda encima. El control intermedio permaneció cerca del corte y fue penalizado en instrucciones accionables y límites, que eran precisamente sus omisiones.
 
-No se propone cambiar `rubric-m1-v1`, sus pesos ni el umbral de 70 con esta evidencia.
+No se propone cambiar `rubric-m1-v1`, sus pesos ni el umbral de 70 con esta evidencia. La repetibilidad básica del control cercano al umbral queda confirmada para `jev-1.13.0`.
 
 ## Observaciones abiertas
 
-- Una sola ejecución por control demuestra separación básica, no estabilidad estadística alrededor de 70. Antes de aceptar evaluaciones reales conviene repetir controles cercanos al umbral.
 - Los tres resultados quedaron en `routing: caution`. En el control fuerte, TypeSafe asignó confianza media a instrucciones accionables aunque otorgó nivel 4. El contrato actual indica que la confianza no cambia el puntaje; falta definir cómo atender `caution` en la operación del grupo antes de automatizar respuestas.
