@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { MockJevClient, type AttemptResult } from "@metro/evaluation";
+import { MockJevClient, type AttemptResult, type JevClient } from "@metro/evaluation";
 import { evaluate } from "./evaluate.js";
 
 const input = {
@@ -11,6 +11,23 @@ const input = {
   attempt: 1,
 };
 
+const liveClient: JevClient = {
+  async score(request) {
+    return {
+      decisions: request.questions.map((question) => ({
+        questionId: question.id,
+        score: 3,
+        confidence: 0.9,
+      })),
+      evaluator: {
+        provider: "typesafe",
+        requestedModel: "jev-latest",
+        model: "jev-1.13.0",
+      },
+    };
+  },
+};
+
 describe("community evaluate", () => {
   it("does not touch the store unless --record", async () => {
     let called = false;
@@ -18,6 +35,7 @@ describe("community evaluate", () => {
       client: new MockJevClient({ levels: { verifiability: 3, "actionable-acceptance": 3, specificity: 3, "scope-limits": 3 } }),
       record: false,
       store: {
+        async assertAttemptAllowed() {},
         async addAttemptComment() {
           called = true;
           return input as unknown as AttemptResult;
@@ -25,15 +43,16 @@ describe("community evaluate", () => {
       },
     });
     assert.equal(called, false);
-    assert.equal(result.feedback, "");
+    assert.match(result.feedback, /Puntaje:/);
     assert.equal(result.score.rubricVersion, "rubric-m1-v1");
   });
 
   it("persists when record is set", async () => {
     const result = await evaluate(input, {
-      client: new MockJevClient(),
+      client: liveClient,
       record: true,
       store: {
+        async assertAttemptAllowed() {},
         async addAttemptComment(attempt) {
           return {
             ...attempt,
@@ -44,14 +63,61 @@ describe("community evaluate", () => {
       },
     });
     assert.equal(result.githubIssueUrl, "https://github.com/example/issues/7");
-    assert.equal(result.feedback, "");
+    assert.match(result.feedback, /Puntaje:/);
+  });
+
+  it("checks the persisted attempt sequence before evaluating", async () => {
+    let evaluated = false;
+    const client: JevClient = {
+      async score() {
+        evaluated = true;
+        throw new Error("must not evaluate");
+      },
+    };
+    await assert.rejects(
+      () =>
+        evaluate(input, {
+          client,
+          record: true,
+          store: {
+            async assertAttemptAllowed() {
+              throw new Error("maximum of 5 evaluations reached");
+            },
+            async addAttemptComment(attempt) {
+              return attempt;
+            },
+          },
+        }),
+      /maximum of 5 evaluations/,
+    );
+    assert.equal(evaluated, false);
+  });
+
+  it("never persists a mock evaluation", async () => {
+    let persisted = false;
+    await assert.rejects(
+      () =>
+        evaluate(input, {
+          client: new MockJevClient(),
+          record: true,
+          store: {
+            async assertAttemptAllowed() {},
+            async addAttemptComment(attempt) {
+              persisted = true;
+              return attempt;
+            },
+          },
+        }),
+      /mock evaluation cannot be recorded/,
+    );
+    assert.equal(persisted, false);
   });
 
   it("requires a token when recording without an injected store", async () => {
     await assert.rejects(
       () =>
         evaluate(input, {
-          client: new MockJevClient(),
+          client: liveClient,
           record: true,
           env: {},
         }),

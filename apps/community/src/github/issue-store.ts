@@ -10,6 +10,7 @@ import {
   type AttemptResult,
 } from "@metro/evaluation";
 import type { GitHubStoreConfig } from "./config.js";
+import { assertNextAttempt } from "./attempt-sequence.js";
 import {
   buildIssueBody,
   buildIssueTitle,
@@ -112,6 +113,27 @@ export class GitHubIssueStore {
     return this.findIssueByList(missionId, participantId, marker);
   }
 
+  async assertAttemptAllowed(
+    missionId: string,
+    participantId: string,
+    attempt: number,
+  ): Promise<void> {
+    const issue = await this.findOrCreateIssue(missionId, participantId);
+    const bodies: string[] = [];
+    for await (const response of this.octokit.paginate.iterator(
+      this.octokit.rest.issues.listComments,
+      {
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: issue.number,
+        per_page: 100,
+      },
+    )) {
+      for (const comment of response.data) bodies.push(comment.body ?? "");
+    }
+    assertNextAttempt(bodies, missionId, participantId, attempt);
+  }
+
   private async findIssueByList(
     missionId: string,
     participantId: string,
@@ -152,7 +174,15 @@ export class GitHubIssueStore {
   async addAttemptComment(
     attempt: AttemptResult,
   ): Promise<PersistAttemptResult> {
+    if (attempt.evaluator?.provider !== "typesafe") {
+      throw new Error("A mock evaluation cannot be recorded");
+    }
     const { missionId, participantId } = attempt.state;
+    await this.assertAttemptAllowed(
+      missionId,
+      participantId,
+      attempt.state.attempt,
+    );
     const issue = await this.findOrCreateIssue(missionId, participantId);
     const body = formatAttemptCommentMarkdown(attempt);
 
