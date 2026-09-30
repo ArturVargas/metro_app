@@ -1,0 +1,48 @@
+{
+  "state": {
+    "missionId": "mission-m1",
+    "rubricVersion": "rubric-m1-v1",
+    "publicBrief": "Public brief placeholder for dry-run.",
+    "participantPrompt": "Build an Expo screen that lists eight metro stations with neutral styling.",
+    "participantId": "p-fixture-alpha",
+    "attempt": 1
+  },
+  "score": {
+    "total": 72.5,
+    "eligible": null,
+    "rubricVersion": "rubric-m1-v1",
+    "notes": "Fixture score for CLI dry-run.",
+    "dimensions": [
+      {
+        "questionId": "specificity",
+        "level": 3,
+        "normalized": 0.75,
+        "weight": 0.25
+      },
+      {
+        "questionId": "verifiability",
+        "level": 3,
+        "normalized": 0.75,
+        "weight": 0.3
+      },
+      {
+        "questionId": "scope-limits",
+        "level": 2,
+        "normalized": 0.5,
+        "weight": 0.15
+      },
+      {
+        "questionId": "actionable-acceptance",
+        "level": 3,
+        "normalized": 0.75,
+        "weight": 0.3
+      }
+    ],
+    "routing": {
+      "action": "caution",
+      "confidenceSummary": "medium",
+      "probabilitySummary": null
+    }
+  },
+  "feedback": "Good structure. Add an observable acceptance check for the eight-station list so reviewers can verify the result without guessing."
+}
