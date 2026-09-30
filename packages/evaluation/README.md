@@ -1,14 +1,15 @@
 # `@metro/evaluation`
 
-Typed rubric, question definitions, composite Score scoring, validation, and
-**attempt result / comment formatting** helpers for the community prompt experiment.
+Typed rubric, question definitions, composite Score scoring, validation,
+attempt result / comment formatting, and the TypeSafe Jev adapter.
 
 ## Status
 
-**Spike.** This package does **not** call the TypeSafe Jev API and must not contain secrets, tokens, or live credentials.
+Jev adapter + `evaluate()` for `rubric-m1-v1`. Default client is a mock (no network, no secrets).
+Live TypeSafe is `JEV_MODE=http` only. This package does not generate LLM feedback and does not call Hermes.
 
-See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md) for the Jev ↔ backend contract.
-See [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md) for GitHub issue/comment persistence.
+See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md).
+See [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md).
 
 ## Ownership
 
@@ -16,39 +17,84 @@ See [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md) fo
 | --- | --- |
 | Rubric versions, Score questions, scoring 0–100, validation | `@metro/evaluation` |
 | AttemptResult, tag helpers, comment markdown (pure) | `@metro/evaluation` |
-| Orchestration (window, attempts, Hermes, GitHub writer, LLM feedback) | `apps/community` |
-| Typed decisions only (`Noul` / `Choice` / `Score`) | TypeSafe Jev (via a future adapter here) |
+| Jev client (`JevClient`, mock, HTTP) and `evaluate()` | `@metro/evaluation` |
+| GitHub persist, CLI, optional `--record` | `apps/community` |
+| LLM feedback | later (not this package) |
+| WhatsApp | Hermes (not this package) |
 
 ## Composite scoring
 
-- Rubric dimensions are **parallel `Score` questions** (levels **0–4** with situational criteria arrays).
-- Normalize each level: `level / 4` → **0–1**.
-- Apply **weights** (placeholder equal weights summing to 1 in v0; authoritative weights are **versioned per mission**).
-- Weighted sum × 100 → mission total **0–100** in code (`scoreFromAnswers`).
-- **Confidence** on `Choice` / `Score` (`high` / `medium` / `low`) is **routing metadata** only → `auto` / `caution` / `defer`. It does not change the total.
-- **`Noul` has no confidence**; use **probability bands** for routing instead.
-- WhatsApp **never names Jev**.
+- Rubric dimensions are **parallel `Score` questions** (levels **0–4**).
+- Normalize each level: `level / 4` → **0–1**, weighted sum × 100 → **0–100** (`scoreFromAnswers`).
+- Mission 1 weights: verifiability 0.30, actionable-acceptance 0.30, specificity 0.25, scope-limits 0.15.
+- **Confidence** (`high` / `medium` / `low`) is routing only. It does not change the total.
+- WhatsApp **never names Jev**. `evaluate()` sets `feedback` to `""` until a later PR fills it.
+
+## `evaluate()`
+
+`evaluate(input)` builds `EvaluationState`, asks the Jev client for Score answers on `rubric-m1-v1`, runs `scoreFromAnswers`, and returns `AttemptResult` with `feedback: ""`.
+
+Only `rubric-m1-v1` is wired. Inject `options.client` in tests; otherwise `createJevClient(env)`.
+
+## Jev HTTP
+
+Official call (no SDK dependency; `fetch` only):
+
+```http
+POST {TYPESAFE_BASE_URL}/v1/systemone
+Authorization: Bearer {TYPESAFE_API_KEY}
+Content-Type: application/json
+```
+
+```json
+{
+  "model": "jev-latest",
+  "state": {
+    "missionId": "mission-m1",
+    "rubricVersion": "rubric-m1-v1",
+    "publicBrief": "...",
+    "participantPrompt": "..."
+  },
+  "questions": {
+    "verifiability": {
+      "type": "score",
+      "instructions": "<rubric prompt>",
+      "criteria": ["level 0 ...", "level 1 ...", "level 2 ...", "level 3 ...", "level 4 ..."]
+    }
+  }
+}
+```
+
+Score answers are fractional. We round to an integer level 0–4 (clamp). `confidence` is 0–1: `>= 0.8` high, `>= 0.5` medium, else low.
+
+`MockJevClient` does not call this. Its default levels are a keyword heuristic so dry-run returns valid Score answers. Pass `levels` to pin them. It is not a judge.
+
+## Environment
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `JEV_MODE` | No | `mock` (default) or `http` |
+| `TYPESAFE_API_KEY` | http only | Bearer key from the TypeSafe console. **Never commit it.** |
+| `JEV_API_KEY` | No | Alias used only if `TYPESAFE_API_KEY` is unset |
+| `TYPESAFE_BASE_URL` | No | Default `https://api.typesafe.ai` |
+| `TYPESAFE_DEFAULT_MODEL` | No | Default `jev-latest` |
+| `JEV_MODEL` | No | Alias if `TYPESAFE_DEFAULT_MODEL` is unset |
 
 ## Attempt limit
 
 - **5 evaluaciones por misión por participante** (`MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT`).
-- Individual counter per participant per mission — **not** a shared cap of 5 for the mission or group.
 
 ## Attempt result + tags
 
-- `AttemptResult` = `EvaluationState` + `ScoreResult` + caller-supplied `feedback` string + optional `githubIssueUrl` / `githubCommentUrl`.
-- Eligibility threshold: **≥70** (`ELIGIBILITY_THRESHOLD`); use `resolveEligible` / `buildAttemptTags`.
-- Stable tags: `attempt:N`, `score:0-100`, `routing:auto|caution|defer`, `eligible:yes|no`.
-- `formatAttemptCommentMarkdown` builds the GitHub comment body (prompt, score, dimensions, feedback, tags). No Jev naming.
+- `AttemptResult` = state + score + `feedback` + optional GitHub URLs.
+- Eligibility threshold **≥70** (`ELIGIBILITY_THRESHOLD`) via `resolveEligible` / `buildAttemptTags`. `score.eligible` stays null until a caller sets it.
+- Tags: `attempt:N`, `score:0-100`, `routing:auto|caution|defer`, `eligible:yes|no`.
 
-## Public surface (current)
+## Public surface
 
-- Discriminated `Question` types (`NoulQuestion` / `ChoiceQuestion` / `ScoreQuestion` with `criteria` arrays)
-- Placeholder rubric `v0`: four Score dimensions — specificity, verifiability, scope/limits, actionable acceptance (generic prompt quality; **no mission solution hints**)
-- Mission rubric `rubric-m1-v1` (`m1-v1.ts`): same four Score ids with Mission 1 weights (verifiability 0.30, actionable-acceptance 0.30, specificity 0.25, scope-limits 0.15); criteria rewritten against mission-m1 public brief (**prompt quality only**)
-- `scoreFromAnswers` → 0–100 composite + routing metadata
-- `validateEvaluationState` / `validateAnswersForQuestions`
-- `AttemptResult`, tag helpers, `formatAttemptCommentMarkdown`
+- `evaluate` / `EvaluateInput`
+- `JevClient`, `MockJevClient`, `HttpJevClient`, `createJevClient`
+- `rubric-m1-v1`, `scoreFromAnswers`, validation, `AttemptResult`, comment markdown
 
 ## Scripts
 
@@ -59,7 +105,7 @@ pnpm --filter @metro/evaluation test
 
 ## What not to do
 
-- Do not add TypeSafe SDK calls or env-based secrets in this spike.
-- Do not mention Jev in participant-facing WhatsApp copy (Hermes / community messaging).
-- Do not wire this package into `@metro/game`; game CI must stay independent.
-- Do not generate LLM feedback here — callers pass `feedback` already filled.
+- Do not commit API keys or tokens.
+- Do not generate LLM feedback here.
+- Do not mention Jev in participant-facing feedback.
+- Do not wire this package into `@metro/game`.

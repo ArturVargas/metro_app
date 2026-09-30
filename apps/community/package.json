@@ -10,7 +10,9 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "github:record-attempt": "tsx src/cli/record-attempt.ts"
+    "github:record-attempt": "tsx src/cli/record-attempt.ts",
+    "evaluate": "tsx src/cli/evaluate.ts",
+    "test": "node --import tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "@metro/evaluation": "workspace:*",

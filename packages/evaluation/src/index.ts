@@ -48,3 +48,37 @@ export {
   validateEvaluationState,
   type ValidationIssue,
 } from "./validate.js";
+
+export type { EvaluateInput, EvaluateOptions } from "./evaluate.js";
+export { evaluate } from "./evaluate.js";
+
+export type {
+  JevClient,
+  JevEvaluationState,
+  JevScoreDecision,
+  JevScoreQuestionPayload,
+  JevScoreRequest,
+} from "./jev/types.js";
+export {
+  confidenceBand,
+  decisionsToScoreAnswers,
+  rubricToJevQuestions,
+  toScoreLevel,
+} from "./jev/map.js";
+export { heuristicScoreLevel, MockJevClient, type MockJevClientOptions } from "./jev/mock.js";
+export {
+  buildSystemOneBody,
+  HttpJevClient,
+  systemOneUrl,
+  type FetchLike,
+  type HttpJevConfig,
+} from "./jev/http.js";
+export {
+  DEFAULT_JEV_BASE_URL,
+  DEFAULT_JEV_MODEL,
+  createJevClient,
+  readHttpJevConfig,
+  readJevApiKey,
+  readJevMode,
+  type JevMode,
+} from "./jev/env.js";
