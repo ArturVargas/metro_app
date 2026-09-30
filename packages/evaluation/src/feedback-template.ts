@@ -1,4 +1,4 @@
-import type { FeedbackMetadata } from "./attempt.js";
+import { resolveEligible, type FeedbackMetadata } from "./attempt.js";
 import type { ScoreResult } from "./types.js";
 
 export const FEEDBACK_TEMPLATE_M1_V1 = "feedback-template-m1-v1" as const;
@@ -59,6 +59,7 @@ export function buildTemplateFeedback(score: ScoreResult): {
   return {
     text: [
       `Puntaje: ${Math.round(score.total)}/100`,
+      `Elegibilidad: ${resolveEligible(score) ? "Elegible" : "No elegible"}`,
       `Fortaleza: ${strength}`,
       "Problemas prioritarios:",
       ...problems,

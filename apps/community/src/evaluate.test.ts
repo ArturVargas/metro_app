@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { MockJevClient, type AttemptResult, type JevClient } from "@metro/evaluation";
+import {
+  MockJevClient,
+  type AttemptResult,
+  type JevClient,
+} from "@metro/evaluation";
 import { evaluate } from "./evaluate.js";
 
 const input = {
@@ -28,11 +32,37 @@ const liveClient: JevClient = {
   },
 };
 
+const validLlmFeedback = {
+  text: [
+    "Puntaje: 75/100",
+    "Elegibilidad: Elegible",
+    "Fortaleza: El resultado puede comprobarse.",
+    "Problemas prioritarios:",
+    "- Falta precisar un estado visible.",
+    "Sugerencias:",
+    "- Describe ese estado.",
+    "Pregunta: ¿Qué verá el jugador al terminar?",
+  ].join("\n"),
+  metadata: {
+    kind: "llm" as const,
+    version: "feedback-ollama-m1-v1",
+    provider: "ollama",
+    model: "gemma4-coding-agent",
+  },
+};
+
 describe("community evaluate", () => {
-  it("does not touch the store unless --record", async () => {
+  it("fills template feedback and does not touch the store unless record", async () => {
     let called = false;
     const result = await evaluate(input, {
-      client: new MockJevClient({ levels: { verifiability: 3, "actionable-acceptance": 3, specificity: 3, "scope-limits": 3 } }),
+      client: new MockJevClient({
+        levels: {
+          verifiability: 3,
+          "actionable-acceptance": 3,
+          specificity: 3,
+          "scope-limits": 3,
+        },
+      }),
       record: false,
       store: {
         async recordAttempt() {
@@ -42,19 +72,34 @@ describe("community evaluate", () => {
       },
     });
     assert.equal(called, false);
-    assert.match(result.feedback, /Puntaje:/);
-    assert.equal(result.score.rubricVersion, "rubric-m1-v1");
+    assert.match(result.feedback, /Puntaje: 75\/100/);
+    assert.match(result.feedback, /Elegibilidad: Elegible/);
+    assert.equal(result.feedbackMetadata.kind, "template");
   });
 
-  it("persists when record is set", async () => {
+  it("reserves the attempt before scoring and persists LLM provenance", async () => {
+    let admitted = false;
+    let seen: AttemptResult | undefined;
+    const client: JevClient = {
+      async score(request) {
+        assert.equal(admitted, true);
+        return liveClient.score(request);
+      },
+    };
     const result = await evaluate(input, {
-      client: liveClient,
+      client,
       record: true,
+      feedbackGenerator: {
+        async generate() {
+          return validLlmFeedback;
+        },
+      },
       store: {
         async recordAttempt(_input, runEvaluation) {
-          const attempt = await runEvaluation();
+          admitted = true;
+          seen = await runEvaluation();
           return {
-            ...attempt,
+            ...seen,
             githubIssueUrl: "https://github.com/example/issues/7",
             githubCommentUrl: "https://github.com/example/issues/7#issuecomment-1",
           };
@@ -62,7 +107,53 @@ describe("community evaluate", () => {
       },
     });
     assert.equal(result.githubIssueUrl, "https://github.com/example/issues/7");
-    assert.match(result.feedback, /Puntaje:/);
+    assert.equal(result.feedback, validLlmFeedback.text);
+    assert.deepEqual(result.feedbackMetadata, validLlmFeedback.metadata);
+    assert.equal(seen?.feedbackMetadata.kind, "llm");
+  });
+
+  it("uses the template when generated feedback throws or is invalid", async () => {
+    const failed = await evaluate(input, {
+      client: liveClient,
+      feedbackGenerator: {
+        async generate() {
+          throw new Error("ollama unavailable");
+        },
+      },
+    });
+    const invalid = await evaluate(input, {
+      client: liveClient,
+      feedbackGenerator: {
+        async generate() {
+          return {
+            text: "Puntaje: 100/100. Elegible.",
+            metadata: validLlmFeedback.metadata,
+          };
+        },
+      },
+    });
+    assert.equal(failed.feedbackMetadata.kind, "template");
+    assert.equal(invalid.feedbackMetadata.kind, "template");
+    assert.match(failed.feedback, /Puntaje: 75\/100/);
+    assert.match(invalid.feedback, /Puntaje: 75\/100/);
+  });
+
+  it("rejects more than two problems or unmatched suggestions", async () => {
+    const result = await evaluate(input, {
+      client: liveClient,
+      feedbackGenerator: {
+        async generate() {
+          return {
+            ...validLlmFeedback,
+            text: validLlmFeedback.text.replace(
+              "Sugerencias:",
+              "- Segundo problema.\n- Tercer problema.\nSugerencias:",
+            ),
+          };
+        },
+      },
+    });
+    assert.equal(result.feedbackMetadata.kind, "template");
   });
 
   it("checks the persisted attempt sequence before evaluating", async () => {
@@ -111,12 +202,7 @@ describe("community evaluate", () => {
 
   it("requires a token when recording without an injected store", async () => {
     await assert.rejects(
-      () =>
-        evaluate(input, {
-          client: liveClient,
-          record: true,
-          env: {},
-        }),
+      () => evaluate(input, { client: liveClient, record: true, env: {} }),
       /GITHUB_TOKEN/,
     );
   });

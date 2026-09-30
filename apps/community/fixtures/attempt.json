@@ -53,7 +53,7 @@
       "outputTokens": 8
     }
   },
-  "feedback": "Puntaje: 73/100\nFortaleza: El resultado y sus elementos principales están descritos con precisión.\nProblemas prioritarios:\n- Límites de alcance: Los límites de la misión no están suficientemente protegidos.\nSugerencias:\n- Indica que deben conservarse ocho estaciones y que no se agregan pasajeros, demanda ni backend del juego.\nPregunta: ¿Cómo puedes hacer más comprobable el criterio de límites de alcance en tu siguiente versión?",
+  "feedback": "Puntaje: 73/100\nElegibilidad: Elegible\nFortaleza: El resultado y sus elementos principales están descritos con precisión.\nProblemas prioritarios:\n- Límites de alcance: Los límites de la misión no están suficientemente protegidos.\nSugerencias:\n- Indica que deben conservarse ocho estaciones y que no se agregan pasajeros, demanda ni backend del juego.\nPregunta: ¿Cómo puedes hacer más comprobable el criterio de límites de alcance en tu siguiente versión?",
   "feedbackMetadata": {
     "kind": "template",
     "version": "feedback-template-m1-v1"
