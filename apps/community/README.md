@@ -1,14 +1,15 @@
 # `@metro/community`
 
-Community backend: evaluate a participant prompt with Jev (mock by default) and optionally persist the attempt on GitHub.
+Community backend: evaluate a participant prompt with Jev (mock by default) and optionally persist a verified TypeSafe attempt on GitHub.
 
-No Hermes. No LLM feedback (`feedback` is `""`).
+No Hermes or LLM provider yet. Evaluations return versioned template feedback until the light-LLM provider is selected.
 
 ## Status
 
 - `evaluate()` → `@metro/evaluation` for `rubric-m1-v1` → `AttemptResult`.
-- `--record` writes that result with `GitHubIssueStore` (one issue per participant × mission, one comment per attempt).
+- `--record` requires a TypeSafe result and writes it with `GitHubIssueStore` (one issue per participant × mission, one comment per attempt).
 - Default Jev client is the mock. Live TypeSafe only when `JEV_MODE=http`.
+- GitHub history determines the next attempt. Attempts must be sequential and stop after five.
 
 See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md) and [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md).
 
@@ -22,6 +23,7 @@ See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md) and [ADR-0007](../
 | Comment tags | `attempt:N` `score:0-100` `routing:auto\|caution\|defer` `eligible:yes\|no` |
 | Issue labels (latest) | `mission:<id>`, `routing:…`, `eligible:yes\|no`, `attempt:N` |
 | Eligibility | Latest attempt only; threshold ≥70 |
+| Evaluation metadata | Hidden comment marker with provider, requested model, resolved model, and feedback version |
 
 Participant-facing text never names **Jev**.
 
@@ -56,8 +58,9 @@ pnpm --filter @metro/community evaluate -- \
 # Live Jev, still no GitHub write
 JEV_MODE=http TYPESAFE_API_KEY=... pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 
-# Persist the attempt (token required). Omit --record to skip GitHub even if a token is set.
-pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --record
+# Persist a live attempt (TypeSafe and GitHub tokens required). Mock results are rejected.
+JEV_MODE=http TYPESAFE_API_KEY=... GITHUB_TOKEN=... \
+  pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --record
 
 # Existing writer: fixture AttemptResult JSON, no Jev
 DRY_RUN=1 pnpm --filter @metro/community github:record-attempt -- --fixture fixtures/attempt.json
@@ -74,7 +77,7 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 ## Public surface
 
 - `evaluate(input, { client, record, store, env })`
-- `GitHubIssueStore.findOrCreateIssue` / `addAttemptComment`
+- `GitHubIssueStore.findOrCreateIssue` / `assertAttemptAllowed` / `addAttemptComment`
 - `requireGitHubStoreConfig()` / `readGitHubEnvConfig()`
 
 ## What not to do

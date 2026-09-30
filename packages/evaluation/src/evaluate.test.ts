@@ -31,6 +31,8 @@ describe("evaluate", () => {
     assert.equal(result.score.total, 100);
     assert.equal(result.score.eligible, true);
     assert.equal(result.score.rubricVersion, "rubric-m1-v1");
+    assert.match(result.score.notes, /Mission-versioned weights applied/);
+    assert.doesNotMatch(result.score.notes, /Placeholder equal weights/);
     assert.equal(result.score.routing.action, "auto");
     assert.equal(result.score.routing.confidenceSummary, "high");
     assert.deepEqual(

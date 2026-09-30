@@ -9,7 +9,7 @@
   },
   "score": {
     "total": 72.5,
-    "eligible": null,
+    "eligible": true,
     "rubricVersion": "rubric-m1-v1",
     "notes": "Fixture score for CLI dry-run.",
     "dimensions": [
@@ -44,5 +44,18 @@
       "probabilitySummary": null
     }
   },
-  "feedback": "Good structure. Add an observable acceptance check for the eight-station list so reviewers can verify the result without guessing."
+  "evaluator": {
+    "provider": "typesafe",
+    "requestedModel": "jev-latest",
+    "model": "jev-1.13.0",
+    "usage": {
+      "inputTokens": 120,
+      "outputTokens": 8
+    }
+  },
+  "feedback": "Puntaje: 73/100\nFortaleza: El resultado y sus elementos principales están descritos con precisión.\nProblemas prioritarios:\n- Límites de alcance: Los límites de la misión no están suficientemente protegidos.\nSugerencias:\n- Indica que deben conservarse ocho estaciones y que no se agregan pasajeros, demanda ni backend del juego.\nPregunta: ¿Cómo puedes hacer más comprobable el criterio de límites de alcance en tu siguiente versión?",
+  "feedbackMetadata": {
+    "kind": "template",
+    "version": "feedback-template-m1-v1"
+  }
 }

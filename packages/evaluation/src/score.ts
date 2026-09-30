@@ -145,7 +145,7 @@ export function scoreFromAnswers(
     rubricVersion: state.rubricVersion || RUBRIC_V0_ID,
     notes:
       "Composite Score: normalize level/4 → 0–1, weighted sum → 0–100. " +
-      "Placeholder equal weights until mission-versioned weights are closed. " +
+      "Mission-versioned weights applied. " +
       "Confidence/probability bands are routing metadata only.",
     dimensions,
     routing: {

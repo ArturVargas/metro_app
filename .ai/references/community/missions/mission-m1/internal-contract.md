@@ -28,9 +28,9 @@
 - **Máximo:** cinco evaluaciones por participante.
 - **Versión elegible:** solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
 - **Versión de la rúbrica:** `rubric-m1-v1`
-- **Versión del prompt de feedback:** `PENDIENTE`
+- **Versión del prompt de feedback:** `PENDIENTE` para LLM; fallback `feedback-template-m1-v1`
 - **Proveedor y modelo de feedback:** `PENDIENTE`
-- **Fallback de feedback:** `PENDIENTE`
+- **Fallback de feedback:** `feedback-template-m1-v1`, determinista y derivado solo de puntaje y dimensiones de `rubric-m1-v1`
 
 Cada criterio debe evaluar la calidad del prompt frente al brief público. No debe premiar una solución técnica preferida ni introducir requisitos que la comunidad no recibió.
 

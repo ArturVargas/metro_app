@@ -20,7 +20,10 @@
 - Cada intento de evaluación es un **comentario** en ese issue.
 - El cuerpo markdown (builder puro en `@metro/evaluation`) incluye: prompt, puntaje total, niveles por dimensión, feedback (texto ya aportado por el caller), línea de tags.
 - Marcador de comentario: `<!-- metro-attempt: mission:… participant:… attempt:N -->`.
+- Marcador interno adicional: `<!-- metro-evaluation: ... -->` con proveedor, modelo solicitado, modelo resuelto y versión del generador de feedback.
 - WhatsApp / plantillas orientadas a participantes **no nombran Jev**. Metadatos internos pueden hablar de evaluación.
+- Antes de evaluar y nuevamente antes de escribir, el backend lee los comentarios existentes: el intento debe ser exactamente el siguiente de la secuencia y se rechaza cualquier sexto intento.
+- Un resultado del evaluador mock nunca puede persistirse como intento real.
 
 ### Tags y labels
 
