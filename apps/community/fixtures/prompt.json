@@ -1,0 +1,7 @@
+{
+  "missionId": "mission-m1",
+  "participantId": "p-fixture-alpha",
+  "attempt": 1,
+  "publicBrief": "Change the station board so a player can select and connect stations with a visible line, and check the result in the web build. Keep the eight stations. No passengers, demand, or game backend.",
+  "participantPrompt": "Build an Expo screen: select and connect eight stations with a visible line. Verify in the web build. Keep the eight stations. No passengers, no demand, no backend."
+}

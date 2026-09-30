@@ -1,0 +1,58 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { evaluate } from "./evaluate.js";
+import { MockJevClient } from "./jev/mock.js";
+
+const input = {
+  missionId: "mission-m1",
+  participantId: "p-alpha",
+  publicBrief: "Select and connect stations with a visible line.",
+  participantPrompt:
+    "Build an Expo screen: select and connect eight stations with a visible line. Verify in the web build. Keep the eight stations. No passengers, no demand, no backend.",
+  attempt: 1,
+};
+
+describe("evaluate", () => {
+  it("scores rubric-m1-v1 from the mock heuristic and leaves feedback empty", async () => {
+    const result = await evaluate(input, { client: new MockJevClient() });
+    assert.equal(result.feedback, "");
+    assert.equal(result.score.total, 100);
+    assert.equal(result.score.eligible, null);
+    assert.equal(result.score.rubricVersion, "rubric-m1-v1");
+    assert.equal(result.score.routing.action, "auto");
+    assert.equal(result.score.routing.confidenceSummary, "high");
+    assert.deepEqual(
+      result.score.dimensions.map((d) => d.level),
+      [4, 4, 4, 4],
+    );
+  });
+
+  it("uses injected levels and low confidence for routing only", async () => {
+    const result = await evaluate(input, {
+      client: new MockJevClient({
+        levels: {
+          verifiability: 4,
+          "actionable-acceptance": 2,
+          specificity: 4,
+          "scope-limits": 0,
+        },
+        confidence: 0.2,
+      }),
+    });
+    assert.equal(result.score.total, 70);
+    assert.equal(result.score.routing.action, "defer");
+    assert.equal(result.score.routing.confidenceSummary, "low");
+    assert.equal(result.state.participantPrompt, input.participantPrompt);
+  });
+
+  it("rejects an unsupported rubric and an invalid attempt", async () => {
+    await assert.rejects(
+      () => evaluate({ ...input, rubricVersion: "v0" }, { client: new MockJevClient() }),
+      /rubric-m1-v1/,
+    );
+    await assert.rejects(
+      () => evaluate({ ...input, attempt: 6 }, { client: new MockJevClient() }),
+      /exceeds max/,
+    );
+  });
+});

@@ -1,3 +1,4 @@
+export { evaluate, type CommunityEvaluateOptions, type RecordStore } from "./evaluate.js";
 export {
   GitHubIssueStore,
   type IssueRef,
