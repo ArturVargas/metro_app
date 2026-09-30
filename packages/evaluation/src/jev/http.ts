@@ -1,4 +1,4 @@
-import type { JevClient, JevEvaluationState, JevScoreDecision, JevScoreRequest } from "./types.js";
+import type { JevClient, JevEvaluationState, JevScoreRequest, JevScoreResult } from "./types.js";
 
 export type HttpJevConfig = {
   apiKey: string;
@@ -15,7 +15,12 @@ type WireScoreAnswer = {
 };
 
 type WireResponse = {
+  model?: unknown;
   answers?: Record<string, WireScoreAnswer>;
+  usage?: {
+    input_tokens?: unknown;
+    output_tokens?: unknown;
+  };
 };
 
 export function systemOneUrl(baseUrl: string): string {
@@ -53,7 +58,7 @@ export class HttpJevClient implements JevClient {
     private readonly fetchImpl: FetchLike = globalThis.fetch,
   ) {}
 
-  async score(request: JevScoreRequest): Promise<JevScoreDecision[]> {
+  async score(request: JevScoreRequest): Promise<JevScoreResult> {
     if (request.questions.length === 0) {
       throw new Error("Jev request has no questions");
     }
@@ -78,8 +83,11 @@ export class HttpJevClient implements JevClient {
     } catch {
       throw new Error("Jev HTTP response was not JSON");
     }
+    if (typeof parsed.model !== "string" || !parsed.model.trim()) {
+      throw new Error("Jev HTTP response missing model");
+    }
     const answers = parsed.answers ?? {};
-    return request.questions.map((question) => {
+    const decisions = request.questions.map((question) => {
       const raw = answers[question.id];
       if (!raw || raw.type !== "score" || typeof raw.score !== "number") {
         throw new Error(`Jev response missing score answer for ${question.id}`);
@@ -90,5 +98,20 @@ export class HttpJevClient implements JevClient {
         confidence: typeof raw.confidence === "number" ? raw.confidence : null,
       };
     });
+    const inputTokens = parsed.usage?.input_tokens;
+    const outputTokens = parsed.usage?.output_tokens;
+    const usage =
+      typeof inputTokens === "number" && typeof outputTokens === "number"
+        ? { inputTokens, outputTokens }
+        : undefined;
+    return {
+      decisions,
+      evaluator: {
+        provider: "typesafe",
+        requestedModel: this.config.model,
+        model: parsed.model,
+        ...(usage ? { usage } : {}),
+      },
+    };
   }
 }

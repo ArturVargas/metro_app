@@ -13,11 +13,23 @@ const input = {
 };
 
 describe("evaluate", () => {
-  it("scores rubric-m1-v1 from the mock heuristic and leaves feedback empty", async () => {
+  it("returns eligibility, fallback feedback, and evaluator provenance", async () => {
     const result = await evaluate(input, { client: new MockJevClient() });
-    assert.equal(result.feedback, "");
+    assert.match(result.feedback, /Puntaje: 100\/100/);
+    assert.match(result.feedback, /Fortaleza:/);
+    assert.match(result.feedback, /Pregunta:/);
+    assert.doesNotMatch(result.feedback, /Jev/i);
+    assert.deepEqual(result.feedbackMetadata, {
+      kind: "template",
+      version: "feedback-template-m1-v1",
+    });
+    assert.deepEqual(result.evaluator, {
+      provider: "mock",
+      requestedModel: "mock-keyword-v1",
+      model: "mock-keyword-v1",
+    });
     assert.equal(result.score.total, 100);
-    assert.equal(result.score.eligible, null);
+    assert.equal(result.score.eligible, true);
     assert.equal(result.score.rubricVersion, "rubric-m1-v1");
     assert.equal(result.score.routing.action, "auto");
     assert.equal(result.score.routing.confidenceSummary, "high");
@@ -40,6 +52,9 @@ describe("evaluate", () => {
       }),
     });
     assert.equal(result.score.total, 70);
+    assert.equal(result.score.eligible, true);
+    assert.match(result.feedback, /Problemas prioritarios:/);
+    assert.match(result.feedback, /Límites de alcance/);
     assert.equal(result.score.routing.action, "defer");
     assert.equal(result.score.routing.confidenceSummary, "low");
     assert.equal(result.state.participantPrompt, input.participantPrompt);

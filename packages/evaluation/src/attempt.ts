@@ -4,10 +4,15 @@
  * no Jev, Hermes, or LLM calls.
  */
 
+import type { EvaluatorMetadata } from "./jev/types.js";
 import type { EvaluationState, RoutingAction, ScoreResult } from "./types.js";
 
 /** Eligibility threshold for mission attempts (latest attempt only). */
 export const ELIGIBILITY_THRESHOLD = 70 as const;
+
+export type FeedbackMetadata =
+  | { kind: "template"; version: string }
+  | { kind: "llm"; version: string; provider: string; model: string };
 
 /**
  * Full record of one evaluation attempt ready for GitHub persist.
@@ -17,8 +22,10 @@ export const ELIGIBILITY_THRESHOLD = 70 as const;
 export type AttemptResult = {
   state: EvaluationState;
   score: ScoreResult;
+  evaluator: EvaluatorMetadata;
   /** Participant-facing feedback text (never name Jev). */
   feedback: string;
+  feedbackMetadata: FeedbackMetadata;
   /** Set after find-or-create / comment persist. */
   githubIssueUrl?: string;
   githubCommentUrl?: string;
