@@ -25,7 +25,7 @@ export {
   SCORE_LEVEL_MAX,
 } from "./types.js";
 
-export type { AttemptResult, AttemptTagSet } from "./attempt.js";
+export type { AttemptResult, AttemptTagSet, FeedbackMetadata } from "./attempt.js";
 export {
   ELIGIBILITY_THRESHOLD,
   attemptTagList,
@@ -51,11 +51,14 @@ export {
 
 export type { EvaluateInput, EvaluateOptions } from "./evaluate.js";
 export { evaluate } from "./evaluate.js";
+export { buildTemplateFeedback, FEEDBACK_TEMPLATE_M1_V1 } from "./feedback-template.js";
 
 export type {
   JevClient,
   JevEvaluationState,
   JevScoreDecision,
+  JevScoreResult,
+  EvaluatorMetadata,
   JevScoreQuestionPayload,
   JevScoreRequest,
 } from "./jev/types.js";

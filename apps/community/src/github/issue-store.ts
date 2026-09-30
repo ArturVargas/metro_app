@@ -8,8 +8,13 @@ import {
   buildAttemptTags,
   formatAttemptCommentMarkdown,
   type AttemptResult,
+  type EvaluateInput,
 } from "@metro/evaluation";
 import type { GitHubStoreConfig } from "./config.js";
+import {
+  assertNextAttempt,
+  attemptNumberFromComment,
+} from "./attempt-sequence.js";
 import {
   buildIssueBody,
   buildIssueTitle,
@@ -30,6 +35,27 @@ export type PersistAttemptResult = AttemptResult & {
   githubCommentUrl: string;
   issueNumber: number;
 };
+
+type CommentRef = { body: string; htmlUrl: string };
+
+const attemptLocks = new Map<string, Promise<void>>();
+
+async function withAttemptLock<T>(key: string, task: () => Promise<T>): Promise<T> {
+  const previous = attemptLocks.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const tail = previous.then(() => gate);
+  attemptLocks.set(key, tail);
+  await previous;
+  try {
+    return await task();
+  } finally {
+    release();
+    if (attemptLocks.get(key) === tail) attemptLocks.delete(key);
+  }
+}
 
 export class GitHubIssueStore {
   private readonly octokit: Octokit;
@@ -112,6 +138,49 @@ export class GitHubIssueStore {
     return this.findIssueByList(missionId, participantId, marker);
   }
 
+  async assertAttemptAllowed(
+    missionId: string,
+    participantId: string,
+    attempt: number,
+  ): Promise<void> {
+    return withAttemptLock(this.lockKey(missionId, participantId), () =>
+      this.assertAttemptAllowedUnlocked(missionId, participantId, attempt),
+    );
+  }
+
+  private async assertAttemptAllowedUnlocked(
+    missionId: string,
+    participantId: string,
+    attempt: number,
+  ): Promise<void> {
+    const issue = await this.findIssue(missionId, participantId);
+    const comments = issue ? await this.listAttemptComments(issue.number) : [];
+    assertNextAttempt(
+      comments.map((comment) => comment.body),
+      missionId,
+      participantId,
+      attempt,
+    );
+  }
+
+  private async listAttemptComments(issueNumber: number): Promise<CommentRef[]> {
+    const comments: CommentRef[] = [];
+    for await (const response of this.octokit.paginate.iterator(
+      this.octokit.rest.issues.listComments,
+      {
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: issueNumber,
+        per_page: 100,
+      },
+    )) {
+      for (const comment of response.data) {
+        comments.push({ body: comment.body ?? "", htmlUrl: comment.html_url });
+      }
+    }
+    return comments;
+  }
+
   private async findIssueByList(
     missionId: string,
     participantId: string,
@@ -152,9 +221,67 @@ export class GitHubIssueStore {
   async addAttemptComment(
     attempt: AttemptResult,
   ): Promise<PersistAttemptResult> {
+    if (attempt.evaluator?.provider !== "typesafe") {
+      throw new Error("A mock evaluation cannot be recorded");
+    }
     const { missionId, participantId } = attempt.state;
-    const issue = await this.findOrCreateIssue(missionId, participantId);
+    return withAttemptLock(this.lockKey(missionId, participantId), () =>
+      this.addAttemptCommentUnlocked(attempt),
+    );
+  }
+
+  async recordAttempt(
+    input: EvaluateInput,
+    runEvaluation: () => Promise<AttemptResult>,
+  ): Promise<PersistAttemptResult> {
+    return withAttemptLock(this.lockKey(input.missionId, input.participantId), async () => {
+      await this.assertAttemptAllowedUnlocked(
+        input.missionId,
+        input.participantId,
+        input.attempt,
+      );
+      const attempt = await runEvaluation();
+      if (attempt.evaluator?.provider !== "typesafe") {
+        throw new Error("A mock evaluation cannot be recorded");
+      }
+      return this.addAttemptCommentUnlocked(attempt);
+    });
+  }
+
+  private async addAttemptCommentUnlocked(
+    attempt: AttemptResult,
+  ): Promise<PersistAttemptResult> {
+    const { missionId, participantId } = attempt.state;
+    let issue = await this.findIssue(missionId, participantId);
+    let comments = issue ? await this.listAttemptComments(issue.number) : [];
     const body = formatAttemptCommentMarkdown(attempt);
+    const exact = comments.find((comment) => comment.body === body);
+    if (exact && issue) {
+      const hasNewerAttempt = comments.some((comment) => {
+        const number = attemptNumberFromComment(
+          comment.body,
+          missionId,
+          participantId,
+        );
+        return number !== null && number > attempt.state.attempt;
+      });
+      if (!hasNewerAttempt) await this.syncLatestLabels(issue.number, attempt);
+      return {
+        ...attempt,
+        githubIssueUrl: issue.htmlUrl,
+        githubCommentUrl: exact.htmlUrl,
+        issueNumber: issue.number,
+      };
+    }
+    assertNextAttempt(
+      comments.map((comment) => comment.body),
+      missionId,
+      participantId,
+      attempt.state.attempt,
+    );
+    issue = issue ?? (await this.findOrCreateIssue(missionId, participantId));
+
+    await this.syncLatestLabels(issue.number, attempt);
 
     const { data: comment } = await this.octokit.rest.issues.createComment({
       owner: this.owner,
@@ -163,14 +290,18 @@ export class GitHubIssueStore {
       body,
     });
 
-    await this.syncLatestLabels(issue.number, attempt);
-
     return {
       ...attempt,
       githubIssueUrl: issue.htmlUrl,
       githubCommentUrl: comment.html_url,
       issueNumber: issue.number,
     };
+  }
+
+  private lockKey(missionId: string, participantId: string): string {
+    // ponytail: process-local serialization is sufficient for the single-writer MVP;
+    // move admission to a durable queue/lease before running multiple backend instances.
+    return `${this.owner}/${this.repo}/${missionId}/${participantId}`;
   }
 
   /** Replace managed labels so the issue reflects the latest attempt. */

@@ -1,4 +1,5 @@
-import type { AttemptResult } from "./attempt.js";
+import { ELIGIBILITY_THRESHOLD, type AttemptResult, type FeedbackMetadata } from "./attempt.js";
+import { buildTemplateFeedback } from "./feedback-template.js";
 import { createJevClient } from "./jev/env.js";
 import { decisionsToScoreAnswers, rubricToJevQuestions } from "./jev/map.js";
 import type { JevClient } from "./jev/types.js";
@@ -23,12 +24,22 @@ export type EvaluateInput = {
 export type EvaluateOptions = {
   client?: JevClient;
   env?: NodeJS.ProcessEnv;
-  feedback?: string;
+  feedback?: { text: string; metadata: FeedbackMetadata };
 };
 
 function failValidation(issues: ValidationIssue[]): void {
   if (issues.length === 0) return;
   throw new Error(issues.map((issue) => issue.message).join("; "));
+}
+
+function validFeedback(
+  feedback: EvaluateOptions["feedback"],
+): feedback is NonNullable<EvaluateOptions["feedback"]> {
+  if (!feedback?.text.trim() || !feedback.metadata.version.trim()) return false;
+  if (feedback.metadata.kind === "llm") {
+    return Boolean(feedback.metadata.provider.trim() && feedback.metadata.model.trim());
+  }
+  return true;
 }
 
 export async function evaluate(
@@ -53,7 +64,7 @@ export async function evaluate(
   failValidation(validateEvaluationState(state));
 
   const client = options.client ?? createJevClient(options.env);
-  const decisions = await client.score({
+  const evaluation = await client.score({
     state: {
       missionId: state.missionId,
       rubricVersion: state.rubricVersion,
@@ -62,12 +73,20 @@ export async function evaluate(
     },
     questions: rubricToJevQuestions(rubricM1V1Questions),
   });
-  const answers = decisionsToScoreAnswers(rubricM1V1Questions, decisions);
+  const answers = decisionsToScoreAnswers(rubricM1V1Questions, evaluation.decisions);
   failValidation(validateAnswersForQuestions(rubricM1V1Questions, answers));
+
+  const score = scoreFromAnswers(state, answers, rubricM1V1Questions);
+  score.eligible = score.total >= ELIGIBILITY_THRESHOLD;
+  const feedback = validFeedback(options.feedback)
+    ? options.feedback
+    : buildTemplateFeedback(score);
 
   return {
     state,
-    score: scoreFromAnswers(state, answers, rubricM1V1Questions),
-    feedback: options.feedback ?? "",
+    score,
+    evaluator: evaluation.evaluator,
+    feedback: feedback.text,
+    feedbackMetadata: feedback.metadata,
   };
 }

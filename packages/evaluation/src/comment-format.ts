@@ -17,6 +17,22 @@ export function attemptCommentMarker(result: AttemptResult): string {
   return `<!-- metro-attempt: mission:${missionId} participant:${participantId} attempt:${attempt} -->`;
 }
 
+function evaluationMetadataMarker(result: AttemptResult): string {
+  const feedback = result.feedbackMetadata;
+  const feedbackValue =
+    feedback.kind === "llm"
+      ? `${feedback.kind}:${feedback.provider}:${feedback.model}:${feedback.version}`
+      : `${feedback.kind}:${feedback.version}`;
+  return [
+    "<!-- metro-evaluation:",
+    `provider:${result.evaluator.provider}`,
+    `requested-model:${result.evaluator.requestedModel}`,
+    `model:${result.evaluator.model}`,
+    `feedback:${feedbackValue}`,
+    "-->",
+  ].join(" ");
+}
+
 function escapeCell(value: string): string {
   return value.replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
@@ -51,6 +67,7 @@ export function formatAttemptCommentMarkdown(result: AttemptResult): string {
 
   const sections = [
     attemptCommentMarker(result),
+    evaluationMetadataMarker(result),
     "",
     `## Evaluation attempt ${state.attempt}`,
     "",

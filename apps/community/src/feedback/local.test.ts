@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { ScoreResult } from "@metro/evaluation";
 import {
+  LOCAL_FEEDBACK_PROMPT_VERSION,
   LocalLlmFeedbackGenerator,
   buildLocalFeedbackUserMessage,
   readLocalLlmConfig,
@@ -63,7 +64,7 @@ describe("readLocalLlmConfig", () => {
 });
 
 describe("LocalLlmFeedbackGenerator", () => {
-  it("POSTs /api/chat with think:false and returns trimmed content", async () => {
+  it("POSTs /api/chat with think:false and returns text plus provenance", async () => {
     let seenUrl = "";
     let seenBody: Record<string, unknown> = {};
     const fetchMock: FetchLike = async (url, init) => {
@@ -71,12 +72,23 @@ describe("LocalLlmFeedbackGenerator", () => {
       seenBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
       return new Response(
         JSON.stringify({
-          message: { content: "  ¡Hola! Tu puntaje es 72/100, elegible. 😊  " },
+          message: {
+            content: [
+              "Puntaje: 72/100",
+              "Elegibilidad: Elegible",
+              "Fortaleza: La interacción es observable.",
+              "Problemas prioritarios:",
+              "- Falta precisar el resultado final.",
+              "Sugerencias:",
+              "- Describe el estado visible.",
+              "Pregunta: ¿Qué debe ver el jugador?",
+            ].join("\n"),
+          },
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
     };
-    const text = await new LocalLlmFeedbackGenerator(
+    const result = await new LocalLlmFeedbackGenerator(
       { baseUrl: "http://127.0.0.1:11434", model: "gemma4-coding-agent" },
       fetchMock,
     ).generate(input);
@@ -89,11 +101,17 @@ describe("LocalLlmFeedbackGenerator", () => {
     assert.equal(options.num_predict, 512);
     const messages = seenBody.messages as Array<{ role: string; content: string }>;
     assert.equal(messages[0]?.role, "system");
-    assert.match(messages[0]?.content ?? "", /WhatsApp/);
+    assert.match(messages[0]?.content ?? "", /Problemas prioritarios/);
     assert.doesNotMatch(messages[0]?.content ?? "", /Hermes/);
     assert.equal(messages[1]?.role, "user");
     assert.match(messages[1]?.content ?? "", /72/);
-    assert.equal(text, "¡Hola! Tu puntaje es 72/100, elegible. 😊");
+    assert.match(result.text, /^Puntaje: 72\/100/);
+    assert.deepEqual(result.metadata, {
+      kind: "llm",
+      version: LOCAL_FEEDBACK_PROMPT_VERSION,
+      provider: "ollama",
+      model: "gemma4-coding-agent",
+    });
   });
 
   it("throws on non-OK or empty content", async () => {

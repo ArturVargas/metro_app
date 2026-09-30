@@ -23,6 +23,21 @@ export type JevScoreDecision = {
   escapeOptionId?: string;
 };
 
+export type EvaluatorMetadata = {
+  provider: "typesafe" | "mock";
+  requestedModel: string;
+  model: string;
+  usage?: {
+    inputTokens: number;
+    outputTokens: number;
+  };
+};
+
+export type JevScoreResult = {
+  decisions: JevScoreDecision[];
+  evaluator: EvaluatorMetadata;
+};
+
 export interface JevClient {
-  score(request: JevScoreRequest): Promise<JevScoreDecision[]>;
+  score(request: JevScoreRequest): Promise<JevScoreResult>;
 }

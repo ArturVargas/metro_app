@@ -88,12 +88,18 @@ describe("MockJevClient", () => {
       levels: { verifiability: 1 },
       confidence: 0.1,
     });
-    const [decision] = await client.score({
+    const result = await client.score({
       state,
       questions: [{ id: "verifiability", instructions: "q", criteria: ["a", "b"] }],
     });
+    const [decision] = result.decisions;
     assert.equal(decision?.score, 1);
     assert.equal(decision?.confidence, 0.1);
+    assert.deepEqual(result.evaluator, {
+      provider: "mock",
+      requestedModel: "mock-keyword-v1",
+      model: "mock-keyword-v1",
+    });
   });
 
   it("heuristic is stable for a rich prompt", () => {
@@ -139,12 +145,18 @@ describe("HttpJevClient", () => {
       state,
       questions: rubricToJevQuestions(rubricM1V1Questions).slice(0, 1),
     };
-    const decisions = await client.score(request);
+    const result = await client.score(request);
     assert.equal(seenUrl, "https://api.typesafe.ai/v1/systemone");
     assert.equal(seenAuth, "Bearer secret-key");
     assert.deepEqual(JSON.parse(seenBody), buildSystemOneBody(request, "jev-latest"));
-    assert.equal(decisions[0]?.score, 2.6);
-    assert.equal(decisions[0]?.confidence, 0.91);
+    assert.equal(result.decisions[0]?.score, 2.6);
+    assert.equal(result.decisions[0]?.confidence, 0.91);
+    assert.deepEqual(result.evaluator, {
+      provider: "typesafe",
+      requestedModel: "jev-latest",
+      model: "jev-1.13.0",
+      usage: { inputTokens: 10, outputTokens: 2 },
+    });
     assert.equal(systemOneUrl("https://api.typesafe.ai"), seenUrl);
   });
 

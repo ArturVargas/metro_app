@@ -1,5 +1,5 @@
 import type { ScoreLevel } from "../types.js";
-import type { JevClient, JevScoreDecision, JevScoreRequest } from "./types.js";
+import type { JevClient, JevScoreRequest, JevScoreResult } from "./types.js";
 
 const SIGNAL_GROUPS: Record<string, readonly (readonly string[])[]> = {
   verifiability: [
@@ -44,14 +44,21 @@ export type MockJevClientOptions = {
 export class MockJevClient implements JevClient {
   constructor(private readonly options: MockJevClientOptions = {}) {}
 
-  async score(request: JevScoreRequest): Promise<JevScoreDecision[]> {
+  async score(request: JevScoreRequest): Promise<JevScoreResult> {
     const prompt = request.state.participantPrompt;
     const confidence =
       this.options.confidence === undefined ? 0.9 : this.options.confidence;
-    return request.questions.map((question) => ({
-      questionId: question.id,
-      score: this.options.levels?.[question.id] ?? heuristicScoreLevel(question.id, prompt),
-      confidence,
-    }));
+    return {
+      decisions: request.questions.map((question) => ({
+        questionId: question.id,
+        score: this.options.levels?.[question.id] ?? heuristicScoreLevel(question.id, prompt),
+        confidence,
+      })),
+      evaluator: {
+        provider: "mock",
+        requestedModel: "mock-keyword-v1",
+        model: "mock-keyword-v1",
+      },
+    };
   }
 }

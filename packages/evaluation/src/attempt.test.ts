@@ -62,7 +62,17 @@ function sampleAttempt(
   return {
     state: sampleState(),
     score: sampleScore(),
+    evaluator: {
+      provider: "typesafe",
+      requestedModel: "jev-latest",
+      model: "jev-1.13.0",
+      usage: { inputTokens: 120, outputTokens: 8 },
+    },
     feedback: "Clarify acceptance criteria for the station list.",
+    feedbackMetadata: {
+      kind: "template",
+      version: "feedback-template-m1-v1",
+    },
     ...overrides,
   };
 }
@@ -132,8 +142,11 @@ describe("formatAttemptCommentMarkdown", () => {
     assert.match(md, /\*\*Total:\*\* 73 \/ 100/);
     assert.match(md, /specificity/);
     assert.match(md, /Clarify acceptance criteria/);
+    assert.match(md, /jev-1\.13\.0/);
+    assert.match(md, /feedback-template-m1-v1/);
     assert.match(md, /attempt:2 score:73 routing:caution eligible:yes/);
-    assert.doesNotMatch(md, /Jev/i);
+    const visibleMarkdown = md.replace(/<!--.*?-->/g, "");
+    assert.doesNotMatch(visibleMarkdown, /Jev/i);
   });
 
   it("exposes marker helper", () => {

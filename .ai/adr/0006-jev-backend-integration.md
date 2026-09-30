@@ -54,6 +54,8 @@ Cada dimensión de la rúbrica se modela preferentemente como una pregunta Jev *
 - **`packages/evaluation`** posee versiones de rúbrica, definiciones de preguntas, scoring y validación de estado/respuestas. El spike inicial no llama a la API de TypeSafe ni introduce secretos.
 - **`apps/community`** llamará a `packages/evaluation` para orquestar el flujo; esa app aún no está construida por completo.
 - Secretos de TypeSafe, LLM, Hermes y GitHub no se versionan en el repositorio.
+- Cada `AttemptResult` conserva el proveedor, el modelo solicitado, el modelo exacto resuelto por TypeSafe y uso de tokens cuando está disponible.
+- Mientras el proveedor LLM permanezca abierto, `feedback-template-m1-v1` genera el feedback de respaldo aprobado. El contrato permite reemplazarlo por feedback LLM con proveedor, modelo y versión explícitos.
 
 ## Alternativas consideradas
 

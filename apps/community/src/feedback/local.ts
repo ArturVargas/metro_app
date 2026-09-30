@@ -1,15 +1,26 @@
 import { resolveEligible, type DimensionScore } from "@metro/evaluation";
-import type { FeedbackGenerator, FeedbackInput } from "./types.js";
+import type {
+  FeedbackGenerator,
+  FeedbackInput,
+  FeedbackResult,
+} from "./types.js";
 
 export const DEFAULT_OLLAMA_BASE_URL = "http://127.0.0.1:11434";
 export const DEFAULT_OLLAMA_MODEL = "gemma4-coding-agent";
+export const LOCAL_FEEDBACK_PROMPT_VERSION = "feedback-ollama-m1-v1";
 
-const SYSTEM_PROMPT = `Eres el feedback del experimento Metro App. Responde SOLO en español, 3–5 frases cortas, tono WhatsApp amable.
+const SYSTEM_PROMPT = `Eres el redactor de feedback del experimento Metro App. Responde SOLO en español y conserva exactamente estos encabezados:
+Puntaje: X/100
+Elegibilidad: Elegible o No elegible
+Fortaleza: una fortaleza concreta
+Problemas prioritarios: uno o dos bullets
+Sugerencias: un bullet accionable por cada problema
+Pregunta: una pregunta para mejorar la siguiente versión
 Nunca menciones Jev, TypeSafe, rúbricas internas ni nombres de dimensiones en inglés.
-Debes incluir el puntaje total X/100 y si es elegible (≥70) o no.
-Prioriza consejos ACCIONABLES sobre verificación observable: qué debe verse en la web, gestos (tap/drag), resultado visible, cómo comprobar éxito. Si verifiability/scope fallan, di eso en lenguaje simple.
+Debes copiar sin cambios el puntaje y la elegibilidad entregados en el mensaje del usuario.
+Prioriza consejos ACCIONABLES sobre verificación observable: qué debe verse en la web, cómo se usa la interacción descrita en el brief y cómo comprobar éxito. Si verifiability/scope fallan, di eso en lenguaje simple.
 No inventes requisitos fuera del brief. No pidas pasajeros/demanda/backend si el brief los excluye.
-No uses markdown largo ni listas de 10 bullets; máx 2 tips concretos.`;
+No reescribas el prompt completo. Mantén el mensaje corto y usa como máximo dos problemas y dos sugerencias.`;
 
 export type LocalLlmConfig = {
   baseUrl?: string;
@@ -25,8 +36,7 @@ type ChatWire = {
 };
 
 function formatScore(total: number): string {
-  const rounded = Math.round(total * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+  return String(Math.round(total));
 }
 
 function isWeak(dimension: DimensionScore): boolean {
@@ -86,7 +96,7 @@ export class LocalLlmFeedbackGenerator implements FeedbackGenerator {
     this.numPredict = config.numPredict ?? 512;
   }
 
-  async generate(input: FeedbackInput): Promise<string> {
+  async generate(input: FeedbackInput): Promise<FeedbackResult> {
     const url = `${this.baseUrl}/api/chat`;
     const response = await this.fetchImpl(url, {
       method: "POST",
@@ -117,6 +127,14 @@ export class LocalLlmFeedbackGenerator implements FeedbackGenerator {
     if (typeof content !== "string" || content.trim() === "") {
       throw new Error("Ollama response missing message.content");
     }
-    return content.trim();
+    return {
+      text: content.trim(),
+      metadata: {
+        kind: "llm",
+        version: LOCAL_FEEDBACK_PROMPT_VERSION,
+        provider: "ollama",
+        model: this.model,
+      },
+    };
   }
 }

@@ -7,6 +7,7 @@ export {
 export {
   DEFAULT_OLLAMA_BASE_URL,
   DEFAULT_OLLAMA_MODEL,
+  LOCAL_FEEDBACK_PROMPT_VERSION,
   LocalLlmFeedbackGenerator,
   buildLocalFeedbackUserMessage,
   readLocalLlmConfig,
@@ -15,7 +16,11 @@ export {
 } from "./feedback/local.js";
 export { HttpFeedbackGenerator } from "./feedback/pending.js";
 export { StubFeedbackGenerator } from "./feedback/stub.js";
-export type { FeedbackGenerator, FeedbackInput } from "./feedback/types.js";
+export type {
+  FeedbackGenerator,
+  FeedbackInput,
+  FeedbackResult,
+} from "./feedback/types.js";
 export {
   GitHubIssueStore,
   type IssueRef,

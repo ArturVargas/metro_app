@@ -20,7 +20,13 @@
 - Cada intento de evaluación es un **comentario** en ese issue.
 - El cuerpo markdown (builder puro en `@metro/evaluation`) incluye: prompt, puntaje total, niveles por dimensión, feedback (texto ya aportado por el caller), línea de tags.
 - Marcador de comentario: `<!-- metro-attempt: mission:… participant:… attempt:N -->`.
+- Marcador interno adicional: `<!-- metro-evaluation: ... -->` con proveedor, modelo solicitado, modelo resuelto y versión del generador de feedback.
 - WhatsApp / plantillas orientadas a participantes **no nombran Jev**. Metadatos internos pueden hablar de evaluación.
+- Antes de evaluar y nuevamente antes de escribir, el backend lee los comentarios existentes: el intento debe ser exactamente el siguiente de la secuencia y se rechaza cualquier sexto intento.
+- Un resultado del evaluador mock nunca puede persistirse como intento real.
+- El MVP opera un solo proceso writer. Un lock en memoria por `(repo × misión × participante)` serializa admisión, evaluación y persistencia dentro de ese proceso.
+- Un retry con cuerpo exacto reutiliza el comentario existente y repara labels sin consumir otro intento. Los labels se sincronizan antes de crear el comentario para que un fallo de labels no deje un intento ya consumido e imposible de reintentar.
+- Ejecutar varios procesos writer requiere primero una cola o lease distribuido; el lock del MVP no coordina procesos ni hosts distintos.
 
 ### Tags y labels
 

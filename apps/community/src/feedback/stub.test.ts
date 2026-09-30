@@ -28,7 +28,7 @@ const base: FeedbackInput = {
 
 describe("StubFeedbackGenerator", () => {
   it("includes the score and eligibility, and never names Jev", async () => {
-    const text = await new StubFeedbackGenerator().generate({
+    const result = await new StubFeedbackGenerator().generate({
       ...base,
       scoreResult: score({
         total: 55,
@@ -41,18 +41,19 @@ describe("StubFeedbackGenerator", () => {
         ],
       }),
     });
-    assert.match(text, /55\/100/);
-    assert.match(text, /No elegible/);
-    assert.match(text, /instrucciones accionables \(1\/4\)/);
-    assert.match(text, /especificidad \(2\/4\)/);
-    assert.match(text, /límites de alcance/);
-    assert.doesNotMatch(text, /verificabilidad/);
-    assert.doesNotMatch(text, /jev/i);
-    assert.equal(text.includes("```"), false);
+    assert.match(result.text, /55\/100/);
+    assert.match(result.text, /No elegible/);
+    assert.match(result.text, /Problemas prioritarios/);
+    assert.doesNotMatch(result.text, /jev/i);
+    assert.equal(result.text.includes("```"), false);
+    assert.deepEqual(result.metadata, {
+      kind: "template",
+      version: "feedback-template-m1-v1",
+    });
   });
 
   it("marks a passing total with no weak dimensions", async () => {
-    const text = await new StubFeedbackGenerator().generate({
+    const result = await new StubFeedbackGenerator().generate({
       ...base,
       participantPrompt: "ok",
       scoreResult: score({
@@ -60,11 +61,11 @@ describe("StubFeedbackGenerator", () => {
         dimensions: [{ questionId: "verifiability", level: 4, normalized: 1, weight: 1 }],
       }),
     });
-    assert.match(text, /100\/100/);
-    assert.match(text, /Elegible/);
-    assert.match(text, /Sin puntos débiles/);
-    assert.doesNotMatch(text, /No elegible/);
-    assert.doesNotMatch(text, /jev/i);
+    assert.match(result.text, /100\/100/);
+    assert.match(result.text, /Elegible/);
+    assert.match(result.text, /No hay problemas prioritarios/);
+    assert.doesNotMatch(result.text, /No elegible/);
+    assert.doesNotMatch(result.text, /jev/i);
   });
 });
 

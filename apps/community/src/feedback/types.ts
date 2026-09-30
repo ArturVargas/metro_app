@@ -1,4 +1,4 @@
-import type { ScoreResult } from "@metro/evaluation";
+import type { FeedbackMetadata, ScoreResult } from "@metro/evaluation";
 
 export type FeedbackInput = {
   participantPrompt: string;
@@ -8,6 +8,11 @@ export type FeedbackInput = {
   attempt: number;
 };
 
+export type FeedbackResult = {
+  text: string;
+  metadata: FeedbackMetadata;
+};
+
 export interface FeedbackGenerator {
-  generate(input: FeedbackInput): Promise<string>;
+  generate(input: FeedbackInput): Promise<FeedbackResult>;
 }

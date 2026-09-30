@@ -13,12 +13,26 @@ const input = {
 };
 
 describe("evaluate", () => {
-  it("scores rubric-m1-v1 from the mock heuristic and leaves feedback empty", async () => {
+  it("returns eligibility, fallback feedback, and evaluator provenance", async () => {
     const result = await evaluate(input, { client: new MockJevClient() });
-    assert.equal(result.feedback, "");
+    assert.match(result.feedback, /Puntaje: 100\/100/);
+    assert.match(result.feedback, /Fortaleza:/);
+    assert.match(result.feedback, /Pregunta:/);
+    assert.doesNotMatch(result.feedback, /Jev/i);
+    assert.deepEqual(result.feedbackMetadata, {
+      kind: "template",
+      version: "feedback-template-m1-v1",
+    });
+    assert.deepEqual(result.evaluator, {
+      provider: "mock",
+      requestedModel: "mock-keyword-v1",
+      model: "mock-keyword-v1",
+    });
     assert.equal(result.score.total, 100);
-    assert.equal(result.score.eligible, null);
+    assert.equal(result.score.eligible, true);
     assert.equal(result.score.rubricVersion, "rubric-m1-v1");
+    assert.match(result.score.notes, /Mission-versioned weights applied/);
+    assert.doesNotMatch(result.score.notes, /Placeholder equal weights/);
     assert.equal(result.score.routing.action, "auto");
     assert.equal(result.score.routing.confidenceSummary, "high");
     assert.deepEqual(
@@ -40,9 +54,43 @@ describe("evaluate", () => {
       }),
     });
     assert.equal(result.score.total, 70);
+    assert.equal(result.score.eligible, true);
+    assert.match(result.feedback, /Problemas prioritarios:/);
+    assert.match(result.feedback, /Límites de alcance/);
     assert.equal(result.score.routing.action, "defer");
     assert.equal(result.score.routing.confidenceSummary, "low");
     assert.equal(result.state.participantPrompt, input.participantPrompt);
+  });
+
+  it("falls back to the versioned template when supplied feedback is invalid", async () => {
+    const result = await evaluate(input, {
+      client: new MockJevClient(),
+      feedback: {
+        text: "   ",
+        metadata: { kind: "template", version: "" },
+      },
+    });
+    assert.match(result.feedback, /Puntaje: 100\/100/);
+    assert.deepEqual(result.feedbackMetadata, {
+      kind: "template",
+      version: "feedback-template-m1-v1",
+    });
+  });
+
+  it("does not invent a strength when every dimension scores zero", async () => {
+    const result = await evaluate(input, {
+      client: new MockJevClient({
+        levels: {
+          verifiability: 0,
+          "actionable-acceptance": 0,
+          specificity: 0,
+          "scope-limits": 0,
+        },
+      }),
+    });
+    assert.equal(result.score.total, 0);
+    assert.match(result.feedback, /Fortaleza: No se identificó una fortaleza concreta/);
+    assert.doesNotMatch(result.feedback, /propone resultados que pueden comprobarse/);
   });
 
   it("rejects an unsupported rubric and an invalid attempt", async () => {
