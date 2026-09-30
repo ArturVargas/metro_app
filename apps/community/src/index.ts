@@ -5,9 +5,15 @@ export {
   type FeedbackMode,
 } from "./feedback/env.js";
 export {
-  HttpFeedbackGenerator,
+  DEFAULT_OLLAMA_BASE_URL,
+  DEFAULT_OLLAMA_MODEL,
   LocalLlmFeedbackGenerator,
-} from "./feedback/pending.js";
+  buildLocalFeedbackUserMessage,
+  readLocalLlmConfig,
+  type FetchLike,
+  type LocalLlmConfig,
+} from "./feedback/local.js";
+export { HttpFeedbackGenerator } from "./feedback/pending.js";
 export { StubFeedbackGenerator } from "./feedback/stub.js";
 export type { FeedbackGenerator, FeedbackInput } from "./feedback/types.js";
 export {

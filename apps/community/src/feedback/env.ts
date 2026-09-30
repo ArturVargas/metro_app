@@ -1,4 +1,8 @@
-import { HttpFeedbackGenerator, LocalLlmFeedbackGenerator } from "./pending.js";
+import {
+  LocalLlmFeedbackGenerator,
+  readLocalLlmConfig,
+} from "./local.js";
+import { HttpFeedbackGenerator } from "./pending.js";
 import { StubFeedbackGenerator } from "./stub.js";
 import type { FeedbackGenerator } from "./types.js";
 
@@ -20,6 +24,6 @@ export function createFeedbackGenerator(
 ): FeedbackGenerator {
   const mode = readFeedbackMode(env);
   if (mode === "stub") return new StubFeedbackGenerator();
-  if (mode === "local") return new LocalLlmFeedbackGenerator();
+  if (mode === "local") return new LocalLlmFeedbackGenerator(readLocalLlmConfig(env));
   return new HttpFeedbackGenerator();
 }

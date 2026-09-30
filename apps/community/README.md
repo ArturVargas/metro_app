@@ -2,7 +2,7 @@
 
 Community backend: evaluate a participant prompt with Jev (mock by default), fill participant feedback, and optionally persist the attempt on GitHub.
 
-No Hermes. Feedback defaults to a short Spanish stub (`FEEDBACK_MODE=stub`). `local` and `http` are reserved and throw `not configured` (no LLM call).
+No Hermes. Feedback defaults to a short Spanish stub (`FEEDBACK_MODE=stub`). `FEEDBACK_MODE=local` calls a local Ollama model (`gemma4-coding-agent` by default). `http` stays unconfigured.
 
 ## Status
 
@@ -30,7 +30,9 @@ Participant-facing text never names **Jev**.
 | Variable | Required | Description |
 | --- | --- | --- |
 | `JEV_MODE` | No | `mock` (default) or `http`. CLI `--mock` forces the mock. |
-| `FEEDBACK_MODE` | No | `stub` (default). `local` selects `LocalLlmFeedbackGenerator` and `http` selects `HttpFeedbackGenerator`; both throw `not configured`. |
+| `FEEDBACK_MODE` | No | `stub` (default), `local` (Ollama), or `http` (throws `not configured`). |
+| `OLLAMA_BASE_URL` | No | Local feedback only. Default `http://127.0.0.1:11434`. |
+| `OLLAMA_MODEL` | No | Local feedback only. Default `gemma4-coding-agent`. |
 | `TYPESAFE_API_KEY` | http only | TypeSafe bearer key. `JEV_API_KEY` is a fallback name. **Never commit secrets.** |
 | `TYPESAFE_BASE_URL` | No | Default `https://api.typesafe.ai` |
 | `TYPESAFE_DEFAULT_MODEL` or `JEV_MODEL` | No | Default `jev-latest` |
@@ -49,6 +51,9 @@ From the monorepo root, after `pnpm install`. `--fixture` paths are relative to 
 # Mock Jev + stub feedback (default). Prints AttemptResult JSON. No network, no GitHub.
 pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 
+# Mock Jev + local Ollama feedback (requires Ollama on OLLAMA_BASE_URL with the model pulled)
+FEEDBACK_MODE=local pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --mock
+
 # Flags instead of a fixture
 pnpm --filter @metro/community evaluate -- \
   --mission mission-m1 --participant p-alpha --attempt 1 \
@@ -64,6 +69,15 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --reco
 DRY_RUN=1 pnpm --filter @metro/community github:record-attempt -- --fixture fixtures/attempt.json
 ```
 
+## Local Ollama feedback
+
+`LocalLlmFeedbackGenerator` POSTs `POST {OLLAMA_BASE_URL}/api/chat` with `think: false`, `temperature: 0.2`, `num_predict: 512`. Participant text is Spanish WhatsApp-style (3–5 short sentences, ≤2 actionable tips, score + elegible/no). Unit tests mock `fetch`; a live smoke needs the model available locally:
+
+```bash
+curl -s http://127.0.0.1:11434/api/tags | grep gemma4-coding-agent
+FEEDBACK_MODE=local pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --mock
+```
+
 ## Scripts
 
 ```bash
@@ -75,7 +89,7 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 ## Public surface
 
 - `evaluate(input, { client, record, store, env, feedback, feedbackGenerator })`
-- `StubFeedbackGenerator` / `createFeedbackGenerator()` (`FEEDBACK_MODE`)
+- `StubFeedbackGenerator` / `LocalLlmFeedbackGenerator` / `createFeedbackGenerator()` (`FEEDBACK_MODE`)
 - `GitHubIssueStore.findOrCreateIssue` / `addAttemptComment`
 - `requireGitHubStoreConfig()` / `readGitHubEnvConfig()`
 
@@ -84,4 +98,4 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 - Do not open PRs from automation unless Artur explicitly says OK.
 - Do not store phones, tokens, or secrets on issues or in the repo.
 - Do not wire this app into `@metro/game` CI (`game-checks` stays game-only).
-- Do not call Hermes. Do not add a live LLM call; `FEEDBACK_MODE=local` and `http` stay unconfigured.
+- Do not call Hermes. Do not wire Hermes into this app yet. `FEEDBACK_MODE=http` stays unconfigured.
