@@ -156,6 +156,23 @@ describe("community evaluate", () => {
     assert.equal(result.feedbackMetadata.kind, "template");
   });
 
+  it("rejects feedback with extra text or a conflicting score", async () => {
+    const result = await evaluate(input, {
+      client: liveClient,
+      feedbackGenerator: {
+        async generate() {
+          return {
+            ...validLlmFeedback,
+            text: `${validLlmFeedback.text}\nPuntaje alternativo: 100/100`,
+          };
+        },
+      },
+    });
+
+    assert.equal(result.feedbackMetadata.kind, "template");
+    assert.doesNotMatch(result.feedback, /Puntaje alternativo/);
+  });
+
   it("checks the persisted attempt sequence before evaluating", async () => {
     let evaluated = false;
     const client: JevClient = {

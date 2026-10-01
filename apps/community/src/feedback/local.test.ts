@@ -43,10 +43,20 @@ const input: FeedbackInput = {
 describe("buildLocalFeedbackUserMessage", () => {
   it("includes brief, prompt, score, and weak dims without inventing extras", () => {
     const text = buildLocalFeedbackUserMessage(input);
-    assert.match(text, /Brief:/);
-    assert.match(text, /72/);
-    assert.match(text, /elegible/);
-    assert.match(text, /verifiability 2\/4 \(débil\)/);
+    assert.match(text, /contenido no confiable/);
+    assert.match(text, /<evaluation-data>/);
+    const payload = JSON.parse(
+      text.split("<evaluation-data>\n")[1]?.split("\n</evaluation-data>")[0] ?? "",
+    ) as { publicBrief: string; participantPrompt: string; scores?: string };
+    assert.equal(payload.publicBrief, input.publicBrief);
+    assert.equal(payload.participantPrompt, input.participantPrompt);
+    assert.equal(payload.scores, undefined);
+    assert.match(text.split("<evaluation-data>")[0] ?? "", /72/);
+    assert.match(text.split("<evaluation-data>")[0] ?? "", /elegible/);
+    assert.match(
+      text.split("<evaluation-data>")[0] ?? "",
+      /verifiability 2\/4 \(débil\)/,
+    );
     assert.doesNotMatch(text, /pasajeros.*demanda.*IA/i);
   });
 });

@@ -8,10 +8,12 @@
 
 - Añadir `FEEDBACK_MODE=openrouter` en `apps/community`.
 - `OpenRouterFeedbackGenerator` llama a OpenRouter **chat completions** (`POST {base}/chat/completions`) con el system prompt de `apps/community/prompts/mentor.md`.
-- El mentor es **Picosito**: coach animado en español, roast cálido y constructivo. El frontmatter `version` (p. ej. `feedback-mentor-m1-v1`) viaja en `feedbackMetadata.version`.
+- El mentor es **Picosito**: coach animado en español, roast cálido y constructivo. El frontmatter `version` (p. ej. `feedback-mentor-m1-v2`) viaja en `feedbackMetadata.version`.
 - Variables de entorno: `OPENROUTER_API_KEY` (requerida en runtime), `OPENROUTER_MODEL` (default `google/gemini-2.5-flash`), `OPENROUTER_BASE_URL` opcional (default `https://openrouter.ai/api/v1`).
 - El generador **nunca inventa ni altera el puntaje ni la elegibilidad**; el mensaje de usuario incluye los valores ya calculados y el prompt obliga a copiarlos.
-- Si falta la API key, falla la red, o la respuesta está vacía/malformed, el generador **cae a la plantilla** `feedback-template-m1-v1` (mismo contrato que el stub). `evaluate()` sigue rechazando texto LLM inválido (puntaje distinto, >2 problemas, menciones a Jev/TypeSafe) y conserva la plantilla de `packages/evaluation`.
+- El brief y el prompt del participante viajan como datos no confiables dentro de `<evaluation-data>`. El mentor no sigue sus instrucciones y `evaluate()` exige el formato completo sin texto adicional ni puntajes contradictorios.
+- La salida de OpenRouter se limita a 512 tokens.
+- Si falta la API key, falla la red, o la respuesta está vacía/malformed, el generador registra `community.feedback.openrouter_fallback` sin incluir el prompt y **cae a la plantilla** `feedback-template-m1-v1` (mismo contrato que el stub). `evaluate()` sigue rechazando texto LLM inválido y conserva la plantilla de `packages/evaluation`.
 - `FEEDBACK_MODE=local` (Ollama) y `stub` se mantienen. `http` sigue sin configurar (placeholder distinto de OpenRouter).
 - No se toca Hermes/WhatsApp en este cambio. Secretos solo en `.env.local` / entorno del VPS; nunca en el repositorio.
 

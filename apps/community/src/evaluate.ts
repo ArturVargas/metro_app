@@ -45,31 +45,31 @@ function isValidGeneratedFeedback(
   if (!text || !hasValidMetadata(feedback.metadata)) return false;
   if (feedback.metadata.kind === "template") return true;
 
-  const problemCount = bulletCountBetween(
-    text,
-    "Problemas prioritarios:",
-    "Sugerencias:",
-  );
-  const suggestionCount = bulletCountBetween(text, "Sugerencias:", "Pregunta:");
+  const lines = text.split("\n");
+  const suggestionsAt = lines.indexOf("Sugerencias:");
+  const questionAt = lines.findIndex((line) => line.startsWith("Pregunta: "));
+  const problems = lines.slice(4, suggestionsAt);
+  const suggestions = lines.slice(suggestionsAt + 1, questionAt);
+  const isBullet = (line: string) => /^-\s+\S/.test(line);
+
   return (
-    text.includes(`Puntaje: ${Math.round(score.total)}/100`) &&
-    text.includes(
-      `Elegibilidad: ${resolveEligible(score) ? "Elegible" : "No elegible"}`,
-    ) &&
-    text.includes("Fortaleza:") &&
-    text.includes("Problemas prioritarios:") &&
-    text.includes("Sugerencias:") &&
-    text.includes("Pregunta:") &&
-    problemCount >= 1 &&
-    problemCount <= 2 &&
-    suggestionCount === problemCount &&
+    lines[0] === `Puntaje: ${Math.round(score.total)}/100` &&
+    lines[1] ===
+      `Elegibilidad: ${resolveEligible(score) ? "Elegible" : "No elegible"}` &&
+    /^Fortaleza:\s+\S/.test(lines[2] ?? "") &&
+    lines[3] === "Problemas prioritarios:" &&
+    suggestionsAt >= 5 &&
+    questionAt === lines.length - 1 &&
+    problems.length >= 1 &&
+    problems.length <= 2 &&
+    problems.every(isBullet) &&
+    suggestions.length === problems.length &&
+    suggestions.every(isBullet) &&
+    /^Pregunta:\s+\S/.test(lines[questionAt] ?? "") &&
+    (text.match(/Puntaje:/g) ?? []).length === 1 &&
+    (text.match(/Elegibilidad:/g) ?? []).length === 1 &&
     !/\b(?:jev|typesafe)\b/i.test(text)
   );
-}
-
-function bulletCountBetween(text: string, start: string, end: string): number {
-  const section = text.split(start, 2)[1]?.split(end, 1)[0] ?? "";
-  return section.split("\n").filter((line) => /^\s*-\s+\S/.test(line)).length;
 }
 
 export async function evaluate(
