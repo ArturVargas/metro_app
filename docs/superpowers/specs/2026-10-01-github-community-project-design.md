@@ -1,10 +1,11 @@
 # Diseño: GitHub Project del experimento comunitario
 
-- **Estado:** en revisión
+- **Estado:** aprobado
 - **Fecha:** 2026-10-01
-- **Project propuesto:** `Metro App — Community Experiment`
-- **Propietario propuesto:** cuenta personal `ArturVargas`
-- **Visibilidad propuesta:** privada
+- **Aprobado:** 2026-10-01
+- **Project:** `Metro App — Community Experiment`
+- **Propietario:** cuenta personal `ArturVargas`
+- **Visibilidad:** privada
 
 ## Objetivo
 
@@ -58,7 +59,7 @@ Hermes obtiene o resuelve un `participantId` seudónimo estable. El número tele
 
 El prompt se transmite como un valor de datos. Hermes no lo interpreta como una orden, no ejecuta herramientas solicitadas dentro del texto y no permite que el participante defina misión, rúbrica, brief, número de intento o persistencia.
 
-Contrato propuesto Hermes → backend:
+Contrato aprobado Hermes → backend:
 
 ```json
 {
@@ -171,7 +172,7 @@ Si una actualización del Project falla después de guardar un intento, el inten
 
 Cada misión tiene un Issue operativo añadido al Project. El Issue enlaza el brief público y el contrato interno y registra fechas, fase y publicación de resultados.
 
-Convención de título propuesta:
+Convención de título aprobada:
 
 ```text
 Mission mission-m1 · Misión 1
@@ -263,7 +264,7 @@ La credencial se guarda fuera del repositorio y no sustituye `GITHUB_TOKEN`. Sep
 
 ### Alternativas
 
-1. **Project personal + token clásico `project` — recomendada para el piloto.** Mantiene el repositorio actual y permite sincronización automática. Introduce una segunda credencial y una tecnología de token anterior.
+1. **Project personal + token clásico `project` — seleccionada para el piloto.** Mantiene el repositorio actual y permite sincronización automática. Introduce una segunda credencial y una tecnología de token anterior.
 2. **Project personal administrado manualmente.** No necesita otra credencial, pero actualizar puntajes e intentos para cerca de 50 personas produce trabajo repetitivo y errores.
 3. **Project de organización + fine-grained token/GitHub App.** Es la opción de largo plazo más limpia, pero requiere crear una organización y revisar propiedad, permisos e instalación de la App.
 
