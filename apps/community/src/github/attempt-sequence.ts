@@ -5,12 +5,12 @@ export function attemptNumberFromComment(
   missionId: string,
   participantId: string,
 ): number | null {
-  const prefix = `<!-- metro-attempt: mission:${missionId} participant:${participantId} attempt:`;
-  const start = body.indexOf(prefix);
-  if (start < 0) return null;
-  const value = body.slice(start + prefix.length).split(" -->", 1)[0];
-  if (!value || !/^\d+$/.test(value)) return null;
-  return Number(value);
+  const firstLine = body.split(/\r?\n/, 1)[0] ?? "";
+  const match = firstLine.match(
+    /^<!-- metro-attempt: mission:([A-Za-z0-9][A-Za-z0-9._-]*) participant:([A-Za-z0-9][A-Za-z0-9._-]*) attempt:(\d+) -->$/,
+  );
+  if (!match || match[1] !== missionId || match[2] !== participantId) return null;
+  return Number(match[3]);
 }
 
 export function assertNextAttempt(
