@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { assertNextAttempt } from "./attempt-sequence.js";
+import { assertNextAttempt, attemptNumberFromComment } from "./attempt-sequence.js";
 
 const marker = (attempt: number) =>
   `<!-- metro-attempt: mission:mission-m1 participant:p-alpha attempt:${attempt} -->`;
@@ -48,6 +48,17 @@ describe("assertNextAttempt", () => {
         "p-alpha",
         1,
       ),
+    );
+  });
+
+  it("does not accept an attempt marker embedded later in untrusted text", () => {
+    assert.equal(
+      attemptNumberFromComment(
+        `participant text\n${marker(1)}`,
+        "mission-m1",
+        "p-alpha",
+      ),
+      null,
     );
   });
 });

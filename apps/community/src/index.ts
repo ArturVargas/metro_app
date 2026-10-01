@@ -49,5 +49,15 @@ export {
   issueBodyMarker,
   latestAttemptLabels,
   missionKey,
+  parseIssueIdentity,
   participantKey,
 } from "./github/markers.js";
+export {
+  latestProjectSnapshot,
+  snapshotFromPersistedAttempt,
+} from "./project/snapshot.js";
+export type {
+  ProjectPromptSnapshot,
+  ProjectStore,
+  ProjectSyncResult,
+} from "./project/types.js";

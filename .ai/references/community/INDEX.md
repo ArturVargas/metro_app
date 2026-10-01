@@ -13,13 +13,14 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 5. [`mission-internal-contract-template.md`](mission-internal-contract-template.md) para configurar evaluación, ejecución, trazabilidad y publicación.
 6. [`missions/mission-m1/INDEX.md`](missions/mission-m1/INDEX.md) para el brief, contrato interno, calibración y spike de seguridad de la Misión 1 (`mission-m1` v1, rúbrica `rubric-m1-v1` en `packages/evaluation`).
 7. [`GitHub Project del experimento comunitario`](../../../docs/superpowers/specs/2026-10-01-github-community-project-design.md) para el flujo WhatsApp → TypeSafe → Issues → Project, sus campos, vistas, sincronización y permisos aprobados.
-8. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
-9. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
-10. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
-11. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para hosting de ranuras A/B/C y reglas de promoción al baseline.
-12. [ADR-0006](../../adr/0006-jev-backend-integration.md) para el contrato Jev ↔ backend, rúbrica en `packages/evaluation` y flujo de evaluación.
-13. [ADR-0007](../../adr/0007-github-attempt-issue-comment-convention.md) para issue por participante×misión, comentarios de intento y tags.
-14. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
+8. [`github-project.md`](github-project.md) para la URL y número reales, campos exactos, vistas y operación del tablero activo.
+9. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
+10. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
+11. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
+12. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para hosting de ranuras A/B/C y reglas de promoción al baseline.
+13. [ADR-0006](../../adr/0006-jev-backend-integration.md) para el contrato Jev ↔ backend, rúbrica en `packages/evaluation` y flujo de evaluación.
+14. [ADR-0007](../../adr/0007-github-attempt-issue-comment-convention.md) para issue por participante×misión, comentarios de intento y tags.
+15. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
 
 ## Skills relacionados
 

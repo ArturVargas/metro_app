@@ -6,6 +6,16 @@ export function issueBodyMarker(missionId: string, participantId: string): strin
   return `<!-- metro-issue: mission:${missionId} participant:${participantId} -->`;
 }
 
+export function parseIssueIdentity(
+  body: string,
+): { missionId: string; participantId: string } | null {
+  const firstLine = body.split(/\r?\n/, 1)[0] ?? "";
+  const match = firstLine.match(
+    /^<!-- metro-issue: mission:([A-Za-z0-9][A-Za-z0-9._-]*) participant:([A-Za-z0-9][A-Za-z0-9._-]*) -->$/,
+  );
+  return match ? { missionId: match[1]!, participantId: match[2]! } : null;
+}
+
 /** Plain-text keys also embedded in the issue body for search. */
 export function missionKey(missionId: string): string {
   return `mission:${missionId}`;
