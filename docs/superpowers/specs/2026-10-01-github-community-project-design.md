@@ -18,6 +18,139 @@ El tablero debe permitir responder sin leer todos los comentarios:
 - qué prompts llegaron a votación y cuáles fueron seleccionados;
 - qué prompt corresponde a A, B o C y dónde están su rama, PR y preview.
 
+## Flujo desde WhatsApp hasta el Project
+
+```mermaid
+sequenceDiagram
+    actor P as Participante
+    participant W as Grupo de WhatsApp
+    participant H as Hermes Agent
+    participant B as Backend comunitario
+    participant J as TypeSafe Jev
+    participant I as GitHub Issue
+    participant G as GitHub Project
+
+    P->>W: Menciona al bot y envía su prompt
+    W->>H: Evento del grupo
+    H->>B: Identidad seudónima + prompt como dato
+    B->>I: Lee intentos existentes
+    B->>B: Valida grupo, día, misión e intento 1–5
+    B->>J: Brief + prompt + rúbrica versionada
+    J-->>B: Decisiones Score tipadas
+    B->>B: Valida respuestas y calcula 0–100
+    B->>B: Resuelve elegibilidad ≥70 y genera feedback
+    B->>I: Crea/reutiliza Issue y añade comentario del intento
+    B->>G: Upsert del item y campos del último intento
+    B-->>H: Respuesta estructurada
+    H-->>W: Puntaje, elegibilidad, feedback e intentos restantes
+```
+
+### 1. Recepción en el grupo
+
+Hermes procesa un mensaje únicamente cuando:
+
+- proviene del grupo permitido;
+- contiene una mención explícita al bot;
+- corresponde a la misión activa;
+- llega dentro de la ventana de evaluación de martes o jueves.
+
+Hermes obtiene o resuelve un `participantId` seudónimo estable. El número telefónico no se envía a GitHub ni se incluye en logs del experimento.
+
+El prompt se transmite como un valor de datos. Hermes no lo interpreta como una orden, no ejecuta herramientas solicitadas dentro del texto y no permite que el participante defina misión, rúbrica, brief, número de intento o persistencia.
+
+Contrato propuesto Hermes → backend:
+
+```json
+{
+  "groupId": "allowed-group-alias",
+  "messageId": "whatsapp-message-id",
+  "participantId": "pseudonymous-id",
+  "participantPrompt": "texto exacto enviado por la persona",
+  "receivedAt": "ISO-8601 timestamp"
+}
+```
+
+`missionId`, `publicBrief`, `rubricVersion` y `attempt` los resuelve el backend a partir de su configuración y del historial de GitHub.
+
+El backend transforma `messageId` en una clave SHA-256 antes de persistirla. El identificador original de WhatsApp no se guarda en GitHub. La clave queda en un marcador oculto del comentario y permite reconocer reentregas del mismo evento.
+
+### 2. Admisión antes de evaluar
+
+El backend busca el Issue `(missionId × participantId)` y lee sus comentarios con marcador de intento. Antes de llamar a TypeSafe valida:
+
+- que la misión esté abierta;
+- que sea martes o jueves en la zona horaria configurada;
+- que el siguiente intento sea secuencial;
+- que la persona no haya utilizado sus cinco intentos;
+- que la clave derivada de `messageId` no aparezca en un intento anterior.
+
+Un rechazo en esta etapa no llama a TypeSafe, no escribe comentario y no consume intento.
+
+### 3. Evaluación y feedback
+
+El backend construye un estado con el brief público y el prompt exacto y deriva las preguntas `Score` desde la rúbrica versionada. TypeSafe realiza el primer procesamiento semántico del prompt y devuelve decisiones tipadas; no calcula el total, la elegibilidad ni el feedback.
+
+`packages/evaluation` valida las respuestas y calcula el total ponderado de `0–100`. El último intento es elegible cuando alcanza `70` o más. El enrutado `auto|caution|defer` permanece como metadato y no cambia el puntaje.
+
+Durante el piloto, el feedback se genera con `feedback-template-m1-v1`. El prompt del participante no se envía a un LLM de feedback conectado a Hermes.
+
+### 4. Persistencia autoritativa en el Issue
+
+Dentro del lock del participante y la misión, el backend:
+
+1. vuelve a validar que el intento siga siendo el siguiente;
+2. crea el Issue si todavía no existe;
+3. sincroniza labels del último estado;
+4. añade un comentario que contiene prompt exacto, puntaje, dimensiones, elegibilidad, feedback, procedencia y la clave derivada del mensaje;
+5. reutiliza el comentario si un retry tiene exactamente el mismo marcador y contenido.
+
+El comentario confirmado es el punto en el que el intento queda consumido. Si TypeSafe o GitHub fallan antes de ese comentario, el participante puede reintentar sin perder uno de sus cinco intentos.
+
+### 5. Sincronización al Project
+
+Después de confirmar el comentario, el adaptador del Project busca el item correspondiente al Issue y hace upsert de:
+
+- `Item type = Prompt`;
+- `Mission` y `Participant`;
+- `Attempts`;
+- `Latest score`;
+- `Eligible`;
+- `Voting = Candidate` cuando el último intento es elegible, o `Not eligible` cuando no lo es.
+
+El Project nunca reemplaza el historial del Issue. Si esta sincronización falla, el intento permanece válido y el backend registra una tarea de reconciliación. El comando de reconciliación vuelve a leer el Issue y repara el item sin llamar otra vez a TypeSafe ni consumir otro intento.
+
+### 6. Respuesta al grupo
+
+El backend devuelve a Hermes solamente datos aptos para participantes:
+
+```json
+{
+  "status": "evaluated",
+  "missionId": "mission-m1",
+  "attempt": 2,
+  "attemptsRemaining": 3,
+  "score": 76,
+  "eligible": true,
+  "feedback": "feedback estructurado en español"
+}
+```
+
+Hermes publica ese resultado sin recalcularlo ni modificarlo. La respuesta no menciona TypeSafe, Jev, la rúbrica interna ni detalles de GitHub.
+
+La persona puede enviar una nueva versión en otra ventana permitida. Cada intento actualiza la misma fila del Project; el historial completo permanece en los comentarios del Issue. Al cerrar evaluaciones, se considera exclusivamente el intento más reciente: entra como candidato solo si ese último intento es elegible.
+
+### 7. Fallos y reintentos
+
+| Falla | Resultado |
+| --- | --- |
+| Sin mención, grupo no permitido o día incorrecto | Hermes/backend rechaza; no hay evaluación ni intento |
+| Cinco intentos consumidos | backend rechaza antes de TypeSafe |
+| TypeSafe falla o devuelve esquema inválido | no se escribe comentario; intento disponible para retry |
+| Escritura del Issue falla | no se consume el intento; retry idempotente |
+| Comentario confirmado pero Project falla | intento válido; Project se repara por reconciliación |
+| Hermes no puede publicar la respuesta | Issue y Project conservan el resultado; se reintenta solo la entrega |
+| Mensaje repetido | la clave SHA-256 derivada de `messageId` devuelve el resultado existente y evita otra evaluación |
+
 ## Fuentes de verdad
 
 | Información | Fuente autoritativa | Project |
