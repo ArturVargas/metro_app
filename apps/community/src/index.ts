@@ -14,6 +14,16 @@ export {
   type FetchLike,
   type LocalLlmConfig,
 } from "./feedback/local.js";
+export {
+  DEFAULT_MENTOR_PROMPT_VERSION,
+  DEFAULT_OPENROUTER_BASE_URL,
+  DEFAULT_OPENROUTER_MODEL,
+  OpenRouterFeedbackGenerator,
+  loadMentorPrompt,
+  parseMentorMarkdown,
+  readOpenRouterConfig,
+  type OpenRouterConfig,
+} from "./feedback/openrouter.js";
 export { HttpFeedbackGenerator } from "./feedback/pending.js";
 export { StubFeedbackGenerator } from "./feedback/stub.js";
 export type {
