@@ -8,7 +8,11 @@
 
 GitHub Issues y GitHub Projects serán la fuente de verdad del experimento. Cada participante tendrá un issue por misión; cada intento y feedback quedará como comentario. Los campos numéricos, de texto y selección guardarán puntaje actual, intentos usados, estado, misión y asignación A/B/C. Las etiquetas representarán estados, no valores de puntaje.
 
-El backend accederá mediante una GitHub App con permisos mínimos. No habrá PostgreSQL en el MVP.
+El Project privado `Metro App — Community Experiment`, propiedad de `ArturVargas`, funciona como proyección operativa. Issues conserva el historial autoritativo; el Project muestra el último intento, elegibilidad, resultado final de votación, asignación A/B/C y enlaces de ejecución. Un fallo al sincronizar el Project no invalida el comentario ya confirmado y se repara mediante reconciliación.
+
+El backend accederá mediante una GitHub App con permisos mínimos. Durante las pruebas locales y el piloto inicial puede usarse temporalmente un fine-grained PAT de la cuenta propietaria, limitado a `metro_app` con `Issues: Read and write`. No habrá PostgreSQL en el MVP.
+
+Para automatizar el Project personal durante el piloto se usa una segunda credencial clásica de `ArturVargas` limitada al scope `project`; no sustituye el token de Issues. La migración a una GitHub App queda ligada a mover el Project a una organización o a que GitHub elimine la limitación de tokens para Projects personales.
 
 ## Alternativas consideradas
 
@@ -20,7 +24,10 @@ El backend accederá mediante una GitHub App con permisos mínimos. No habrá Po
 
 - Las evaluaciones deben serializarse y usar identificadores idempotentes.
 - La estructura de comentarios y campos se considera un contrato versionado.
+- El texto exacto y el historial no se duplican en campos del Project; estos campos son snapshots reconstruibles.
+- Los votos individuales y los conteos parciales no se escriben en el Project; el total aparece después del cierre.
 - GitHub no debe almacenar teléfonos, tokens ni secretos.
+- En un repositorio perteneciente a una cuenta personal, el PAT temporal debe pertenecer a `ArturVargas`; un fine-grained PAT de una cuenta colaboradora no puede sustituirlo.
 - El rendimiento y las garantías transaccionales son suficientes solo para el piloto.
 
 ## Reabrir si

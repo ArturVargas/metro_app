@@ -26,7 +26,8 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 - TypeSafe Jev como evaluador tipado (`Noul` / `Choice` / `Score` únicamente; ver [ADR-0006](../../adr/0006-jev-backend-integration.md)).
 - `packages/evaluation` posee rúbricas versionadas, preguntas, scoring 0–100 y validación; `apps/community` las consumirá.
 - LLM ligero como redactor de feedback.
-- GitHub Issues y Projects como fuente de verdad y auditoría.
+- GitHub Issues como historial autoritativo de misiones, prompts, intentos y feedback.
+- Project privado `Metro App — Community Experiment` como proyección operativa del último intento, votación cerrada, asignación A/B/C y enlaces de ejecución; se reconstruye desde Issues si una sincronización falla.
 - GitHub como origen de issues, ramas y pull requests de las variantes A/B/C.
 - Cuatro proyectos de Cloudflare Pages hospedan ranuras permanentes Base/A/B/C con URLs estables; cada misión parte de Base y sobrescribe A/B/C con los resultados elegidos.
 - La promoción de una variante al baseline de la siguiente misión es decisión del responsable de producto, no automática por tráfico ni por segunda votación.
@@ -38,6 +39,7 @@ Una falla del sistema comunitario no debe impedir jugar. Una partida no necesita
 - Jev devuelve decisiones estructuradas; no redacta feedback.
 - El LLM recibe los hallazgos ya calculados y no puede alterar el resultado.
 - GitHub conserva prompts, intentos, feedback, estados, selección y mapeo de variantes.
+- La sincronización al Project ocurre después de confirmar el comentario del intento y nunca invalida un intento si falla.
 - El agente de código trabaja sobre ramas aisladas creadas desde el mismo commit.
 
 ## Estructura prevista del repositorio

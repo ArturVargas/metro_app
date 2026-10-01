@@ -26,6 +26,7 @@
 - El feedback muestra la puntuación, una fortaleza concreta, hasta dos problemas prioritarios, sugerencias accionables y una pregunta de revisión.
 - Si el LLM falla o entrega un formato inválido, se usa feedback basado en plantillas.
 - Se registran proveedor, modelo y versión del prompt de feedback.
+- Durante el piloto, el modo operativo es feedback determinista (`FEEDBACK_MODE=stub`). El LLM local no se conecta a Hermes hasta que se defina y pruebe una frontera donde el prompt del participante no pueda controlar el contenido publicado.
 
 ### Elegibilidad y votación
 

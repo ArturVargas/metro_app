@@ -34,6 +34,10 @@
 
 Cada criterio debe evaluar la calidad del prompt frente al brief público. No debe premiar una solución técnica preferida ni introducir requisitos que la comunidad no recibió.
 
+### Evidencia de calibración
+
+La [calibración TypeSafe del 2026-09-30](calibration-2026-09-30.md) obtuvo 15.0, 63.8 y 100.0 para controles débil, cercano al umbral y fuerte, respectivamente. Tres repeticiones independientes del control de 63.8 reprodujeron el mismo total, elegibilidad y niveles, con swing 0. La separación y repetibilidad esperadas se cumplieron; no se propone cambiar la rúbrica, sus pesos ni el umbral. Permanece abierto el significado operativo de `routing: caution` antes de automatizar respuestas.
+
 ## 3. Código base
 
 - **Repositorio:** `ArturVargas/metro_app`

@@ -16,9 +16,9 @@
 
 ### Flujo de evaluación
 
-1. Mención explícita al bot en el grupo.
+1. Mención explícita al bot en el grupo; Hermes entrega el texto como dato y no ejecuta instrucciones contenidas en él.
 2. Validar ventana (martes/jueves) e intentos restantes (**máximo 5 evaluaciones por misión por participante**; no es un tope compartido de la misión ni del grupo).
-3. Construir el estado de evaluación: brief público de la misión + prompt del participante.
+3. Construir el estado de evaluación con campos controlados por el backend: misión, rúbrica, brief público, identidad, intento y prompt del participante. TypeSafe realiza el primer procesamiento semántico del prompt.
 4. Derivar preguntas Jev Score (y Noul/Choice auxiliares) desde la rúbrica versionada por misión.
 5. Obtener respuestas tipadas de Jev.
 6. Calcular la puntuación 0–100 en código (`packages/evaluation`), no en el LLM ni en Hermes.
@@ -67,6 +67,7 @@ Cada dimensión de la rúbrica se modela preferentemente como una pregunta Jev *
 ## Consecuencias
 
 - Antes de la Misión 1 hay que versionar rúbrica por misión (criterios Score + pesos), prompt de feedback y plantilla de respaldo. El patrón de agregación (normalizar 0–4 → 0–1, suma ponderada → 0–100) está fijado; los pesos numéricos por misión pueden seguir abiertos hasta el contrato interno.
+- Durante el piloto, `FEEDBACK_MODE=stub` es el modo operativo. `FEEDBACK_MODE=local` permanece desconectado de Hermes hasta verificar que el prompt del participante no puede controlar el feedback publicado.
 - El adaptador TypeSafe vive detrás de `packages/evaluation`; el resto del monorepo no importa SDKs ni secretos de Jev.
 - `apps/community` depende de contratos tipados de este paquete, no de detalles de WhatsApp ni de Cloudflare.
 - El CI del juego (`game-checks`) no debe depender de este paquete en tiempo de ejecución.
@@ -78,3 +79,4 @@ Cada dimensión de la rúbrica se modela preferentemente como una pregunta Jev *
 - El patrón Score-compuesto (normalizar niveles + suma ponderada en código) no alcanza concordancia o los pesos por misión exigen otro modelo de agregación.
 - Aparece un canal oficial distinto de Hermes que cambie el contrato de entrada/salida.
 - Se necesita invocar TypeSafe desde otro paquete o app sin pasar por `packages/evaluation`.
+- Se define y verifica una frontera segura para habilitar feedback LLM con entradas de participantes.

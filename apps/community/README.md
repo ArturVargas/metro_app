@@ -40,12 +40,14 @@ Participant-facing text never names **Jev**.
 | `TYPESAFE_API_KEY` | http only | TypeSafe bearer key. `JEV_API_KEY` is a fallback name. **Never commit secrets.** |
 | `TYPESAFE_BASE_URL` | No | Default `https://api.typesafe.ai` |
 | `TYPESAFE_DEFAULT_MODEL` or `JEV_MODEL` | No | Default `jev-latest` |
-| `GITHUB_TOKEN` or `GH_TOKEN` | `--record` only | Issues/comments/labels. Not required to print JSON. |
+| `GITHUB_TOKEN` or `GH_TOKEN` | `--record` only | Fine-grained PAT created by `ArturVargas`, limited to `metro_app`, with `Issues: Read and write`. Not required to print JSON. |
 | `GITHUB_OWNER` | No | Default `ArturVargas` |
 | `GITHUB_REPO` | No | Default `metro_app` |
 | `DRY_RUN` | No | Only for `github:record-attempt` (print markdown, no write) |
 
 Request shape for `JEV_MODE=http`: `POST /v1/systemone` with `{ model, state, questions }` where each rubric dimension is `{ "type": "score", "instructions", "criteria": [level0..level4] }`. Details in `packages/evaluation/README.md`.
+
+Because `metro_app` belongs to a personal account, a fine-grained PAT created by an outside collaborator can return `403 Resource not accessible by personal access token` even when that collaborator can push code. Use the repository owner's token for the pilot; never commit it. See [community writer operations](../../.ai/references/operations/github-community-writer.md).
 
 ## CLI
 
