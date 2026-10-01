@@ -11,5 +11,6 @@ Lee un ADR cuando una tarea toque su decisión o cuando aparezca una condición 
 | [`0005`](0005-cloudflare-abc-preview-slots.md) | Aceptada | Cloudflare hospeda Base y ranuras A/B/C permanentes; la promoción es decisión del responsable |
 | [`0006`](0006-jev-backend-integration.md) | Aceptada | Jev solo decide tipado; scoring compuesto Score→0–100; 5 evaluaciones por misión por participante; `packages/evaluation` posee rúbrica |
 | [`0007`](0007-github-attempt-issue-comment-convention.md) | Aceptada | Un issue por participante×misión; intentos = comentarios con tags; labels del último intento |
+| [`0008`](0008-openrouter-mentor-feedback.md) | Aceptada | `FEEDBACK_MODE=openrouter` + `mentor.md` (Picosito); plantilla de respaldo; secretos solo en env |
 
 Al reemplazar una decisión, conserva el ADR anterior con estado `reemplazada` y enlaza el nuevo ADR.

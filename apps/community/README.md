@@ -2,7 +2,7 @@
 
 Community backend: evaluate a participant prompt with Jev, generate participant feedback, and optionally persist a verified TypeSafe attempt on GitHub.
 
-No Hermes. Feedback defaults to the versioned template (`FEEDBACK_MODE=stub`). `FEEDBACK_MODE=local` calls a local Ollama model (`gemma4-coding-agent` by default). `http` stays unconfigured.
+No Hermes. Feedback defaults to the versioned template (`FEEDBACK_MODE=stub`). `FEEDBACK_MODE=local` calls a local Ollama model (`gemma4-coding-agent` by default). `FEEDBACK_MODE=openrouter` calls OpenRouter chat completions with `prompts/mentor.md` (Picosito). `http` stays unconfigured.
 
 ## Status
 
@@ -13,7 +13,7 @@ No Hermes. Feedback defaults to the versioned template (`FEEDBACK_MODE=stub`). `
 - The MVP runs one community-writer process. Its keyed lock covers admission, evaluation, and persistence for each participant × mission.
 - Exact retries reuse the existing comment and resync labels instead of consuming another attempt.
 
-See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md) and [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md).
+See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md), [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md), and [ADR-0008](../../.ai/adr/0008-openrouter-mentor-feedback.md).
 
 ## Issue / comment / tags model
 
@@ -34,9 +34,12 @@ Participant-facing text never names **Jev**.
 | Variable | Required | Description |
 | --- | --- | --- |
 | `JEV_MODE` | No | `mock` (default) or `http`. CLI `--mock` forces the mock. |
-| `FEEDBACK_MODE` | No | `stub` (default), `local` (Ollama), or `http` (throws `not configured`). |
+| `FEEDBACK_MODE` | No | `stub` (default), `local` (Ollama), `openrouter` (OpenRouter + mentor.md), or `http` (throws `not configured`). |
 | `OLLAMA_BASE_URL` | No | Local feedback only. Default `http://127.0.0.1:11434`. |
 | `OLLAMA_MODEL` | No | Local feedback only. Default `gemma4-coding-agent`. |
+| `OPENROUTER_API_KEY` | openrouter | Bearer key for OpenRouter. **Never commit secrets.** |
+| `OPENROUTER_MODEL` | No | OpenRouter model id. Default `google/gemini-2.5-flash`. |
+| `OPENROUTER_BASE_URL` | No | Default `https://openrouter.ai/api/v1`. |
 | `TYPESAFE_API_KEY` | http only | TypeSafe bearer key. `JEV_API_KEY` is a fallback name. **Never commit secrets.** |
 | `TYPESAFE_BASE_URL` | No | Default `https://api.typesafe.ai` |
 | `TYPESAFE_DEFAULT_MODEL` or `JEV_MODEL` | No | Default `jev-latest` |
@@ -59,6 +62,9 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 
 # Mock Jev + local Ollama feedback (requires Ollama on OLLAMA_BASE_URL with the model pulled)
 FEEDBACK_MODE=local pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --mock
+
+# Mock Jev + OpenRouter mentor feedback (requires OPENROUTER_API_KEY)
+FEEDBACK_MODE=openrouter OPENROUTER_API_KEY=... pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --mock
 
 # Flags instead of a fixture
 pnpm --filter @metro/community evaluate -- \
@@ -85,6 +91,22 @@ curl -s http://127.0.0.1:11434/api/tags | grep gemma4-coding-agent
 FEEDBACK_MODE=local pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --mock
 ```
 
+
+## OpenRouter mentor feedback
+
+`OpenRouterFeedbackGenerator` loads `apps/community/prompts/mentor.md` (Picosito: warm roast / coach animado in Spanish) and POSTs `POST {OPENROUTER_BASE_URL}/chat/completions`. It never invents scores: the user message carries the computed total and eligibility, and the mentor prompt requires copying them. API/network/empty failures fall back to `feedback-template-m1-v1`. Provenance: `provider: "openrouter"`, `version` from mentor frontmatter (default `feedback-mentor-m1-v1`). Unit tests mock `fetch`.
+
+```bash
+# .env.local on the VPS (never commit):
+# FEEDBACK_MODE=openrouter
+# OPENROUTER_API_KEY=...
+# OPENROUTER_MODEL=google/gemini-2.5-flash   # optional
+# OPENROUTER_BASE_URL=https://openrouter.ai/api/v1  # optional
+
+FEEDBACK_MODE=openrouter OPENROUTER_API_KEY=... \
+  pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json --mock
+```
+
 ## Scripts
 
 ```bash
@@ -96,7 +118,7 @@ pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
 ## Public surface
 
 - `evaluate(input, { client, record, store, env, feedback, feedbackGenerator })`
-- `StubFeedbackGenerator` / `LocalLlmFeedbackGenerator` / `createFeedbackGenerator()` (`FEEDBACK_MODE`)
+- `StubFeedbackGenerator` / `LocalLlmFeedbackGenerator` / `OpenRouterFeedbackGenerator` / `createFeedbackGenerator()` (`FEEDBACK_MODE`)
 - `GitHubIssueStore.findOrCreateIssue` / `assertAttemptAllowed` / `recordAttempt` / `addAttemptComment`
 - `requireGitHubStoreConfig()` / `readGitHubEnvConfig()`
 

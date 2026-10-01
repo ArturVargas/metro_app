@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import type { ScoreResult } from "@metro/evaluation";
 import { createFeedbackGenerator, readFeedbackMode } from "./env.js";
 import { LocalLlmFeedbackGenerator } from "./local.js";
+import { OpenRouterFeedbackGenerator } from "./openrouter.js";
 import { StubFeedbackGenerator } from "./stub.js";
 import type { FeedbackInput } from "./types.js";
 
@@ -75,9 +76,11 @@ describe("FEEDBACK_MODE", () => {
     assert.equal(readFeedbackMode({ FEEDBACK_MODE: "  " }), "stub");
   });
 
-  it("selects local Ollama generator and http placeholder", async () => {
+  it("selects local, openrouter, and http placeholder", async () => {
     const local = createFeedbackGenerator({ FEEDBACK_MODE: "local" });
     assert.ok(local instanceof LocalLlmFeedbackGenerator);
+    const openrouter = createFeedbackGenerator({ FEEDBACK_MODE: "openrouter" });
+    assert.ok(openrouter instanceof OpenRouterFeedbackGenerator);
     await assert.rejects(
       () => createFeedbackGenerator({ FEEDBACK_MODE: "http" }).generate(base),
       /HttpFeedbackGenerator is not configured/,
