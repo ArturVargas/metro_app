@@ -94,7 +94,7 @@ FEEDBACK_MODE=local pnpm --filter @metro/community evaluate -- --fixture fixture
 
 ## OpenRouter mentor feedback
 
-`OpenRouterFeedbackGenerator` loads `apps/community/prompts/mentor.md` (Picosito: warm roast / coach animado in Spanish) and POSTs `POST {OPENROUTER_BASE_URL}/chat/completions`. It never invents scores: the user message carries the computed total and eligibility, and the mentor prompt requires copying them. API/network/empty failures fall back to `feedback-template-m1-v1`. Provenance: `provider: "openrouter"`, `version` from mentor frontmatter (default `feedback-mentor-m1-v1`). Unit tests mock `fetch`.
+`OpenRouterFeedbackGenerator` loads `apps/community/prompts/mentor.md` (Picosito: warm roast / coach animado in Spanish) and POSTs `POST {OPENROUTER_BASE_URL}/chat/completions` with a 512-token output limit. The brief and participant prompt are marked as untrusted `<evaluation-data>`; generated feedback must match the complete expected shape with no extra text or conflicting score. API/network/empty failures emit `community.feedback.openrouter_fallback` without participant content and fall back to `feedback-template-m1-v1`. Provenance: `provider: "openrouter"`, `version` from mentor frontmatter (default `feedback-mentor-m1-v2`). Unit tests mock `fetch`.
 
 ```bash
 # .env.local on the VPS (never commit):

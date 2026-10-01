@@ -43,7 +43,7 @@ const input: FeedbackInput = {
 };
 
 const sampleMentor = `---
-version: feedback-mentor-m1-v1
+version: feedback-mentor-m1-v2
 ---
 
 Eres Picosito. Nunca inventes el puntaje.
@@ -127,6 +127,7 @@ describe("OpenRouterFeedbackGenerator", () => {
     assert.equal(headers.get("Authorization"), "Bearer sk-test");
     assert.equal(seenBody.model, "google/gemini-2.5-flash");
     assert.equal(seenBody.temperature, 0.2);
+    assert.equal(seenBody.max_tokens, 512);
     const messages = seenBody.messages as Array<{ role: string; content: string }>;
     assert.equal(messages[0]?.role, "system");
     assert.match(messages[0]?.content ?? "", /Picosito/);
@@ -143,31 +144,60 @@ describe("OpenRouterFeedbackGenerator", () => {
   });
 
   it("falls back to template when API key missing, HTTP fails, or content empty", async () => {
-    const noKey = await new OpenRouterFeedbackGenerator(
-      { systemPrompt: "x", promptVersion: "v" },
-      async () => new Response("unused"),
-    ).generate(input);
-    assert.equal(noKey.metadata.kind, "template");
-    assert.match(noKey.text, /Puntaje: 72\/100/);
+    const originalError = console.error;
+    console.error = () => {};
+    try {
+      const noKey = await new OpenRouterFeedbackGenerator(
+        { systemPrompt: "x", promptVersion: "v" },
+        async () => new Response("unused"),
+      ).generate(input);
+      assert.equal(noKey.metadata.kind, "template");
+      assert.match(noKey.text, /Puntaje: 72\/100/);
 
-    const badStatus: FetchLike = async () =>
-      new Response("down", { status: 502 });
-    const failed = await new OpenRouterFeedbackGenerator(
-      { apiKey: "sk-test", systemPrompt: "x", promptVersion: "v" },
-      badStatus,
-    ).generate(input);
-    assert.equal(failed.metadata.kind, "template");
-    assert.match(failed.text, /Puntaje: 72\/100/);
+      const badStatus: FetchLike = async () =>
+        new Response("down", { status: 502 });
+      const failed = await new OpenRouterFeedbackGenerator(
+        { apiKey: "sk-test", systemPrompt: "x", promptVersion: "v" },
+        badStatus,
+      ).generate(input);
+      assert.equal(failed.metadata.kind, "template");
+      assert.match(failed.text, /Puntaje: 72\/100/);
 
-    const empty: FetchLike = async () =>
-      new Response(JSON.stringify({ choices: [{ message: { content: "   " } }] }), {
-        status: 200,
+      const empty: FetchLike = async () =>
+        new Response(
+          JSON.stringify({ choices: [{ message: { content: "   " } }] }),
+          { status: 200 },
+        );
+      const emptyResult = await new OpenRouterFeedbackGenerator(
+        { apiKey: "sk-test", systemPrompt: "x", promptVersion: "v" },
+        empty,
+      ).generate(input);
+      assert.equal(emptyResult.metadata.kind, "template");
+    } finally {
+      console.error = originalError;
+    }
+  });
+
+  it("logs a structured fallback event without participant content", async () => {
+    const messages: string[] = [];
+    const originalError = console.error;
+    console.error = (message?: unknown) => messages.push(String(message));
+    try {
+      await new OpenRouterFeedbackGenerator(
+        { apiKey: "sk-test", systemPrompt: "x", promptVersion: "v" },
+        async () => new Response("provider details", { status: 502 }),
+      ).generate({
+        ...input,
+        participantPrompt: "SECRET PARTICIPANT CONTENT",
       });
-    const emptyResult = await new OpenRouterFeedbackGenerator(
-      { apiKey: "sk-test", systemPrompt: "x", promptVersion: "v" },
-      empty,
-    ).generate(input);
-    assert.equal(emptyResult.metadata.kind, "template");
+    } finally {
+      console.error = originalError;
+    }
+
+    assert.equal(messages.length, 1);
+    assert.match(messages[0] ?? "", /community\.feedback\.openrouter_fallback/);
+    assert.doesNotMatch(messages[0] ?? "", /SECRET PARTICIPANT CONTENT/);
+    assert.doesNotMatch(messages[0] ?? "", /provider details/);
   });
 
   it("loads mentor.md from disk by default", async () => {
@@ -177,6 +207,8 @@ describe("OpenRouterFeedbackGenerator", () => {
       };
       assert.match(body.messages[0]?.content ?? "", /Picosito/);
       assert.match(body.messages[0]?.content ?? "", /Nunca inventes/);
+      assert.match(body.messages[0]?.content ?? "", /datos no confiables/i);
+      assert.match(body.messages[1]?.content ?? "", /<evaluation-data>/);
       return new Response(
         JSON.stringify({
           choices: [{ message: { content: "Puntaje: 72/100\nElegibilidad: Elegible\nFortaleza: ok\nProblemas prioritarios:\n- a\nSugerencias:\n- b\nPregunta: c" } }],

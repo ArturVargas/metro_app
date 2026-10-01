@@ -11,13 +11,15 @@ import type {
 
 export const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 export const DEFAULT_OPENROUTER_MODEL = "google/gemini-2.5-flash";
-export const DEFAULT_MENTOR_PROMPT_VERSION = "feedback-mentor-m1-v1";
+export const DEFAULT_OPENROUTER_MAX_TOKENS = 512;
+export const DEFAULT_MENTOR_PROMPT_VERSION = "feedback-mentor-m1-v2";
 
 export type OpenRouterConfig = {
   apiKey?: string;
   baseUrl?: string;
   model?: string;
   temperature?: number;
+  maxTokens?: number;
   /** Absolute path to mentor.md; defaults to apps/community/prompts/mentor.md */
   mentorPath?: string;
   /** Injected system prompt (tests); skips reading mentor.md when set */
@@ -90,6 +92,7 @@ export class OpenRouterFeedbackGenerator implements FeedbackGenerator {
   private readonly baseUrl: string;
   private readonly model: string;
   private readonly temperature: number;
+  private readonly maxTokens: number;
   private readonly systemPrompt: string;
   private readonly promptVersion: string;
 
@@ -104,6 +107,7 @@ export class OpenRouterFeedbackGenerator implements FeedbackGenerator {
     );
     this.model = config.model ?? DEFAULT_OPENROUTER_MODEL;
     this.temperature = config.temperature ?? 0.2;
+    this.maxTokens = config.maxTokens ?? DEFAULT_OPENROUTER_MAX_TOKENS;
 
     if (config.systemPrompt !== undefined) {
       this.systemPrompt = config.systemPrompt;
@@ -120,7 +124,13 @@ export class OpenRouterFeedbackGenerator implements FeedbackGenerator {
   async generate(input: FeedbackInput): Promise<FeedbackResult> {
     try {
       return await this.generateFromOpenRouter(input);
-    } catch {
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          event: "community.feedback.openrouter_fallback",
+          error: error instanceof Error ? error.message : String(error),
+        }),
+      );
       return buildTemplateFeedback(input.scoreResult);
     }
   }
@@ -143,6 +153,7 @@ export class OpenRouterFeedbackGenerator implements FeedbackGenerator {
       body: JSON.stringify({
         model: this.model,
         temperature: this.temperature,
+        max_tokens: this.maxTokens,
         messages: [
           { role: "system", content: this.systemPrompt },
           { role: "user", content: buildLocalFeedbackUserMessage(input) },
@@ -153,9 +164,7 @@ export class OpenRouterFeedbackGenerator implements FeedbackGenerator {
 
     const text = await response.text();
     if (!response.ok) {
-      throw new Error(
-        `OpenRouter HTTP ${response.status} from ${url}: ${text.slice(0, 500)}`,
-      );
+      throw new Error(`OpenRouter HTTP ${response.status} from ${url}`);
     }
 
     let parsed: ChatWire;
