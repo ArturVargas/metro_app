@@ -50,14 +50,13 @@ El riesgo inmediato está en el redactor LLM opcional, porque actualmente recibe
 - Hermes publica únicamente la respuesta estructurada del backend.
 - Las evaluaciones adversariales se ejecutan sin `--record` y se repiten cuando cambien la rúbrica, el modelo resuelto o el contrato enviado a TypeSafe.
 
-## Recomendación pendiente de aprobación
+## Decisión posterior al spike
 
-Mantener el feedback determinista durante el piloto y no conectar `FEEDBACK_MODE=local` a Hermes hasta definir y probar un contrato donde el texto del participante no pueda controlar el contenido publicado.
+Se aprueba mantener el feedback determinista durante el piloto y no conectar `FEEDBACK_MODE=local` a Hermes hasta definir y probar un contrato donde el texto del participante no pueda controlar el contenido publicado.
 
 ## Límites y trabajo pendiente
 
 - Solo se probaron dos ataques directos y una salida LLM simulada.
 - Falta probar el adaptador real de Hermes cuando exista.
 - Falta decidir si el feedback LLM puede operar sin recibir el prompt original o si requiere otra frontera verificable.
-- Falta aprobar o rechazar la recomendación de mantener feedback determinista durante el piloto.
 - El enrutado `defer` queda como metadato; este spike no cambia la política de publicación.

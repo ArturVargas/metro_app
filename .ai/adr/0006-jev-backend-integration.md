@@ -67,6 +67,7 @@ Cada dimensión de la rúbrica se modela preferentemente como una pregunta Jev *
 ## Consecuencias
 
 - Antes de la Misión 1 hay que versionar rúbrica por misión (criterios Score + pesos), prompt de feedback y plantilla de respaldo. El patrón de agregación (normalizar 0–4 → 0–1, suma ponderada → 0–100) está fijado; los pesos numéricos por misión pueden seguir abiertos hasta el contrato interno.
+- Durante el piloto, `FEEDBACK_MODE=stub` es el modo operativo. `FEEDBACK_MODE=local` permanece desconectado de Hermes hasta verificar que el prompt del participante no puede controlar el feedback publicado.
 - El adaptador TypeSafe vive detrás de `packages/evaluation`; el resto del monorepo no importa SDKs ni secretos de Jev.
 - `apps/community` depende de contratos tipados de este paquete, no de detalles de WhatsApp ni de Cloudflare.
 - El CI del juego (`game-checks`) no debe depender de este paquete en tiempo de ejecución.
@@ -78,3 +79,4 @@ Cada dimensión de la rúbrica se modela preferentemente como una pregunta Jev *
 - El patrón Score-compuesto (normalizar niveles + suma ponderada en código) no alcanza concordancia o los pesos por misión exigen otro modelo de agregación.
 - Aparece un canal oficial distinto de Hermes que cambie el contrato de entrada/salida.
 - Se necesita invocar TypeSafe desde otro paquete o app sin pasar por `packages/evaluation`.
+- Se define y verifica una frontera segura para habilitar feedback LLM con entradas de participantes.
