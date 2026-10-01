@@ -10,6 +10,7 @@ Lee el brief público para conocer lo que recibe el grupo. Usa el contrato inter
 2. [`internal-contract.md`](internal-contract.md): fuente de verdad operativa de la misión.
 3. [`calibration-2026-09-30.md`](calibration-2026-09-30.md): primera calibración en vivo de `rubric-m1-v1` con TypeSafe.
 4. [`security-spike-2026-10-01.md`](security-spike-2026-10-01.md): probes de prompt injection en TypeSafe y revisión de la frontera de feedback.
+5. [`persistence-verification-2026-10-01.md`](persistence-verification-2026-10-01.md): escritura real en GitHub e idempotencia del Issue de intentos.
 
 ## Skills relacionadas
 
