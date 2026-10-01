@@ -20,6 +20,10 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 12. [ADR-0007](../../adr/0007-github-attempt-issue-comment-convention.md) para issue por participante×misión, comentarios de intento y tags.
 13. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
 
+## Diseños en revisión
+
+- [`GitHub Project del experimento comunitario`](../../../docs/superpowers/specs/2026-10-01-github-community-project-design.md): esquema propuesto de elementos, campos, vistas, sincronización y permisos. No tratar como aceptado hasta la revisión del responsable de producto.
+
 ## Skills relacionados
 
 - `superpowers:brainstorming`: cambios en reglas de participación o votación.
