@@ -12,7 +12,7 @@ Lee este documento antes de crear, consultar o sincronizar misiones y prompts en
 - URL: https://github.com/users/ArturVargas/projects/1
 - Visibilidad: privada
 - Repositorio vinculado: `ArturVargas/metro_app`
-- Verificado: 2026-10-01 mediante GitHub GraphQL
+- Verificado: 2026-10-01 mediante las API de GitHub Projects
 
 ## Misión activa
 
@@ -72,7 +72,7 @@ Las credenciales viven fuera del repositorio y nunca deben aparecer en logs, Iss
 
 - `architecture-workflow`: cambios en el flujo Issues → Project o en sus fronteras.
 - `superpowers:test-driven-development`: parsers, snapshots, idempotencia y reconciliación.
-- `superpowers:systematic-debugging`: duplicados, drift o fallos de GraphQL.
+- `superpowers:systematic-debugging`: duplicados, drift o fallos de la API REST.
 
 ## Dónde encontrar el contexto
 

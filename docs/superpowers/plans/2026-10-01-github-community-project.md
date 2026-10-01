@@ -4,9 +4,9 @@
 
 **Goal:** Create the private GitHub Project for the community experiment and keep each participant row synchronized with the authoritative attempt history in GitHub Issues.
 
-**Architecture:** Issues remain authoritative. A small Project adapter derives a snapshot from the latest valid attempt, upserts the participant Issue into the personal Project, and updates named fields through GitHub GraphQL. Project failures never invalidate a confirmed attempt; an idempotent reconciliation CLI repairs drift.
+**Architecture:** Issues remain authoritative. A small Project writer derives a snapshot from the latest valid attempt, upserts the participant Issue into the personal Project, and updates named fields through the GitHub Projects REST API. Project failures never invalidate a confirmed attempt; an idempotent reconciliation CLI repairs drift.
 
-**Tech Stack:** TypeScript 5.9, Node.js 22, `@octokit/rest` for Issues, global `fetch` for GitHub GraphQL, Node test runner, GitHub Projects v2.
+**Tech Stack:** TypeScript 5.9, Node.js 22, `@octokit/rest` for Issues, global `fetch` for GitHub Projects REST, Node test runner, GitHub Projects v2.
 
 **Spec:** `docs/superpowers/specs/2026-10-01-github-community-project-design.md`
 
@@ -32,7 +32,7 @@
 | `apps/community/src/github/attempt-sequence.ts` | Derive the latest valid Project snapshot fields from attempt comments. |
 | `apps/community/src/project/types.ts` | `ProjectPromptSnapshot`, `ProjectSyncResult` and `ProjectStore` contract. |
 | `apps/community/src/project/config.ts` | Read and validate Project owner, number and token from environment. |
-| `apps/community/src/project/github-project-store.ts` | GitHub GraphQL lookup, add-item and field-update operations. |
+| `apps/community/src/project/github-project-store.ts` | GitHub REST lookup, add-item and field-update operations. |
 | `apps/community/src/project/sync.ts` | Convert a persisted attempt to a Project snapshot and perform best-effort synchronization. |
 | `apps/community/src/cli/reconcile-project.ts` | Rebuild Project prompt rows from open participant Issues without re-evaluation. |
 | `apps/community/src/evaluate.ts` | Invoke optional Project sync only after the Issue comment is confirmed. |
@@ -45,7 +45,7 @@
 
 - Repeating synchronization for an Issue already in the Project must update the existing item and never add a duplicate; covered by Task 3.
 - A participant whose newest attempt drops below 70 after an eligible attempt must end as `Eligible = No` and `Voting = Not eligible`; covered by Tasks 2 and 5.
-- A GraphQL failure after some fields update must be safe to retry and converge to the complete snapshot; covered by Task 3.
+- A REST failure after adding an item but before updating fields must be safe to retry and converge to the complete snapshot; covered by Task 3.
 - A Project failure after the Issue comment succeeds must return the evaluated attempt and emit a reconciliation warning; covered by Task 5.
 - Closed synthetic Issues, mission Issues and malformed markers must not become prompt rows during reconciliation; covered by Task 4.
 
@@ -176,7 +176,7 @@ git add apps/community/src/github apps/community/src/project apps/community/src/
 git commit -m "feat(community): derive Project prompt snapshots"
 ```
 
-### Task 3: Add the GitHub Project GraphQL store
+### Task 3: Add the GitHub Project REST store
 
 **Files:**
 - Create: `apps/community/src/project/config.ts`
@@ -210,7 +210,7 @@ Use the actual Project number from Task 1 instead of `1` in the final test fixtu
 Cover these cases:
 
 - resolves the personal Project and fields by owner, number and exact names;
-- finds the Issue node and an existing Project item, then updates it without `addProjectV2ItemById`;
+- finds an existing Project item, then updates it without another add request;
 - adds the Issue once when no item exists;
 - writes `Item type = Prompt`, mission, participant, attempts, latest score, eligible and voting;
 - a second identical sync returns the same item;
@@ -228,7 +228,7 @@ Use `GITHUB_PROJECT_TOKEN`, `GITHUB_PROJECT_OWNER` defaulting to `ArturVargas`, 
 
 - [ ] **Step 5: Implement `GitHubProjectStore` with global fetch**
 
-Use GitHub GraphQL at `https://api.github.com/graphql`. Resolve Project, repository Issue ID, item ID, field IDs and single-select option IDs by exact name. Cache metadata for the process lifetime. Use `addProjectV2ItemById` only when the content ID is absent, then apply idempotent `updateProjectV2ItemFieldValue` mutations.
+Use GitHub Projects REST with API version `2026-03-10`. Resolve field IDs and single-select option IDs by exact name and cache metadata for the process lifetime. List items to find the Issue, add it only when absent, then update the complete snapshot with one `PATCH` request. This replaces the earlier GraphQL plan because the current REST API performs the same work with fewer calls and less custom request composition.
 
 Do not implement Final votes, Variant, Branch, Pull request or Preview writes in this task; the attempt writer owns only the prompt snapshot fields.
 
