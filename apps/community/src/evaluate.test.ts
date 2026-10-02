@@ -11,7 +11,8 @@ const input = {
   missionId: "mission-m1",
   participantId: "p-alpha",
   publicBrief: "brief",
-  participantPrompt: "hello",
+  participantPrompt:
+    "Select and connect two stations with a visible line. Verify in the web build under one minute. Keep eight stations. No passengers, no demand, no backend.",
   attempt: 1,
 };
 

@@ -27,7 +27,9 @@
 - **Umbral de elegibilidad:** 70 puntos.
 - **Máximo:** cinco evaluaciones por participante.
 - **Versión elegible:** solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
-- **Versión de la rúbrica:** `rubric-m1-v1`
+- **Versión de la rúbrica:** `rubric-m1-v2` (ADR-0009; `rubric-m1-v1` permanece cableada sin hard-fail)
+- **Hard-fail de elegibilidad (fuerza no elegible / tope 69):** falta select+connect de dos estaciones; falta línea claramente visible; falta verificación en build web (&lt;1 min); altera las 8 estaciones (conteo/identidad/posiciones); exige demanda/pasajeros/backend del juego.
+- **Soft-fail (solo rúbrica, compuesto &lt;70):** vaguedad “más bonito/jugable” sin observables; flujo mouse/touch ambiguo; tech incompatible o deps innecesarias frente a Expo/RN.
 - **Versión del prompt de feedback:** `PENDIENTE` para LLM; fallback `feedback-template-m1-v1`
 - **Proveedor y modelo de feedback:** `PENDIENTE`
 - **Fallback de feedback:** `feedback-template-m1-v1`, determinista y derivado solo de puntaje y dimensiones de `rubric-m1-v1`
@@ -36,7 +38,8 @@ Cada criterio debe evaluar la calidad del prompt frente al brief público. No de
 
 ### Evidencia de calibración
 
-La [calibración TypeSafe del 2026-09-30](calibration-2026-09-30.md) obtuvo 15.0, 63.8 y 100.0 para controles débil, cercano al umbral y fuerte, respectivamente. Tres repeticiones independientes del control de 63.8 reprodujeron el mismo total, elegibilidad y niveles, con swing 0. La separación y repetibilidad esperadas se cumplieron; no se propone cambiar la rúbrica, sus pesos ni el umbral. Permanece abierto el significado operativo de `routing: caution` antes de automatizar respuestas.
+La [calibración TypeSafe del 2026-09-30](calibration-2026-09-30.md) validó `rubric-m1-v1` (15.0 / 63.8 / 100.0). La [calibración del 2026-10-01](calibration-2026-10-01-m1-v2.md) para `rubric-m1-v2` + hard-fail obtuvo 13.8 / 57.5 / 92.5 (débil / medio / golden), todos con `jev-1.13.0` y sin `--record`. Permanece abierto el significado operativo de `routing: caution` antes de automatizar respuestas.
+
 
 ## 3. Código base
 
