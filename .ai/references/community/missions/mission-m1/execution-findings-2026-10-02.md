@@ -98,3 +98,15 @@ No se encontraron `security-blocker`. Las tres variantes mantienen estado local 
 - GitHub Actions: `Lint, typecheck, and web build` exitoso en #23, #24 y #25.
 - Repetición local: lint, typecheck y export web exitosos para A, B y C.
 - La evidencia funcional se obtuvo sobre los builds exportados, no solo leyendo el código.
+
+## Despliegue supervisado
+
+Las tres variantes se publicaron el 2026-10-02 mediante `Deploy Cloudflare slot`, que requiere selección manual de ranura y ref:
+
+| Variante | Ref | URL | GitHub Actions |
+| --- | --- | --- | --- |
+| A | `metro_a` | `https://metro-app-a.pages.dev/` | [run 37049164217](https://github.com/ArturVargas/metro_app/actions/runs/37049164217) |
+| B | `metro_b` | `https://metro-app-b.pages.dev/` | [run 37049186524](https://github.com/ArturVargas/metro_app/actions/runs/37049186524) |
+| C | `metro_c` | `https://metro-app-c.pages.dev/` | [run 37049212462](https://github.com/ArturVargas/metro_app/actions/runs/37049212462) |
+
+Los tres runs terminaron exitosamente. Después del despliegue se abrió cada URL estable y se confirmó el encabezado correspondiente. Publicar estas previews conserva los findings abiertos como parte del resultado experimental; no promueve ninguna variante a Base.

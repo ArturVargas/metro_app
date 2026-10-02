@@ -87,13 +87,13 @@ GitHub usa identificadores seudónimos. No se almacenan números telefónicos ni
 
 ## 6. Publicación
 
-- **Preview A:** `PENDIENTE` (hasta que existan ganadores)
-- **Preview B:** `PENDIENTE` (hasta que existan ganadores)
-- **Preview C:** `PENDIENTE` (hasta que existan ganadores)
+- **Preview A:** `https://metro-app-a.pages.dev/` — rama `metro_a`, commit `3a40c45479d604f2a4162231af2247ae18d82213`
+- **Preview B:** `https://metro-app-b.pages.dev/` — rama `metro_b`, commit `0af361b5d795dc538c6226a5ed253b68521497bf`
+- **Preview C:** `https://metro-app-c.pages.dev/` — rama `metro_c`, commit `089013fbf9e3ce1b68f1f37f6c71be1ec27fa708`
 - **Prueba rápida común:** `PENDIENTE`
-- **Resultado de pruebas:** `PENDIENTE`
+- **Resultado de pruebas:** despliegues supervisados exitosos el 2026-10-02; las tres URLs respondieron y mostraron `Metro App — A`, `Metro App — B` y `Metro App — C`. Findings conocidos en [`execution-findings-2026-10-02.md`](execution-findings-2026-10-02.md).
 - **Aprobación técnica:** `PENDIENTE`
-- **Riesgos conocidos:** `PENDIENTE`
+- **Riesgos conocidos:** registrados como findings de ejecución; no se encontraron `security-blocker`.
 - **Procedimiento para revertir:** `PENDIENTE`
 - **Mensaje del viernes:** `PENDIENTE`
 
