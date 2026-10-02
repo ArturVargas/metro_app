@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  LayoutChangeEvent,
   Platform,
   StyleSheet,
   Text,
@@ -60,27 +59,6 @@ const STATIONS: Station[] = [
 const STATION_BY_ID: Record<string, Station> = Object.fromEntries(
   STATIONS.map((s) => [s.id, s]),
 );
-
-type LayoutSize = { width: number; height: number };
-
-function localToSvg(x: number, y: number, layout: LayoutSize): { x: number; y: number } {
-  const scale = Math.min(layout.width / VIEW_W, layout.height / VIEW_H);
-  const offsetX = (layout.width - VIEW_W * scale) / 2;
-  const offsetY = (layout.height - VIEW_H * scale) / 2;
-  return {
-    x: (x - offsetX) / scale,
-    y: (y - offsetY) / scale,
-  };
-}
-
-function findStationAt(svgX: number, svgY: number): Station | null {
-  for (const s of STATIONS) {
-    const dx = svgX - s.x;
-    const dy = svgY - s.y;
-    if (dx * dx + dy * dy <= HIT_R * HIT_R) return s;
-  }
-  return null;
-}
 
 function endpointsOf(line: MetroLine): [string, string] {
   const ids = line.stationIds;
@@ -177,10 +155,6 @@ export function StationBoard(): React.JSX.Element {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [guide, setGuide] = useState<{ x: number; y: number } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [layout, setLayout] = useState<LayoutSize>({
-    width: VIEW_W,
-    height: VIEW_H,
-  });
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showToast = useCallback((msg: string) => {
@@ -291,11 +265,6 @@ export function StationBoard(): React.JSX.Element {
     if (selectedId) clearSelection();
   }, [selectedId, clearSelection]);
 
-  const onBoardLayout = useCallback((e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout;
-    setLayout({ width, height });
-  }, []);
-
   // Rubber-band solo en desktop/web (mouse).
   useEffect(() => {
     if (Platform.OS !== "web" || !selectedId) return;
@@ -373,7 +342,6 @@ export function StationBoard(): React.JSX.Element {
       <View
         style={styles.board}
         accessibilityLabel="Tablero de estaciones"
-        onLayout={onBoardLayout}
         {...(Platform.OS === "web"
           ? ({ "data-metro-board": "c" } as object)
           : {})}
