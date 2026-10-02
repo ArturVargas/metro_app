@@ -113,6 +113,7 @@ FEEDBACK_MODE=openrouter OPENROUTER_API_KEY=... \
 pnpm --filter @metro/community typecheck
 pnpm --filter @metro/community test
 pnpm --filter @metro/community evaluate -- --fixture fixtures/prompt.json
+pnpm --filter @metro/community project:reconcile
 ```
 
 ## Public surface

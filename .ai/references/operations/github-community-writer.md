@@ -28,6 +28,16 @@ ADR-0002 mantiene una GitHub App como destino para una integración estable. El 
 6. Repite el mismo resultado para comprobar que no aparece otro comentario.
 7. Cierra el Issue sintético para excluirlo del trabajo real.
 
+## Reconciliación del Project
+
+Después de corregir una falla de sincronización o de registrar intentos manualmente, reconstruye las filas de prompts desde los Issues abiertos:
+
+```bash
+pnpm --filter @metro/community project:reconcile
+```
+
+El comando requiere `GITHUB_TOKEN`, `GITHUB_PROJECT_TOKEN` y `GITHUB_PROJECT_NUMBER`. Omite misiones, pull requests e Issues cerrados; termina con código distinto de cero si alguna fila no pudo sincronizarse. Los Issues siguen siendo la fuente de verdad.
+
 Nunca imprimas ni copies el token en logs, Issues, commits o mensajes. No uses un participante real para pruebas de integración.
 
 ## Dónde encontrar cada pieza
