@@ -57,6 +57,12 @@ export {
   latestProjectSnapshot,
   snapshotFromPersistedAttempt,
 } from "./project/snapshot.js";
+export {
+  readProjectConfig,
+  requireProjectConfig,
+  type ProjectConfig,
+} from "./project/config.js";
+export { GitHubProjectStore } from "./project/github-project-store.js";
 export type {
   ProjectPromptSnapshot,
   ProjectStore,
