@@ -21,8 +21,11 @@ import {
   issueBodyMarker,
   latestAttemptLabels,
   missionKey,
+  parseIssueIdentity,
   participantKey,
 } from "./markers.js";
+import { latestProjectSnapshot } from "../project/snapshot.js";
+import type { ProjectPromptSnapshot } from "../project/types.js";
 
 export type IssueRef = {
   number: number;
@@ -179,6 +182,37 @@ export class GitHubIssueStore {
       }
     }
     return comments;
+  }
+
+  async listOpenProjectSnapshots(): Promise<ProjectPromptSnapshot[]> {
+    const snapshots: ProjectPromptSnapshot[] = [];
+    for await (const response of this.octokit.paginate.iterator(
+      this.octokit.rest.issues.listForRepo,
+      {
+        owner: this.owner,
+        repo: this.repo,
+        state: "open",
+        per_page: 100,
+      },
+    )) {
+      for (const issue of response.data) {
+        if (issue.pull_request || issue.state !== "open") continue;
+        const issueBody = issue.body ?? "";
+        if (!parseIssueIdentity(issueBody)) continue;
+        const comments = await this.listAttemptComments(issue.number);
+        const snapshot = latestProjectSnapshot({
+          issueNumber: issue.number,
+          issueUrl: issue.html_url,
+          issueBody,
+          comments: comments.map((comment) => comment.body),
+        });
+        if (!snapshot) {
+          throw new Error(`Issue #${issue.number} has malformed attempt history`);
+        }
+        snapshots.push(snapshot);
+      }
+    }
+    return snapshots;
   }
 
   private async findIssueByList(

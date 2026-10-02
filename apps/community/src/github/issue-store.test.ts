@@ -192,6 +192,104 @@ describe("GitHubIssueStore attempt guards", () => {
   });
 });
 
+describe("GitHubIssueStore Project snapshots", () => {
+  it("reads valid open participant Issues and excludes missions, pull requests, and closed Issues", async () => {
+    const store = new GitHubIssueStore(
+      { owner: "example", repo: "metro", token: "test" },
+      snapshotReaderOctokit(),
+    );
+
+    assert.deepEqual(await store.listOpenProjectSnapshots(), [
+      {
+        issueNumber: 21,
+        issueUrl: "https://github.com/example/issues/21",
+        missionId: "mission-m1",
+        participantId: "p-alpha",
+        attempts: 1,
+        latestScore: 78,
+        eligible: true,
+        voting: "Candidate",
+      },
+    ]);
+  });
+
+  it("reports malformed participant history without exposing prompt text", async () => {
+    const store = new GitHubIssueStore(
+      { owner: "example", repo: "metro", token: "test" },
+      snapshotReaderOctokit(true),
+    );
+
+    await assert.rejects(
+      () => store.listOpenProjectSnapshots(),
+      (error: unknown) => {
+        assert.match(String(error), /Issue #21.*malformed/);
+        assert.doesNotMatch(String(error), /SECRET PROMPT/);
+        return true;
+      },
+    );
+  });
+});
+
+function snapshotReaderOctokit(malformed = false): Octokit {
+  const issues = {
+    listForRepo() {},
+    listComments() {},
+  };
+  const participantBody =
+    "<!-- metro-issue: mission:mission-m1 participant:p-alpha -->";
+  const validComment = [
+    "<!-- metro-attempt: mission:mission-m1 participant:p-alpha attempt:1 -->",
+    "SECRET PROMPT",
+    "",
+    "### Tags",
+    "",
+    "attempt:1 score:78 routing:auto eligible:yes",
+    "",
+  ].join("\n");
+  return {
+    rest: { issues },
+    paginate: {
+      async *iterator(method: unknown, input: { issue_number?: number }) {
+        if (method === issues.listForRepo) {
+          yield {
+            data: [
+              {
+                number: 21,
+                html_url: "https://github.com/example/issues/21",
+                body: participantBody,
+                state: "open",
+              },
+              {
+                number: 14,
+                html_url: "https://github.com/example/issues/14",
+                body: "<!-- metro-mission: mission:mission-m1 -->",
+                state: "open",
+              },
+              {
+                number: 22,
+                html_url: "https://github.com/example/pull/22",
+                body: participantBody,
+                state: "open",
+                pull_request: {},
+              },
+              {
+                number: 12,
+                html_url: "https://github.com/example/issues/12",
+                body: participantBody,
+                state: "closed",
+              },
+            ],
+          };
+        } else if (method === issues.listComments && input.issue_number === 21) {
+          yield {
+            data: [{ body: malformed ? `${validComment}corrupt` : validComment }],
+          };
+        }
+      },
+    },
+  } as unknown as Octokit;
+}
+
 function mutableOctokit(
   initialBodies: string[],
   options: { failAfterFirstComment?: boolean } = {},

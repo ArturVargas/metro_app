@@ -63,6 +63,10 @@ export {
   type ProjectConfig,
 } from "./project/config.js";
 export { GitHubProjectStore } from "./project/github-project-store.js";
+export {
+  reconcileProject,
+  type ReconcileResult,
+} from "./project/reconcile.js";
 export type {
   ProjectPromptSnapshot,
   ProjectStore,

@@ -265,29 +265,29 @@ git commit -m "feat(community): sync prompt snapshots to GitHub Project"
 - Consumes: `GitHubIssueStore.listOpenProjectSnapshots(): Promise<ProjectPromptSnapshot[]>` and `ProjectStore.syncPrompt(snapshot)`.
 - Produces: `reconcileProject(snapshots: ProjectPromptSnapshot[], store: ProjectStore): Promise<{ synced: number; failed: Array<{ issueNumber: number; error: string }> }>` and CLI script `project:reconcile`.
 
-- [ ] **Step 1: Write failing Issue reader tests**
+- [x] **Step 1: Write failing Issue reader tests**
 
 Mock repository Issues/comments and assert that `listOpenProjectSnapshots()` includes valid open participant Issues, excludes closed Issue `#12`, excludes the Mission Issue, excludes pull requests, and reports malformed attempt history instead of fabricating a snapshot.
 
-- [ ] **Step 2: Write failing reconciler tests**
+- [x] **Step 2: Write failing reconciler tests**
 
 Assert that all valid snapshots are attempted, one failed item does not stop later items, counts are exact, and errors contain Issue numbers but no token or prompt text.
 
-- [ ] **Step 3: Run tests and verify failure**
+- [x] **Step 3: Run tests and verify failure**
 
 Run: `pnpm --filter @metro/community test`
 
 Expected: FAIL because the Issue reader and reconciler do not exist.
 
-- [ ] **Step 4: Implement open-Issue snapshot reading**
+- [x] **Step 4: Implement open-Issue snapshot reading**
 
 Paginate `issues.listForRepo` with `state: "open"`, skip pull requests and non-participant markers, load comments, and call the pure snapshot parser from Task 2. Keep network concerns in `GitHubIssueStore`.
 
-- [ ] **Step 5: Implement reconciler and CLI**
+- [x] **Step 5: Implement reconciler and CLI**
 
 The CLI requires both token configurations, reads snapshots once, synchronizes each, prints JSON counts, returns non-zero when any item failed, and never calls TypeSafe.
 
-- [ ] **Step 6: Run tests and typecheck**
+- [x] **Step 6: Run tests and typecheck**
 
 Run:
 
@@ -298,7 +298,7 @@ pnpm --filter @metro/community typecheck
 
 Expected: all tests pass and TypeScript exits `0`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/community/src/github apps/community/src/project apps/community/src/cli/reconcile-project.ts apps/community/src/index.ts apps/community/package.json
