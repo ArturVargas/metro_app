@@ -7,10 +7,10 @@ export default function App() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title} accessibilityRole="header">
-          Metro App
+          Metro App — B
         </Text>
         <Text style={styles.subtitle}>
-          Punto de partida común: tablero neutral con ocho estaciones.
+          Conecta estaciones con líneas de colores (prompt p-898).
         </Text>
       </View>
       <StationBoard />
