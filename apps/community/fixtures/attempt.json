@@ -1,7 +1,7 @@
 {
   "state": {
     "missionId": "mission-m1",
-    "rubricVersion": "rubric-m1-v1",
+    "rubricVersion": "rubric-m1-v2",
     "publicBrief": "Public brief placeholder for dry-run.",
     "participantPrompt": "Build an Expo screen that lists eight metro stations with neutral styling.",
     "participantId": "p-fixture-alpha",
@@ -10,7 +10,7 @@
   "score": {
     "total": 72.5,
     "eligible": true,
-    "rubricVersion": "rubric-m1-v1",
+    "rubricVersion": "rubric-m1-v2",
     "notes": "Fixture score for CLI dry-run.",
     "dimensions": [
       {
@@ -53,7 +53,7 @@
       "outputTokens": 8
     }
   },
-  "feedback": "Puntaje: 73/100\nElegibilidad: Elegible\nFortaleza: El resultado y sus elementos principales están descritos con precisión.\nProblemas prioritarios:\n- Límites de alcance: Los límites de la misión no están suficientemente protegidos.\nSugerencias:\n- Indica que deben conservarse ocho estaciones y que no se agregan pasajeros, demanda ni backend del juego.\nPregunta: ¿Cómo puedes hacer más comprobable el criterio de límites de alcance en tu siguiente versión?",
+  "feedback": "Puntaje: 73/100\nElegibilidad: Elegible\nFortaleza: El resultado y sus elementos principales est\u00e1n descritos con precisi\u00f3n.\nProblemas prioritarios:\n- L\u00edmites de alcance: Los l\u00edmites de la misi\u00f3n no est\u00e1n suficientemente protegidos.\nSugerencias:\n- Indica que deben conservarse ocho estaciones y que no se agregan pasajeros, demanda ni backend del juego.\nPregunta: \u00bfC\u00f3mo puedes hacer m\u00e1s comprobable el criterio de l\u00edmites de alcance en tu siguiente versi\u00f3n?",
   "feedbackMetadata": {
     "kind": "template",
     "version": "feedback-template-m1-v1"

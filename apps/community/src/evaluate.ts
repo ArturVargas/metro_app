@@ -5,6 +5,7 @@ import {
   type EvaluateInput,
   type EvaluateOptions,
   type FeedbackMetadata,
+  type HardFailId,
   type JevClient,
   type ScoreResult,
 } from "@metro/evaluation";
@@ -27,6 +28,8 @@ export type CommunityEvaluateOptions = {
   store?: RecordStore;
   feedback?: EvaluateOptions["feedback"];
   feedbackGenerator?: FeedbackGenerator;
+  /** Forwarded to @metro/evaluation hard-fail policy (m1-v2). */
+  hardFails?: HardFailId[];
 };
 
 function hasValidMetadata(metadata: FeedbackMetadata): boolean {
@@ -85,6 +88,7 @@ export async function evaluate(
     const scored = await evaluateWithJev(input, {
       client: options.client,
       env: options.env,
+      hardFails: options.hardFails,
     });
     if (options.record && scored.evaluator.provider !== "typesafe") {
       throw new Error("A mock evaluation cannot be recorded");

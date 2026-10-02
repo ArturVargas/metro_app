@@ -6,14 +6,14 @@ No Hermes. Feedback defaults to the versioned template (`FEEDBACK_MODE=stub`). `
 
 ## Status
 
-- `evaluate()` scores `rubric-m1-v1` via `@metro/evaluation`, then fills `AttemptResult.feedback` and its provenance.
+- `evaluate()` scores `rubric-m1-v2` by default via `@metro/evaluation` (hard-fail eligibility policy; ADR-0009), then fills `AttemptResult.feedback` and its provenance.
 - `--record` requires a TypeSafe result and writes it with `GitHubIssueStore` (one issue per participant × mission, one comment per attempt).
 - Default Jev client is the mock. Live TypeSafe only when `JEV_MODE=http`.
 - GitHub history determines the next attempt. Attempts must be sequential and stop after five.
 - The MVP runs one community-writer process. Its keyed lock covers admission, evaluation, and persistence for each participant × mission.
 - Exact retries reuse the existing comment and resync labels instead of consuming another attempt.
 
-See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md), [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md), and [ADR-0008](../../.ai/adr/0008-openrouter-mentor-feedback.md).
+See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md), [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md), [ADR-0008](../../.ai/adr/0008-openrouter-mentor-feedback.md), and [ADR-0009](../../.ai/adr/0009-m1-rubric-v2-hard-fails.md).
 
 ## Issue / comment / tags model
 

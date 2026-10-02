@@ -5,11 +5,12 @@ attempt result / comment formatting, and the TypeSafe Jev adapter.
 
 ## Status
 
-Jev adapter + `evaluate()` for `rubric-m1-v1`. Default client is a mock (no network, no secrets).
+Jev adapter + `evaluate()` for `rubric-m1-v2` (default) and `rubric-m1-v1`. Default client is a mock (no network, no secrets).
 Live TypeSafe is `JEV_MODE=http` only. This package generates deterministic fallback feedback; it does not call an LLM or Hermes.
 
 See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md).
 See [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md).
+See [ADR-0009](../../.ai/adr/0009-m1-rubric-v2-hard-fails.md).
 
 ## Ownership
 
@@ -33,9 +34,9 @@ See [ADR-0007](../../.ai/adr/0007-github-attempt-issue-comment-convention.md).
 
 ## `evaluate()`
 
-`evaluate(input)` builds `EvaluationState`, asks the Jev client for Score answers on `rubric-m1-v1`, runs `scoreFromAnswers`, resolves eligibility, and returns `AttemptResult` with feedback plus evaluator/feedback provenance.
+`evaluate(input)` builds `EvaluationState`, asks the Jev client for Score answers on `rubric-m1-v2` by default (or `rubric-m1-v1` when requested), runs `scoreFromAnswers`, applies the m1-v2 hard-fail eligibility policy when applicable, and returns `AttemptResult` with feedback plus evaluator/feedback provenance.
 
-Only `rubric-m1-v1` is wired. Inject `options.client` in tests; otherwise `createJevClient(env)`.
+Wired rubrics: `rubric-m1-v2` (default + hard-fail cap 69) and `rubric-m1-v1`. Inject `options.client` / `options.hardFails` in tests; otherwise `createJevClient(env)` and prompt-based hard-fail detection.
 
 ## Jev HTTP
 
@@ -52,7 +53,7 @@ Content-Type: application/json
   "model": "jev-latest",
   "state": {
     "missionId": "mission-m1",
-    "rubricVersion": "rubric-m1-v1",
+    "rubricVersion": "rubric-m1-v2",
     "publicBrief": "...",
     "participantPrompt": "..."
   },
@@ -96,7 +97,7 @@ Score answers are fractional. We round to an integer level 0–4 (clamp). `confi
 
 - `evaluate` / `EvaluateInput`
 - `JevClient`, `MockJevClient`, `HttpJevClient`, `createJevClient`
-- `rubric-m1-v1`, `scoreFromAnswers`, validation, `AttemptResult`, comment markdown
+- `rubric-m1-v2` (default), `rubric-m1-v1`, hard-fail policy helpers, `scoreFromAnswers`, validation, `AttemptResult`, comment markdown
 
 ## Scripts
 
