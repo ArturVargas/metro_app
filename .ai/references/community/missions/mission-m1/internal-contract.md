@@ -70,12 +70,15 @@ Las tres variantes usan exactamente estos valores (condiciones idénticas A/B/C 
 
 Registra cualquier interrupción o desviación. Una variante ejecutada bajo condiciones distintas no entra en la comparación hasta repetirse con el contrato correcto.
 
+La revisión posterior sigue [`../../execution-review.md`](../../execution-review.md). Los findings no recalifican el prompt ni crean intentos. El resultado generado se conserva como evidencia; solo un `security-blocker` o un fallo que impida desplegar o probar exige corrección antes de publicar.
+
 ## 5. GitHub
 
 - **Issue principal de la misión:** `PENDIENTE`
 - **Project y vista:** `PENDIENTE`
 - **Campos obligatorios:** misión, versión, participante seudónimo, intento, prompt exacto, puntaje, elegibilidad, estado y fechas.
 - **Comentarios por evaluación:** puntaje, feedback, versión de rúbrica y versión del generador de feedback.
+- **Comentarios por ejecución:** findings vinculados con variante, PR y requisito del prompt; se distinguen de los comentarios de evaluación y no incrementan el contador de intentos.
 - **Etiquetas:** `PENDIENTE`
 - **Selección:** registra votos válidos, desempate si aplica y los tres prompts ganadores.
 - **Mapeo aleatorio:** conserva para A, B y C el autor, prompt exacto, puntaje, intento, issue, rama, pull request, commit y preview.
