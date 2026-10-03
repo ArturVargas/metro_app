@@ -6,7 +6,7 @@ No Hermes. Feedback defaults to the versioned template (`FEEDBACK_MODE=stub`). `
 
 ## Status
 
-- `evaluate()` scores `rubric-m1-v2` by default via `@metro/evaluation` (hard-fail eligibility policy; ADR-0009), then fills `AttemptResult.feedback` and its provenance.
+- `evaluate()` selects the versioned rubric from `missionId` via `@metro/evaluation`, then fills `AttemptResult.feedback` and its provenance.
 - `--record` requires a TypeSafe result and writes it with `GitHubIssueStore` (one issue per participant × mission, one comment per attempt).
 - Default Jev client is the mock. Live TypeSafe only when `JEV_MODE=http`.
 - GitHub history determines the next attempt. Attempts must be sequential and stop after five.
@@ -84,7 +84,7 @@ DRY_RUN=1 pnpm --filter @metro/community github:record-attempt -- --fixture fixt
 
 ## Local Ollama feedback
 
-`LocalLlmFeedbackGenerator` POSTs `POST {OLLAMA_BASE_URL}/api/chat` with `think: false`, `temperature: 0.2`, `num_predict: 512`. It requests structured Spanish feedback with the exact score, eligibility, one strength, at most two prioritized problems and suggestions, and one revision question. Invalid output or an Ollama error falls back to `feedback-template-m1-v1`. Unit tests mock `fetch`; a live smoke needs the model available locally:
+`LocalLlmFeedbackGenerator` POSTs `POST {OLLAMA_BASE_URL}/api/chat` with `think: false`, `temperature: 0.2`, `num_predict: 512`. It requests structured Spanish feedback with the exact score, eligibility, one strength, at most two prioritized problems and suggestions, and one revision question. Invalid output or an Ollama error falls back to the mission-specific template. Unit tests mock `fetch`; a live smoke needs the model available locally:
 
 ```bash
 curl -s http://127.0.0.1:11434/api/tags | grep gemma4-coding-agent
@@ -94,7 +94,7 @@ FEEDBACK_MODE=local pnpm --filter @metro/community evaluate -- --fixture fixture
 
 ## OpenRouter mentor feedback
 
-`OpenRouterFeedbackGenerator` loads `apps/community/prompts/mentor.md` (Picosito: warm roast / coach animado in Spanish) and POSTs `POST {OPENROUTER_BASE_URL}/chat/completions` with a 512-token output limit. The brief and participant prompt are marked as untrusted `<evaluation-data>`; generated feedback must match the complete expected shape with no extra text or conflicting score. API/network/empty failures emit `community.feedback.openrouter_fallback` without participant content and fall back to `feedback-template-m1-v1`. Provenance: `provider: "openrouter"`, `version` from mentor frontmatter (default `feedback-mentor-m1-v2`). Unit tests mock `fetch`.
+`OpenRouterFeedbackGenerator` loads `apps/community/prompts/mentor.md` (Picosito: warm roast / coach animado in Spanish) and POSTs `POST {OPENROUTER_BASE_URL}/chat/completions` with a 512-token output limit. The brief and participant prompt are marked as untrusted `<evaluation-data>`; generated feedback must match the complete expected shape with no extra text or conflicting score. API/network/empty failures emit `community.feedback.openrouter_fallback` without participant content and use the mission-specific fallback. Provenance: `provider: "openrouter"`, `version` from mentor frontmatter (default `feedback-mentor-m1-v2`). Unit tests mock `fetch`.
 
 ```bash
 # .env.local on the VPS (never commit):

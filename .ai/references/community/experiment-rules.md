@@ -8,6 +8,7 @@
 - Cada misión tiene un brief público para participantes y un contrato interno para evaluación y ejecución.
 - El brief público enlaza una versión Base desplegada y común para todas las personas.
 - La rúbrica interna no se publica ni se usa para sugerir una solución técnica preferida.
+- Las misiones posteriores pueden dar menos ejemplos y dejar más decisiones al participante, pero nunca ocultar un requisito usado para evaluar elegibilidad.
 - La interacción comunitaria ocurre en un grupo de WhatsApp.
 - Hermes Agent monitorea el grupo y responde mensajes.
 - Hermes actúa como adaptador y coordinador; las decisiones verificables pertenecen al backend.

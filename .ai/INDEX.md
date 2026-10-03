@@ -16,5 +16,5 @@ Este archivo es el punto de entrada para agentes y colaboradores. No leas todas 
 
 - Product Brief: aprobado y versionado.
 - Arquitectura del juego: stack del cliente aprobado; falta cerrar el baseline técnico y el resto de la arquitectura.
-- Experimento comunitario: reglas principales confirmadas; mecanismo de voto dentro del grupo aún abierto.
-- Implementación: no iniciada.
+- Experimento comunitario: Misión 1 cerrada; Misión 2 definida como borrador, pendiente de calibración y calendario.
+- Implementación: `main` contiene la variante C aprobada de Misión 1 y es el baseline de Misión 2.

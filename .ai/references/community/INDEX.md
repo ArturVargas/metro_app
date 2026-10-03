@@ -13,8 +13,9 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 5. [`mission-internal-contract-template.md`](mission-internal-contract-template.md) para configurar evaluación, ejecución, trazabilidad y publicación.
 6. [`execution-review.md`](execution-review.md) para revisar fidelidad, documentar findings y convertirlos en feedback sin recalificar el prompt.
 7. [`missions/mission-m1/INDEX.md`](missions/mission-m1/INDEX.md) para el brief, contrato interno, calibración y ejecución de la Misión 1.
-8. [`GitHub Project del experimento comunitario`](../../../docs/superpowers/specs/2026-10-01-github-community-project-design.md) para el flujo WhatsApp → TypeSafe → Issues → Project, sus campos, vistas, sincronización y permisos aprobados.
-9. [`github-project.md`](github-project.md) para la URL y número reales, campos exactos, vistas y operación del tablero activo.
+8. [`missions/mission-m2/INDEX.md`](missions/mission-m2/INDEX.md) para el brief, contrato interno y evaluación de la Misión 2.
+9. [`GitHub Project del experimento comunitario`](../../../docs/superpowers/specs/2026-10-01-github-community-project-design.md) para el flujo WhatsApp → TypeSafe → Issues → Project, sus campos, vistas, sincronización y permisos aprobados.
+10. [`github-project.md`](github-project.md) para la URL y número reales, campos exactos, vistas y operación del tablero activo.
 10. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
 11. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
 12. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.

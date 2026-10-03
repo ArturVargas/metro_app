@@ -28,7 +28,7 @@ export type CommunityEvaluateOptions = {
   store?: RecordStore;
   feedback?: EvaluateOptions["feedback"];
   feedbackGenerator?: FeedbackGenerator;
-  /** Forwarded to @metro/evaluation hard-fail policy (m1-v2). */
+  /** Forwarded to a mission rubric's hard-fail policy when one exists. */
   hardFails?: HardFailId[];
 };
 

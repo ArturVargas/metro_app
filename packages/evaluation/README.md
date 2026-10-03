@@ -5,7 +5,7 @@ attempt result / comment formatting, and the TypeSafe Jev adapter.
 
 ## Status
 
-Jev adapter + `evaluate()` for `rubric-m1-v2` (default) and `rubric-m1-v1`. Default client is a mock (no network, no secrets).
+Jev adapter + `evaluate()` for Misión 1 and Misión 2. The default rubric is selected from `missionId`; callers may still request a wired version explicitly. Default client is a mock (no network, no secrets).
 Live TypeSafe is `JEV_MODE=http` only. This package generates deterministic fallback feedback; it does not call an LLM or Hermes.
 
 See [ADR-0006](../../.ai/adr/0006-jev-backend-integration.md).
@@ -28,15 +28,15 @@ See [ADR-0009](../../.ai/adr/0009-m1-rubric-v2-hard-fails.md).
 
 - Rubric dimensions are **parallel `Score` questions** (levels **0–4**).
 - Normalize each level: `level / 4` → **0–1**, weighted sum × 100 → **0–100** (`scoreFromAnswers`).
-- Mission 1 weights: verifiability 0.30, actionable-acceptance 0.30, specificity 0.25, scope-limits 0.15.
+- Mission 1 and 2 weights: verifiability 0.30, actionable-acceptance 0.30, specificity 0.25, scope-limits 0.15.
 - **Confidence** (`high` / `medium` / `low`) is routing only. It does not change the total.
-- WhatsApp **never names Jev**. `evaluate()` returns structured Spanish fallback feedback versioned as `feedback-template-m1-v1`.
+- WhatsApp **never names Jev**. `evaluate()` returns mission-specific structured Spanish fallback feedback.
 
 ## `evaluate()`
 
-`evaluate(input)` builds `EvaluationState`, asks the Jev client for Score answers on `rubric-m1-v2` by default (or `rubric-m1-v1` when requested), runs `scoreFromAnswers`, applies the m1-v2 hard-fail eligibility policy when applicable, and returns `AttemptResult` with feedback plus evaluator/feedback provenance.
+`evaluate(input)` builds `EvaluationState`, selects `rubric-m1-v2` for Misión 1 or `rubric-m2-v1` for Misión 2, asks the Jev client for Score answers, runs `scoreFromAnswers`, applies a hard-fail policy when applicable, and returns `AttemptResult` with feedback plus evaluator/feedback provenance.
 
-Wired rubrics: `rubric-m1-v2` (default + hard-fail cap 69) and `rubric-m1-v1`. Inject `options.client` / `options.hardFails` in tests; otherwise `createJevClient(env)` and prompt-based hard-fail detection.
+Wired rubrics: `rubric-m1-v2` (M1 default + hard-fail cap 69), `rubric-m1-v1`, and `rubric-m2-v1` (M2 default, no hard-fails until calibration). Inject `options.client` / `options.hardFails` in tests; otherwise `createJevClient(env)` and any applicable prompt-based hard-fail detection.
 
 ## Jev HTTP
 
@@ -97,7 +97,7 @@ Score answers are fractional. We round to an integer level 0–4 (clamp). `confi
 
 - `evaluate` / `EvaluateInput`
 - `JevClient`, `MockJevClient`, `HttpJevClient`, `createJevClient`
-- `rubric-m1-v2` (default), `rubric-m1-v1`, hard-fail policy helpers, `scoreFromAnswers`, validation, `AttemptResult`, comment markdown
+- `rubric-m1-v2`, `rubric-m1-v1`, `rubric-m2-v1`, hard-fail policy helpers, `scoreFromAnswers`, validation, `AttemptResult`, comment markdown
 
 ## Scripts
 
