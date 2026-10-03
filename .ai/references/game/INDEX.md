@@ -24,6 +24,4 @@ Lee esta sección para reglas de partida, simulación, demanda, interfaz, accesi
 
 Las reglas jugables y la dirección visual están aprobadas. El cliente usará Expo, React Native Web, TypeScript y `react-native-svg`; el motor de simulación será TypeScript puro y permanecerá separado de la interfaz.
 
-La definición y creación de un baseline técnico neutral preceden a la redacción de la Misión 1. Ese baseline debe permitir ejecutar, validar y desplegar las variantes bajo las mismas condiciones sin resolver por adelantado la mecánica que se encargue a la comunidad.
-
-El contenido exacto del baseline está aprobado y documentado en [`technical-baseline.md`](technical-baseline.md). Su implementación todavía no ha comenzado.
+El baseline técnico neutral está documentado en [`technical-baseline.md`](technical-baseline.md). Misión 1 añadió creación de líneas; su variante C aprobada está en `main` y sirve como baseline común de Misión 2.

@@ -49,6 +49,51 @@ describe("evaluate", () => {
     );
   });
 
+  it("selects the Mission 2 rubric from the mission id", async () => {
+    const result = await evaluate(
+      {
+        ...input,
+        missionId: "mission-m2",
+        publicBrief: "Assign a train to a line and show it moving.",
+        participantPrompt:
+          "Let the player assign one train to each line, see it move, remove it, and verify the result on web and touch.",
+      },
+      { client: new MockJevClient() },
+    );
+
+    assert.equal(result.score.rubricVersion, "rubric-m2-v1");
+    assert.deepEqual(
+      result.score.dimensions.map((dimension) => dimension.questionId),
+      ["verifiability", "actionable-acceptance", "specificity", "scope-limits"],
+    );
+  });
+
+  it("uses Mission 2 fallback feedback for a weak dimension", async () => {
+    const result = await evaluate(
+      {
+        ...input,
+        missionId: "mission-m2",
+        publicBrief: "Assign a train to a line and show it moving.",
+      },
+      {
+        client: new MockJevClient({
+          levels: {
+            verifiability: 4,
+            "actionable-acceptance": 4,
+            specificity: 4,
+            "scope-limits": 0,
+          },
+        }),
+      },
+    );
+
+    assert.deepEqual(result.feedbackMetadata, {
+      kind: "template",
+      version: "feedback-template-m2-v1",
+    });
+    assert.match(result.feedback, /trenes/i);
+  });
+
   it("applies hard-fail cap and force-ineligible even when Score would pass", async () => {
     const result = await evaluate(input, {
       client: new MockJevClient(),

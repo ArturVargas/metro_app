@@ -19,6 +19,8 @@ La comunidad recibe:
 
 El brief público debe dar contexto suficiente para escribir un prompt útil sin revelar la rúbrica interna ni imponer una solución técnica.
 
+A medida que avance el experimento, una misión puede dar menos ejemplos y menos decisiones resueltas para medir si los participantes escriben prompts más completos. Todos los requisitos obligatorios siguen siendo públicos; la dificultad aumenta dejando abiertas decisiones de interacción, presentación y verificación, no ocultando condiciones de aprobación.
+
 La plantilla aprobada está en [`mission-public-brief-template.md`](mission-public-brief-template.md). Contiene siete bloques variables —título, problema, objetivo, contexto, alcance permitido, elementos que deben mantenerse y criterios observables— más un pie fijo con las reglas de participación y la entrega del viernes.
 
 ## Capa 2: contrato interno

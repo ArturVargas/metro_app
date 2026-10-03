@@ -10,6 +10,7 @@ import { decisionsToScoreAnswers, rubricToJevQuestions } from "./jev/map.js";
 import type { JevClient } from "./jev/types.js";
 import { RUBRIC_M1_V1_ID, rubricM1V1Questions } from "./rubrics/m1-v1.js";
 import { RUBRIC_M1_V2_ID, rubricM1V2Questions } from "./rubrics/m1-v2.js";
+import { RUBRIC_M2_V1_ID, rubricM2V1Questions } from "./rubrics/m2-v1.js";
 import { scoreFromAnswers } from "./score.js";
 import type { EvaluationState, ScoreQuestion } from "./types.js";
 import {
@@ -38,7 +39,12 @@ export type EvaluateOptions = {
 const RUBRIC_QUESTIONS: Record<string, ScoreQuestion[]> = {
   [RUBRIC_M1_V1_ID]: rubricM1V1Questions,
   [RUBRIC_M1_V2_ID]: rubricM1V2Questions,
+  [RUBRIC_M2_V1_ID]: rubricM2V1Questions,
 };
+
+function defaultRubricVersion(missionId: string): string {
+  return missionId === "mission-m2" ? RUBRIC_M2_V1_ID : RUBRIC_M1_V2_ID;
+}
 
 function failValidation(issues: ValidationIssue[]): void {
   if (issues.length === 0) return;
@@ -69,7 +75,7 @@ export async function evaluate(
   input: EvaluateInput,
   options: EvaluateOptions = {},
 ): Promise<AttemptResult> {
-  const rubricVersion = input.rubricVersion ?? RUBRIC_M1_V2_ID;
+  const rubricVersion = input.rubricVersion ?? defaultRubricVersion(input.missionId);
   const questions = resolveQuestions(rubricVersion);
 
   const state: EvaluationState = {

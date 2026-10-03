@@ -43,6 +43,7 @@ export {
 export { RUBRIC_V0_ID, rubricV0Questions } from "./rubrics/v0.js";
 export { RUBRIC_M1_V1_ID, rubricM1V1Questions } from "./rubrics/m1-v1.js";
 export { RUBRIC_M1_V2_ID, rubricM1V2Questions } from "./rubrics/m1-v2.js";
+export { RUBRIC_M2_V1_ID, rubricM2V1Questions } from "./rubrics/m2-v1.js";
 export type { HardFailId, HardFailApplication } from "./hard-fail.js";
 export {
   HARD_FAIL_SCORE_CAP,
@@ -59,7 +60,11 @@ export {
 
 export type { EvaluateInput, EvaluateOptions } from "./evaluate.js";
 export { evaluate } from "./evaluate.js";
-export { buildTemplateFeedback, FEEDBACK_TEMPLATE_M1_V1 } from "./feedback-template.js";
+export {
+  buildTemplateFeedback,
+  FEEDBACK_TEMPLATE_M1_V1,
+  FEEDBACK_TEMPLATE_M2_V1,
+} from "./feedback-template.js";
 
 export type {
   JevClient,
