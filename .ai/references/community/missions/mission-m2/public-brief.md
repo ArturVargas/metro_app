@@ -11,6 +11,14 @@ Prueba la versión Base: https://metro-app-base.pages.dev/
 
 Esta misión parte de las estaciones y líneas que ya funcionan en esa versión.
 
+**Antes de escribir tu prompt, piensa**
+
+- ¿Qué decisiones deja abiertas la misión?
+- ¿Qué debe ocurrir desde la perspectiva del jugador?
+- ¿Cómo comprobarías que funciona?
+
+Tú decides cómo asignar y retirar un tren, cómo representarlo visualmente, qué feedback recibe el jugador y cómo comprobar el funcionamiento. Las reglas siguientes son los rieles que debe respetar tu solución.
+
 **Reglas**
 
 - Puede haber como máximo un tren por línea y todos se mueven a la misma velocidad fija.
