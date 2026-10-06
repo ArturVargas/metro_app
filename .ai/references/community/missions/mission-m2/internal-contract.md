@@ -29,7 +29,7 @@
 - **Versión del prompt de feedback LLM:** `feedback-mentor-m1-v2` mientras el prompt compartido siga siendo neutral respecto a la misión.
 - **Fallback de feedback:** `feedback-template-m2-v1`.
 - **Hard-fails:** ninguno en v1; los requisitos públicos se califican mediante la rúbrica hasta completar calibración.
-- **Calibración TypeSafe:** `PENDIENTE` antes de abrir evaluaciones.
+- **Calibración TypeSafe:** `DONE` (2026-10-06); ver [`calibration-2026-10-06.md`](calibration-2026-10-06.md).
 
 La rúbrica premia que el participante complete las decisiones abiertas del brief. No exige gestos, colores, componentes, estructura de datos ni una solución técnica específica.
 
@@ -74,5 +74,5 @@ La rúbrica premia que el participante complete las decisiones abiertas del brie
 
 - Definir fechas, horarios y zona horaria.
 - Crear el issue principal de Misión 2 en el Project.
-- Calibrar `rubric-m2-v1` con prompts débil, medio y fuerte.
+- ~~Calibrar `rubric-m2-v1` con prompts débil, medio y fuerte.~~ Hecho 2026-10-06 ([`calibration-2026-10-06.md`](calibration-2026-10-06.md)).
 - Fijar las condiciones idénticas de ejecución A/B/C.
