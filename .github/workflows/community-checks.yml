@@ -1,0 +1,54 @@
+name: Community checks
+
+on:
+  pull_request:
+    paths:
+      - "apps/community/**"
+      - "packages/evaluation/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/community-checks.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/community/**"
+      - "packages/evaluation/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/community-checks.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: community-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Test and typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.10.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test Community
+        run: pnpm --filter @metro/community test
+
+      - name: Typecheck Community
+        run: pnpm --filter @metro/community typecheck

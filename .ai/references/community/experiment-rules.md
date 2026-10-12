@@ -9,10 +9,11 @@
 - El brief público enlaza una versión Base desplegada y común para todas las personas.
 - La rúbrica interna no se publica ni se usa para sugerir una solución técnica preferida.
 - Las misiones posteriores pueden dar menos ejemplos y dejar más decisiones al participante, pero nunca ocultar un requisito usado para evaluar elegibilidad.
-- La interacción comunitaria ocurre en un grupo de WhatsApp.
-- Hermes Agent monitorea el grupo y responde mensajes.
+- La interacción comunitaria ocurre en el grupo de WhatsApp y, para participantes autorizados, también por DM con Hermes.
+- Hermes Agent monitorea el grupo y responde los DM de la allowlist existente.
 - Hermes actúa como adaptador y coordinador; las decisiones verificables pertenecen al backend.
-- Hermes solo procesa una participación cuando la persona menciona explícitamente al bot.
+- En el grupo, Hermes solo procesa una participación cuando la persona menciona explícitamente al bot. En DM, una consulta no consume intento; un prompt enviado para evaluación sí sigue el flujo normal.
+- Cada intento evaluado por DM se registra como los intentos del grupo. Después, Hermes pregunta: “Tu evaluación quedará registrada en el experimento. ¿Quieres compartir también tu prompt y puntaje en el grupo?”. Solo un “sí” explícito comparte ese intento en el grupo.
 - Las evaluaciones están disponibles únicamente los martes y jueves.
 - Cada viernes se publican tres enlaces correspondientes a las versiones A, B y C para que el grupo pueda probarlas, compararlas y compartirlas.
 - La incorporación se entrega como una secuencia de mensajes cortos y una guía fija en el grupo.
