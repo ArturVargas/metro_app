@@ -68,7 +68,7 @@ FEEDBACK_MODE=openrouter OPENROUTER_API_KEY=... pnpm --filter @metro/community e
 
 # Flags instead of a fixture
 pnpm --filter @metro/community evaluate -- \
-  --mission mission-m1 --participant p-alpha --attempt 1 \
+  --mission mission-m1 --participant p-123 --attempt 1 \
   --brief "Public brief text" --prompt "Participant prompt"
 
 # Live Jev, still no GitHub write
