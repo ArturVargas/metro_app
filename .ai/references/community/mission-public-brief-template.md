@@ -41,7 +41,7 @@ Usa entre tres y cinco criterios. Cada criterio debe poder comprobarse al jugar 
 
 **Cómo participar**
 
-- Envía tu prompt en este grupo mencionando al bot, únicamente el martes o el jueves.
+- Envía tu prompt en este grupo mencionando al bot, únicamente los martes, miércoles y jueves, de 6:00 a 23:55 (hora Colombia).
 - Puedes evaluarlo hasta cinco veces y recibirás un puntaje y feedback en cada intento.
 - Solo tu último prompt con un puntaje de 70 o más participará en la votación.
 

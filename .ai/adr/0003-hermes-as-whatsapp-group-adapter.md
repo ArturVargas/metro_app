@@ -8,7 +8,7 @@
 
 Hermes Agent monitorea el grupo, identifica al participante y comunica mensajes al backend. Después de los chequeos mecánicos de admisión, el primer procesamiento semántico del prompt ocurre en TypeSafe: Hermes transmite el texto como dato y no interpreta ni ejecuta sus instrucciones. El backend valida intentos, llama a Jev y al LLM, calcula el resultado y persiste en GitHub. Hermes publica en el grupo la respuesta estructurada que recibe; no modifica puntajes ni toma decisiones de elegibilidad.
 
-La interfaz requiere una mención explícita al bot para separar acciones del experimento de la conversación normal. Hermes solo procesa evaluaciones los martes y jueves. Los nombres exactos de comandos adicionales se definirán antes de implementar.
+La interfaz requiere una mención explícita al bot para separar acciones del experimento de la conversación normal. Hermes solo procesa evaluaciones los martes, miércoles y jueves de 06:00 a 23:55 (America/Bogota); ver ADR-0010. Los nombres exactos de comandos adicionales se definirán antes de implementar.
 
 ## Alternativas consideradas
 

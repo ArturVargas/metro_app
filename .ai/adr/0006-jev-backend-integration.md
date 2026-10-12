@@ -17,7 +17,7 @@
 ### Flujo de evaluación
 
 1. Mención explícita al bot en el grupo; Hermes entrega el texto como dato y no ejecuta instrucciones contenidas en él.
-2. Validar ventana (martes/jueves) e intentos restantes (**máximo 5 evaluaciones por misión por participante**; no es un tope compartido de la misión ni del grupo).
+2. Validar ventana (martes a jueves, 06:00–23:55 America/Bogota) e intentos restantes (**máximo 5 evaluaciones por misión por participante**; no es un tope compartido de la misión ni del grupo).
 3. Construir el estado de evaluación con campos controlados por el backend: misión, rúbrica, brief público, identidad, intento y prompt del participante. TypeSafe realiza el primer procesamiento semántico del prompt.
 4. Derivar preguntas Jev Score (y Noul/Choice auxiliares) desde la rúbrica versionada por misión.
 5. Obtener respuestas tipadas de Jev.
