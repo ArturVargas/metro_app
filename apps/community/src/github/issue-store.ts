@@ -14,6 +14,7 @@ import type { GitHubStoreConfig } from "./config.js";
 import {
   assertNextAttempt,
   attemptNumberFromComment,
+  nextAttemptNumber,
 } from "./attempt-sequence.js";
 import {
   buildIssueBody,
@@ -148,6 +149,17 @@ export class GitHubIssueStore {
   ): Promise<void> {
     return withAttemptLock(this.lockKey(missionId, participantId), () =>
       this.assertAttemptAllowedUnlocked(missionId, participantId, attempt),
+    );
+  }
+
+  // Derive the next attempt from recorded comments; recordAttempt re-checks under lock.
+  async nextAttempt(missionId: string, participantId: string): Promise<number> {
+    const issue = await this.findIssue(missionId, participantId);
+    const comments = issue ? await this.listAttemptComments(issue.number) : [];
+    return nextAttemptNumber(
+      comments.map((comment) => comment.body),
+      missionId,
+      participantId,
     );
   }
 

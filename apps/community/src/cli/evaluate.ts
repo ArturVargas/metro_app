@@ -3,6 +3,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { MockJevClient } from "@metro/evaluation";
 import { evaluate } from "../evaluate.js";
+import { requireGitHubStoreConfig } from "../github/config.js";
+import { GitHubIssueStore } from "../github/issue-store.js";
+import { assertParticipantId } from "../participant-id.js";
 
 type Args = {
   fixture?: string;
@@ -29,14 +32,19 @@ function parseArgs(argv: string[]): Args {
     else if (arg === "--mock") out.mock = true;
     else if (arg === "--fixture") [out.fixture, i] = next(arg, i);
     else if (arg === "--mission") [out.missionId, i] = next(arg, i);
-    else if (arg === "--participant") [out.participantId, i] = next(arg, i);
+    else if (arg === "--participant") {
+      [out.participantId, i] = next(arg, i);
+      assertParticipantId(out.participantId);
+    }
     else if (arg === "--prompt") [out.prompt, i] = next(arg, i);
     else if (arg === "--brief") [out.brief, i] = next(arg, i);
     else if (arg === "--attempt") {
       const [raw, j] = next(arg, i);
       i = j;
       const attempt = Number(raw);
-      if (!Number.isInteger(attempt)) throw new Error("--attempt must be an integer");
+      if (!Number.isInteger(attempt) || attempt < 1) {
+        throw new Error("--attempt must be a positive integer");
+      }
       out.attempt = attempt;
     } else {
       throw new Error(`Unknown argument ${arg}`);
@@ -63,9 +71,15 @@ async function main(): Promise<void> {
   const participantId = args.participantId ?? fixture.participantId;
   const participantPrompt = args.prompt ?? fixture.participantPrompt;
   const publicBrief = args.brief ?? fixture.publicBrief;
-  const attempt = args.attempt ?? fixture.attempt ?? 1;
   if (!missionId || !participantId || !participantPrompt || !publicBrief) {
     throw new Error("Need mission, participant, prompt, and brief via flags or --fixture");
+  }
+  // Without an explicit attempt, recorded runs take the next number from GitHub.
+  let attempt = args.attempt ?? fixture.attempt;
+  if (attempt === undefined) {
+    attempt = args.record
+      ? await new GitHubIssueStore(requireGitHubStoreConfig()).nextAttempt(missionId, participantId)
+      : 1;
   }
   const result = await evaluate(
     { missionId, participantId, participantPrompt, publicBrief, attempt },

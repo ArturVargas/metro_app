@@ -14,7 +14,7 @@ La interfaz requiere una mención explícita al bot para separar acciones del ex
 
 - Integración directa con Twilio o Meta: aplazada porque Hermes ya resuelve la entrada al grupo.
 - Evaluación dentro del propio razonamiento libre de Hermes: rechazada por falta de reproducibilidad y auditoría.
-- Conversaciones individuales con el bot: rechazada; el experimento debe ocurrir en el grupo común.
+- Conversaciones individuales con el bot: rechazada; el experimento debe ocurrir en el grupo común. **Modificado por [ADR-0010](0010-hermes-dm-evaluations.md)** (propuesta): DMs admitidos para evaluar M2; el grupo sigue siendo el espacio común de publicación y votación.
 
 ## Consecuencias
 
