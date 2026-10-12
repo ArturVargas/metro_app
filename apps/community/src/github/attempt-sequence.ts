@@ -13,12 +13,12 @@ export function attemptNumberFromComment(
   return Number(match[3]);
 }
 
-export function assertNextAttempt(
+// Next attempt = recorded attempts + 1; throws on gaps or when the max is reached.
+export function nextAttemptNumber(
   commentBodies: string[],
   missionId: string,
   participantId: string,
-  requestedAttempt: number,
-): void {
+): number {
   const attempts = commentBodies
     .map((body) => attemptNumberFromComment(body, missionId, participantId))
     .filter((attempt): attempt is number => attempt !== null)
@@ -32,7 +32,16 @@ export function assertNextAttempt(
       `Participant reached the maximum of ${MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT} evaluations for ${missionId}`,
     );
   }
-  const expected = attempts.length + 1;
+  return attempts.length + 1;
+}
+
+export function assertNextAttempt(
+  commentBodies: string[],
+  missionId: string,
+  participantId: string,
+  requestedAttempt: number,
+): void {
+  const expected = nextAttemptNumber(commentBodies, missionId, participantId);
   if (requestedAttempt !== expected) {
     throw new Error(
       `Invalid attempt ${requestedAttempt} for ${missionId}/${participantId}; next attempt is ${expected}`,
