@@ -14,7 +14,7 @@
 - Hermes actúa como adaptador y coordinador; las decisiones verificables pertenecen al backend.
 - En el grupo, Hermes solo procesa una participación cuando la persona menciona explícitamente al bot. En DM, una consulta no consume intento; un prompt enviado para evaluación sí sigue el flujo normal.
 - Cada intento evaluado por DM se registra como los intentos del grupo. Después, Hermes pregunta: “Tu evaluación quedará registrada en el experimento. ¿Quieres compartir también tu prompt y puntaje en el grupo?”. Solo un “sí” explícito comparte ese intento en el grupo.
-- Las evaluaciones están disponibles únicamente los martes y jueves.
+- Las evaluaciones están disponibles únicamente los martes, miércoles y jueves, de 6:00 a 23:55 (hora Colombia).
 - Cada viernes se publican tres enlaces correspondientes a las versiones A, B y C para que el grupo pueda probarlas, compararlas y compartirlas.
 - La incorporación se entrega como una secuencia de mensajes cortos y una guía fija en el grupo.
 - La comunicación para participantes habla de evaluación de calidad y feedback; no menciona Jev ni detalles internos del evaluador.
