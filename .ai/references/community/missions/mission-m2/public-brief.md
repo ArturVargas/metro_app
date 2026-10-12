@@ -41,9 +41,11 @@ Tú decides cómo asignar y retirar un tren, cómo representarlo visualmente, qu
 
 **Cómo participar**
 
-- Envía tu prompt en este grupo mencionando al bot, únicamente el martes o el jueves.
+- Envía tu prompt en este grupo mencionando al bot, únicamente el martes o el jueves. Si tienes acceso autorizado por DM, también puedes hacer preguntas o enviar tu prompt por ese canal.
+- Una pregunta por DM no consume intento. Un prompt enviado para evaluación sí.
 - Puedes evaluarlo hasta cinco veces y recibirás un puntaje y feedback en cada intento.
 - Solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, no entra en la votación.
+- Después de evaluar por DM, Hermes preguntará: “Tu evaluación quedará registrada en el experimento. ¿Quieres compartir también tu prompt y puntaje en el grupo?”. Solo lo compartirá si respondes “sí”.
 
 **Entrega del viernes**  
 Los tres prompts elegidos por el grupo se convertirán en las versiones A, B y C. El viernes compartiremos sus enlaces para que puedan probarlas, compararlas y compartir sus resultados.

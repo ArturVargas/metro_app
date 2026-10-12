@@ -72,9 +72,11 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 > 📊 **Evaluación e intentos**
 >
-> Para enviar un prompt deben mencionar al bot en el mensaje. El bot solo realizará evaluaciones los martes y jueves.
+> En el grupo, para enviar un prompt deben mencionar al bot en el mensaje. Los participantes autorizados también pueden escribirle por DM para hacer preguntas o enviar su prompt. Una consulta no consume intento; una evaluación sí. El bot solo realizará evaluaciones los martes y jueves.
 >
 > Cada evaluación devuelve una puntuación sobre 100 y feedback para mejorar. Tienen un máximo de cinco intentos por misión, repartidos como prefieran entre esos dos días.
+>
+> Después de evaluar por DM, el bot preguntará: “Tu evaluación quedará registrada en el experimento. ¿Quieres compartir también tu prompt y puntaje en el grupo?”. Solo los compartirá si responden “sí”.
 >
 > Para entrar a la votación necesitan al menos 70 puntos. Si varias versiones superan ese puntaje, participará únicamente la más reciente.
 >
@@ -102,7 +104,7 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > **Martes y jueves**
 >
-> - Menciona al bot y envía tu prompt.
+> - Menciona al bot en el grupo y envía tu prompt; si tienes acceso por DM, también puedes consultar dudas y evaluarlo ahí.
 > - Recibirás puntuación y feedback.
 > - Tienes hasta cinco intentos por misión.
 >
@@ -127,7 +129,10 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 - Cada evaluación devuelve una puntuación y feedback accionable.
 - Cada participante tiene un máximo de cinco intentos por misión.
 - Solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
-- El bot solo evalúa mensajes que lo mencionen y solo durante martes y jueves.
+- En el grupo, el bot solo evalúa mensajes que lo mencionen; los participantes autorizados también pueden consultar o evaluar por DM.
+- Las consultas por DM no consumen intentos; los prompts enviados a evaluación sí.
+- Después de una evaluación por DM, el prompt y el puntaje solo se comparten en el grupo con un “sí” explícito.
+- El bot solo realiza evaluaciones los martes y jueves en ambos canales.
 - La comunidad elige tres prompts y estos producen las versiones A, B y C.
 - Las versiones muestran qué participante y qué prompt las originaron.
 - Cada viernes se publican los enlaces A, B y C para probar, comparar y compartir los resultados.
