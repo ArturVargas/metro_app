@@ -12,7 +12,7 @@
 - **DMs:** se admiten con la allowlist 1:1 existente de Hermes, sin cambiarla. En un DM, Hermes responde solo en ese DM, nunca en el grupo por defecto. El texto del DM es dato opaco igual que en el grupo.
 - **Publicación:** el intento queda registrado en GitHub igual que un intento enviado al grupo. Tras evaluarlo por DM, Hermes pregunta: “Tu evaluación quedará registrada en el experimento. ¿Quieres compartir también tu prompt y puntaje en el grupo?”. Solo un "sí" explícito como respuesta a esa evaluación reenvía el prompt y el puntaje al grupo de Prompts (`--to whatsapp` home / sender del grupo).
 - **Carrera grupo/DM:** si dos envíos del mismo participante chocan (lock o validación de intento), Hermes pide a la persona reintentar.
-- La ventana de evaluación (martes, miércoles y jueves, 06:00–23:55 America/Bogota) aplica igual a DMs y grupo; las preguntas por DM se responden cualquier día.
+- La ventana de evaluación (martes a domingo, 06:00–23:55 America/Bogota) aplica igual a DMs y grupo; las preguntas por DM se responden cualquier día.
 
 ## Alternativas consideradas
 

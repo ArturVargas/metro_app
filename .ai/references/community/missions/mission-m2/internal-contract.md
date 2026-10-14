@@ -8,7 +8,7 @@
 - **Brief público:** `missions/mission-m2/public-brief.md`
 - **Responsable:** `ArturVargas`
 - **Zona horaria:** `PENDIENTE`
-- **Evaluaciones:** `martes, miércoles y jueves, 06:00–23:55 America/Bogota (UTC-5); DM y grupo`
+- **Evaluaciones:** `martes a domingo, 06:00–23:55 America/Bogota (UTC-5); DM y grupo`
 - **Votación:** `PENDIENTE`
 - **Publicación A/B/C:** `viernes, hora pendiente`
 
