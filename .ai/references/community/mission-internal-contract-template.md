@@ -14,7 +14,7 @@ Completa únicamente decisiones ya aprobadas. Mantén los valores todavía abier
 - **Brief público:** `[ruta o URL]`
 - **Responsable:** `[identificador]`
 - **Zona horaria:** `PENDIENTE`
-- **Evaluaciones:** `[martes, miércoles y jueves, 06:00–23:55 America/Bogota]`
+- **Evaluaciones:** `[martes a domingo, 06:00–23:55 America/Bogota]`
 - **Votación:** `[inicio y cierre]`
 - **Publicación A/B/C:** `[viernes y hora]`
 

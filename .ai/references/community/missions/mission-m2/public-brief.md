@@ -41,7 +41,7 @@ Tú decides cómo asignar y retirar un tren, cómo representarlo visualmente, qu
 
 **Cómo participar**
 
-- Envía tu prompt en este grupo mencionando al bot, únicamente los martes, miércoles y jueves, de 6:00 a 23:55 (hora Colombia). Si tienes acceso autorizado por DM, también puedes hacer preguntas o enviar tu prompt por ese canal.
+- Envía tu prompt en este grupo mencionando al bot, únicamente de martes a domingo, de 6:00 a 23:55 (hora Colombia; lunes cerrado). Si tienes acceso autorizado por DM, también puedes hacer preguntas o enviar tu prompt por ese canal.
 - Una pregunta por DM no consume intento. Un prompt enviado para evaluación sí.
 - Puedes evaluarlo hasta cinco veces y recibirás un puntaje y feedback en cada intento.
 - Solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, no entra en la votación.
