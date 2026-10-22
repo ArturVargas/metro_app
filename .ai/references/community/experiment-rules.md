@@ -48,6 +48,16 @@
 - La primera ejecución será supervisada.
 - Integrar una variante al producto requiere aprobación técnica del responsable.
 
+### Findings de ejecución
+
+- La revisión de una variante mide fidelidad entre prompt y resultado; no recalifica el prompt.
+- Cada diferencia se registra como `prompt-gap`, `execution-gap`, `platform-gap` o `security-blocker`, con evidencia reproducible.
+- Un finding no crea un intento, no consume el límite de cinco y no modifica el puntaje de TypeSafe.
+- El código generado se conserva inicialmente como evidencia del experimento.
+- Antes de publicar solo es obligatorio corregir un `security-blocker` o un fallo que impida desplegar o probar la variante.
+- Los findings se convierten en feedback para el participante distinguiendo claramente la calidad del prompt de la fidelidad del agente.
+- En una variante compuesta, cada participante recibe únicamente los findings relacionados con sus requisitos de origen.
+
 ### Hosting y promoción de A/B/C
 
 - Las previews del viernes se hospedan en Cloudflare (Pages o equivalente).

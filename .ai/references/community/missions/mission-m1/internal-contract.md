@@ -70,12 +70,15 @@ Las tres variantes usan exactamente estos valores (condiciones idénticas A/B/C 
 
 Registra cualquier interrupción o desviación. Una variante ejecutada bajo condiciones distintas no entra en la comparación hasta repetirse con el contrato correcto.
 
+La revisión posterior sigue [`../../execution-review.md`](../../execution-review.md). Los findings no recalifican el prompt ni crean intentos. El resultado generado se conserva como evidencia; solo un `security-blocker` o un fallo que impida desplegar o probar exige corrección antes de publicar.
+
 ## 5. GitHub
 
 - **Issue principal de la misión:** `PENDIENTE`
 - **Project y vista:** `PENDIENTE`
 - **Campos obligatorios:** misión, versión, participante seudónimo, intento, prompt exacto, puntaje, elegibilidad, estado y fechas.
 - **Comentarios por evaluación:** puntaje, feedback, versión de rúbrica y versión del generador de feedback.
+- **Comentarios por ejecución:** findings vinculados con variante, PR y requisito del prompt; se distinguen de los comentarios de evaluación y no incrementan el contador de intentos.
 - **Etiquetas:** `PENDIENTE`
 - **Selección:** registra votos válidos, desempate si aplica y los tres prompts ganadores.
 - **Mapeo aleatorio:** conserva para A, B y C el autor, prompt exacto, puntaje, intento, issue, rama, pull request, commit y preview.
@@ -84,13 +87,13 @@ GitHub usa identificadores seudónimos. No se almacenan números telefónicos ni
 
 ## 6. Publicación
 
-- **Preview A:** `PENDIENTE` (hasta que existan ganadores)
-- **Preview B:** `PENDIENTE` (hasta que existan ganadores)
-- **Preview C:** `PENDIENTE` (hasta que existan ganadores)
+- **Preview A:** `https://metro-app-a.pages.dev/` — rama `metro_a`, commit `3a40c45479d604f2a4162231af2247ae18d82213`
+- **Preview B:** `https://metro-app-b.pages.dev/` — rama `metro_b`, commit `0af361b5d795dc538c6226a5ed253b68521497bf`
+- **Preview C:** `https://metro-app-c.pages.dev/` — rama `metro_c`, commit `089013fbf9e3ce1b68f1f37f6c71be1ec27fa708`
 - **Prueba rápida común:** `PENDIENTE`
-- **Resultado de pruebas:** `PENDIENTE`
+- **Resultado de pruebas:** despliegues supervisados exitosos el 2026-10-02; las tres URLs respondieron y mostraron `Metro App — A`, `Metro App — B` y `Metro App — C`. Findings conocidos en [`execution-findings-2026-10-02.md`](execution-findings-2026-10-02.md).
 - **Aprobación técnica:** `PENDIENTE`
-- **Riesgos conocidos:** `PENDIENTE`
+- **Riesgos conocidos:** registrados como findings de ejecución; no se encontraron `security-blocker`.
 - **Procedimiento para revertir:** `PENDIENTE`
 - **Mensaje del viernes:** `PENDIENTE`
 
