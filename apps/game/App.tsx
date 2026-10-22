@@ -10,7 +10,7 @@ export default function App() {
           Metro App — C
         </Text>
         <Text style={styles.subtitle}>
-          Conecta estaciones: fusión de los prompts p-549 y p-898.
+          Trenes en movimiento: prompt de p-549.
         </Text>
       </View>
       <StationBoard />
