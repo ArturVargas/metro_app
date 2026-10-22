@@ -10,7 +10,7 @@ export default function App() {
           Metro App — A
         </Text>
         <Text style={styles.subtitle}>
-          Conecta estaciones con líneas de colores (prompt p-549).
+          Trenes en movimiento: prompt de p-898.
         </Text>
       </View>
       <StationBoard />
