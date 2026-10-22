@@ -4,11 +4,11 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
   StyleProp,
   ViewStyle,
 } from "react-native";
 import Svg, { Circle, Line, Polygon, Rect } from "react-native-svg";
-import { PanGestureHandler, StateMask } from 'react-native-gesture-handler';
 
 // --- Constants and Types ---
 
@@ -223,13 +223,7 @@ const TrainDepot: React.FC<TrainDepotProps> = ({
                         <View
                             key={trainId}
                             style={styles.slot}
-                            // Using PanGestureHandler wrapper for drag source simulation
-                            onDragStart={(e) => handleDragStart(trainId)}
-                            onDragEnd={(e) => handleDragEnd(trainId, null)} // Target handled by parent
                         >
-                            <PanGestureHandler onGestureEvent={e => {
-                                // Placeholder for drag tracking
-                            }}>
                                 <View
                                     style={[
                                         styles.trainVisual,
@@ -249,7 +243,6 @@ const TrainDepot: React.FC<TrainDepotProps> = ({
                                         </TouchableOpacity>
                                     )}
                                 </View>
-                            </PanGestureHandler>
                         </View>
                     );
                 })}
@@ -275,21 +268,12 @@ const TrainVisual: React.FC<TrainVisualProps> = ({
     const trainId = train.id;
 
     return (
-        <PanGestureHandler
-            onGestureEvent={e => {
-                // Placeholder for drag tracking
-            }}
-            onHandlerStateChange={({ change }) => {
-                // Dragging started/moved
-            }}
-        >
             <View
                 style={[
                     styles.trainVisual,
                     {
                         borderColor: lineColor,
                         backgroundColor: '#fff',
-                        transform: [{ translateX: change.translationX }, { translateY: change.translationY }],
                     }
                 ]}
             >
@@ -301,7 +285,6 @@ const TrainVisual: React.FC<TrainVisualProps> = ({
                     Retirar
                 </TouchableOpacity>
             </View>
-        </PanGestureHandler>
     );
 };
 
@@ -318,7 +301,7 @@ export function StationBoard(): React.JSX.Element {
   // Train State Management
   const [trains, setTrains] = useState<Train[]>([]);
   const trainTimer = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
-  const lastUpdateTime = useRef(performance.now());
+  const lastUpdateTime = useRef(0);
 
   // --- Toast Management ---
   const showToast = useCallback((msg: string) => {
@@ -427,6 +410,27 @@ export function StationBoard(): React.JSX.Element {
     [clearSelection, showToast],
   );
 
+  const onStationPress = useCallback(
+    (stationId: string) => {
+      if (!selectedId) {
+        setSelectedId(stationId);
+        const s = STATION_BY_ID[stationId];
+        setGuide({ x: s.x, y: s.y });
+        return;
+      }
+      if (selectedId === stationId) {
+        clearSelection();
+        return;
+      }
+      connect(selectedId, stationId);
+    },
+    [selectedId, clearSelection, connect],
+  );
+
+  const onBackgroundPress = useCallback(() => {
+    if (selectedId) clearSelection();
+  }, [selectedId, clearSelection]);
+
   // --- Train Management ---
 
   /** Initializes or resets the train state. */
@@ -468,6 +472,7 @@ export function StationBoard(): React.JSX.Element {
 
   // Initialize trains whenever lines change (or on mount)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     initializeTrains(lines);
   }, [lines, initializeTrains]);
 
@@ -512,7 +517,7 @@ export function StationBoard(): React.JSX.Element {
         const initialSegment = linesWithEndpoint(lines, line.stationIds[0]).find(l => l.id === targetLineId);
         if (initialSegment) {
             const initialSegmentKey = getSegmentKey(targetLineId, 0);
-            const segmentData = useSegments(lines).segmentMap.get(initialSegmentKey);
+            const segmentData = line.stationIds.length >= 2;
             
             if (segmentData) {
                 newTrain.currentSegmentKey = initialSegmentKey;
@@ -524,6 +529,9 @@ export function StationBoard(): React.JSX.Element {
         return prevTrains.map((t, i) => i === trainIndex ? { ...newTrain } : t);
     });
   }, [lines, showToast]);
+
+  const handleDragStartDepot = useCallback(() => {}, []);
+  const handleDragEndDepot = handleAssignTrain;
 
   /** Handles removing a train from a line. */
   const handleRemoveTrain = useCallback((trainId: string) => {
@@ -899,7 +907,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderWidth: 3,
-    borderRadius: 8,
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
