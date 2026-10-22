@@ -236,7 +236,8 @@ export function StationBoard(): React.JSX.Element {
   const [showMenu, setShowMenu] = useState<{ lineId: string; type: 'edit' | 'delete' | 'manage' } | null>(null);
   
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastTimeRef = useRef<number>(performance.now());
+  const lastTimeRef = useRef<number>(0);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // --- Simulation Helpers ---
 
@@ -302,7 +303,6 @@ export function StationBoard(): React.JSX.Element {
         if (line.closed && nextStationIndex === 0 && currentSegmentIndex === stationIds.length - 1) {
             // Circuit completion: Wait at the start station before looping back
             newIsWaiting = true;
-            newLastStopTime = waitEndTime;
             return {
                 ...train,
                 currentStationIndex: nextStationIndex,
@@ -469,6 +469,25 @@ export function StationBoard(): React.JSX.Element {
     setToast("Sistema reiniciado. Estaciones intactas.");
   }, []);
 
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), TOAST_MS);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedId(null);
+    setGuide(null);
+  }, []);
+
+  const deleteLine = useCallback(
+    (lineId: string) => {
+      setLines((prev) => prev.filter((l) => l.id !== lineId));
+      clearSelection();
+    },
+    [clearSelection],
+  );
+
   // --- Line Creation/Editing Logic ---
 
   const connect = useCallback(
@@ -521,6 +540,7 @@ export function StationBoard(): React.JSX.Element {
           stationIds: [fromId, toId],
           createdAt: Date.now(),
           closed: false,
+          trainId: null,
         };
         
         // Assign initial train T1, T2, or T3 based on line count
@@ -700,7 +720,7 @@ export function StationBoard(): React.JSX.Element {
     const line = lines.find(l => l.id === isEditing);
     if (!line) return;
 
-    let newStationIds: string[];
+    let newStationIds: string[] = line.stationIds;
     let newClosed = false;
 
     if (editPath.length > 0) {
@@ -832,7 +852,7 @@ export function StationBoard(): React.JSX.Element {
   // --- Train Rendering Logic ---
   const renderTrains = useMemo(() => {
     const trainElements: React.ReactNode[] = [];
-    Object.values(trains).forEach((train) => {
+    return Object.values(trains).map((train) => {
         const line = lines.find(l => l.id === train.lineId);
         if (!line) return;
 
