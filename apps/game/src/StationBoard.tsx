@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
-  StyleProp,
-  ViewStyle,
+  type LayoutChangeEvent,
+  type PointerEvent as RNPointerEvent,
 } from "react-native";
 import Svg, { Circle, Line, Polygon, Rect } from "react-native-svg";
 
@@ -28,19 +28,30 @@ type MetroLine = {
   stationIds: string[];
   createdAt: number;
   closed: boolean;
-  // Added for train tracking
-  trainId: string | null;
 };
 
 // Train State
 type Train = {
-  id: string;
+  id: number;
   lineId: string | null;
-  isMoving: boolean;
-  progress: number; // 0.0 to 1.0 along the current segment
-  currentSegmentKey: string; // Key identifying the segment it's on
-  startTime: number;
-  totalDuration: number; // Time needed to traverse the current segment
+  routeKey: string;
+  distance: number;
+  direction: 1 | -1;
+};
+
+type Point = { x: number; y: number };
+
+type BoardRect = { left: number; top: number; width: number; height: number };
+
+type DragState = {
+  trainId: number;
+  pointerId: number;
+  startX: number;
+  startY: number;
+  x: number;
+  y: number;
+  active: boolean;
+  hoverLineIds: string[];
 };
 
 const VIEW_W = 400;
@@ -52,9 +63,21 @@ const STROKE = 8;
 const HIT_STROKE = 20;
 const MAX_LINES = 3;
 const NUM_TRAINS = 4;
+const TRAIN_SPEED = 100;
+const MAX_FRAME_S = 0.1;
+const DRAG_THRESHOLD_PX = 8;
+const DROP_ZONE_PX = 22;
+const DEPOT_GREY = "#9ca3af";
+const NOTICE_GREY = "#374151";
+const LINE_BUSY_MSG = "Esa línea ya tiene tren";
 
 /** Paleta B (sin naranja/rojo de alerta). */
 const LINE_COLORS = ["#0072B2", "#009E73", "#CC79A7"] as const;
+const COLOR_NAME: Record<string, string> = {
+  "#0072B2": "azul",
+  "#009E73": "verde",
+  "#CC79A7": "rosa",
+};
 const TOAST_MS = 2000;
 const SELECT_RING = "#555555";
 
@@ -80,6 +103,14 @@ const STATION_BY_ID: Record<string, Station> = Object.fromEntries(
   STATIONS.map((s) => [s.id, s]),
 );
 
+const INITIAL_TRAINS: Train[] = Array.from({ length: NUM_TRAINS }, (_, i) => ({
+  id: i + 1,
+  lineId: null,
+  routeKey: "",
+  distance: 0,
+  direction: 1,
+}));
+
 // --- Utility Functions ---
 
 /** Gets the two endpoints of a line. */
@@ -91,7 +122,7 @@ function endpointsOf(line: MetroLine): [string, string] {
 /** Filters lines that use the given station ID as an endpoint. */
 function linesWithEndpoint(lines: MetroLine[], stationId: string): MetroLine[] {
   return lines.filter((l) => {
-    if (l.trainId !== null) return false; // Only consider lines without trains for connection logic
+    if (l.closed) return false;
     const [a, b] = endpointsOf(l);
     return a === stationId || b === stationId;
   });
@@ -106,14 +137,87 @@ function firstFreeColor(lines: MetroLine[]): string | null {
   return null;
 }
 
-/** Calculates the segment key for a given line and index i. */
-function getSegmentKey(lineId: string, i: number): string {
-    return `${lineId}-${i}`;
+function routeKeyOf(line: MetroLine): string {
+  return `${line.stationIds.join(">")}|${line.closed ? "c" : "o"}`;
 }
 
-/** Calculates the segment key for the closing segment of a circuit. */
-function getClosingSegmentKey(lineId: string): string {
-    return `${lineId}-close`;
+function routeOf(line: MetroLine): Point[] {
+  const pts: Point[] = line.stationIds.map((id) => STATION_BY_ID[id]);
+  if (line.closed && pts.length >= 3) pts.push(pts[0]);
+  return pts;
+}
+
+function routeLength(pts: Point[]): number {
+  let total = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    total += Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y);
+  }
+  return total;
+}
+
+function pointOnRoute(pts: Point[], distance: number): Point & { angle: number } {
+  let left = distance;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (left <= len || i === pts.length - 2) {
+      const t = len === 0 ? 0 : Math.min(1, Math.max(0, left / len));
+      return {
+        x: a.x + (b.x - a.x) * t,
+        y: a.y + (b.y - a.y) * t,
+        angle: (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI,
+      };
+    }
+    left -= len;
+  }
+  return { x: pts[0].x, y: pts[0].y, angle: 0 };
+}
+
+function distanceToSegment(p: Point, a: Point, b: Point): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2));
+  return Math.hypot(p.x - (a.x + dx * t), p.y - (a.y + dy * t));
+}
+
+function freeTrain(t: Train): Train {
+  return { ...t, lineId: null, routeKey: "", distance: 0, direction: 1 };
+}
+
+function advanceTrain(train: Train, line: MetroLine, dt: number): Train {
+  const key = routeKeyOf(line);
+  if (key !== train.routeKey) {
+    return { ...train, routeKey: key, distance: 0, direction: 1 };
+  }
+  const total = routeLength(routeOf(line));
+  if (total === 0 || dt === 0) return train;
+  let distance = train.distance + train.direction * TRAIN_SPEED * dt;
+  let direction = train.direction;
+  if (line.closed) {
+    distance = ((distance % total) + total) % total;
+  } else {
+    while (distance > total || distance < 0) {
+      if (distance > total) {
+        distance = 2 * total - distance;
+        direction = -1;
+      } else {
+        distance = -distance;
+        direction = 1;
+      }
+    }
+  }
+  return { ...train, distance, direction };
+}
+
+function boardScale(width: number, height: number) {
+  const scale = Math.min(width / VIEW_W, height / VIEW_H);
+  return {
+    scale,
+    offsetX: (width - VIEW_W * scale) / 2,
+    offsetY: (height - VIEW_H * scale) / 2,
+  };
 }
 
 // --- StationMark Component ---
@@ -181,113 +285,102 @@ function StationMark({
   }
 }
 
+// --- Train Visualization Component ---
+function TrainVisual({
+  trainId,
+  color,
+  angle,
+}: {
+  trainId: number;
+  color: string;
+  angle: number;
+}) {
+  return (
+    <View style={[styles.trainVisual, { borderColor: color }]}>
+      <Text style={styles.trainNumber}>{trainId}</Text>
+      <Text style={[styles.trainArrow, { transform: [{ rotate: `${angle}deg` }] }]}>→</Text>
+    </View>
+  );
+}
+
+const WEB_NO_TOUCH_SCROLL = (Platform.OS === "web" ? { touchAction: "none" } : {}) as object;
+
 // --- Train Depot Component ---
 interface TrainDepotProps {
-    trains: Train[];
-    onDragStart: (trainId: string) => void;
-    onDragEnd: (trainId: string, targetLineId: string | null) => void;
-    onRemoveTrain: (trainId: string) => void;
+  trains: Train[];
+  linesById: Record<string, MetroLine>;
+  draggingId: number | null;
+  onPointerDown: (trainId: number, e: RNPointerEvent) => void;
+  onPointerMove: (e: RNPointerEvent) => void;
+  onPointerUp: (e: RNPointerEvent) => void;
+  onPointerCancel: (e: RNPointerEvent) => void;
+  onRemoveTrain: (trainId: number) => void;
 }
 
-const TrainDepot: React.FC<TrainDepotProps> = ({
-    trains,
-    onDragStart,
-    onDragEnd,
-    onRemoveTrain
-}) => {
-    const depotTrains = trains.filter(t => t.lineId === null);
-    const inServiceTrains = trains.filter(t => t.lineId !== null);
+function TrainDepot({
+  trains,
+  linesById,
+  draggingId,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  onRemoveTrain,
+}: TrainDepotProps) {
+  const inServiceCount = trains.filter((t) => t.lineId && linesById[t.lineId]).length;
+  const depotCount = trains.length - inServiceCount;
 
-    const handleDragStart = (trainId: string) => {
-        onDragStart(trainId);
-    };
-
-    // Note: In a real implementation, the parent component must capture the drop target ID.
-    const handleDragEnd = (trainId: string, targetLineId: string | null) => {
-        onDragEnd(trainId, targetLineId);
-    };
-
-    return (
-        <View style={styles.depotContainer}>
-            <Text style={styles.depotStatus}>
-                En la cochera: {depotTrains.length} · En servicio: {inServiceTrains.length}
-            </Text>
-            <View style={styles.trainSlots}>
-                {Array.from({ length: NUM_TRAINS }).map((_, index) => {
-                    const trainId = `train-${index + 1}`;
-                    const train = trains.find(t => t.id === trainId);
-                    const isOccupied = !!train;
-                    const isDepot = train?.lineId === null;
-
-                    return (
-                        <View
-                            key={trainId}
-                            style={styles.slot}
-                        >
-                                <View
-                                    style={[
-                                        styles.trainVisual,
-                                        {
-                                            borderColor: isOccupied ? (isDepot ? '#ccc' : '#aaa') : '#ccc',
-                                            backgroundColor: isOccupied ? (isDepot ? '#fff' : '#eee') : '#fff',
-                                        }
-                                    ]}
-                                >
-                                    <Text style={styles.trainNumber}>{index + 1}</Text>
-                                    {isOccupied && (
-                                        <TouchableOpacity 
-                                            onPress={() => onRemoveTrain(trainId)}
-                                            style={styles.removeButton}
-                                        >
-                                            Retirar
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                        </View>
-                    );
-                })}
-            </View>
-        </View>
-    );
-};
-
-// --- Train Visualization Component ---
-interface TrainVisualProps {
-    train: Train;
-    lineColor: string;
-    onDragStart: (trainId: string) => void;
-    onDragEnd: (trainId: string, targetLineId: string | null) => void;
-}
-
-const TrainVisual: React.FC<TrainVisualProps> = ({
-    train,
-    lineColor,
-    onDragStart,
-    onDragEnd
-}) => {
-    const trainId = train.id;
-
-    return (
+  return (
+    <View style={styles.depotContainer}>
+      <Text style={styles.depotStatus}>
+        En la cochera: {depotCount} · En servicio: {inServiceCount}
+      </Text>
+      <View style={styles.trainSlots}>
+        {trains.map((train) => {
+          const line = train.lineId ? linesById[train.lineId] : undefined;
+          const isDragging = draggingId === train.id;
+          return (
             <View
-                style={[
-                    styles.trainVisual,
-                    {
-                        borderColor: lineColor,
-                        backgroundColor: '#fff',
-                    }
-                ]}
+              key={train.id}
+              style={[styles.slot, isDragging && styles.slotDragging]}
             >
-                <Text style={styles.trainNumber}>{trainId.slice(-1)}</Text>
-                <TouchableOpacity 
-                    onPress={() => onDragStart(trainId)}
+              <Text style={styles.slotNumber}>{train.id}</Text>
+              {line ? (
+                <>
+                  <View style={styles.slotLine}>
+                    <View style={[styles.slotDot, { backgroundColor: line.color }]} />
+                    <Text style={styles.slotLineText}>Línea {COLOR_NAME[line.color]}</Text>
+                  </View>
+                  <Pressable
+                    onPress={() => onRemoveTrain(train.id)}
                     style={styles.removeButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Retirar tren ${train.id}`}
+                  >
+                    <Text style={styles.removeButtonText}>Retirar</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <View
+                  style={[styles.dragHandle, WEB_NO_TOUCH_SCROLL]}
+                  accessibilityLabel={`Tren ${train.id} en la cochera`}
+                  onPointerDown={(e) => onPointerDown(train.id, e)}
+                  onPointerMove={onPointerMove}
+                  onPointerUp={onPointerUp}
+                  onPointerCancel={onPointerCancel}
                 >
-                    Retirar
-                </TouchableOpacity>
+                  {isDragging ? null : (
+                    <TrainVisual trainId={train.id} color={DEPOT_GREY} angle={0} />
+                  )}
+                </View>
+              )}
             </View>
-    );
-};
-
+          );
+        })}
+      </View>
+    </View>
+  );
+}
 
 // --- Main Component ---
 
@@ -299,9 +392,17 @@ export function StationBoard(): React.JSX.Element {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Train State Management
-  const [trains, setTrains] = useState<Train[]>([]);
-  const trainTimer = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
-  const lastUpdateTime = useRef(0);
+  const [trains, setTrains] = useState<Train[]>(INITIAL_TRAINS);
+  const [drag, setDrag] = useState<DragState | null>(null);
+  const [boardSize, setBoardSize] = useState<{ width: number; height: number } | null>(null);
+  const dragRef = useRef<DragState | null>(null);
+  const boardRef = useRef<View>(null);
+  const boardRectRef = useRef<BoardRect | null>(null);
+  const linesRef = useRef<MetroLine[]>(lines);
+
+  useEffect(() => {
+    linesRef.current = lines;
+  }, [lines]);
 
   // --- Toast Management ---
   const showToast = useCallback((msg: string) => {
@@ -313,7 +414,6 @@ export function StationBoard(): React.JSX.Element {
   useEffect(
     () => () => {
       if (toastTimer.current) clearTimeout(toastTimer.current);
-      if (trainTimer.current) cancelAnimationFrame(trainTimer.current);
     },
     [],
   );
@@ -326,19 +426,11 @@ export function StationBoard(): React.JSX.Element {
 
   const deleteLine = useCallback(
     (lineId: string) => {
-      setLines((prev) => {
-        const newLines = prev.filter((l) => l.id !== lineId);
-        
-        // 1. Update trains: If the deleted line had a train, free it.
-        setTrains(prevTrains => prevTrains.map(t => 
-            t.lineId === lineId ? { ...t, lineId: null, isMoving: false, progress: 0, currentSegmentKey: '', startTime: 0, totalDuration: 0 } : t
-        ));
-        
-        showToast("Línea eliminada. Tren liberado.");
-        return newLines;
-      });
+      setLines((prev) => prev.filter((l) => l.id !== lineId));
+      setTrains((prev) => prev.map((t) => (t.lineId === lineId ? freeTrain(t) : t)));
+      clearSelection();
     },
-    [showToast],
+    [clearSelection],
   );
 
   const connect = useCallback(
@@ -361,26 +453,19 @@ export function StationBoard(): React.JSX.Element {
 
           // Circuitos (de A): cerrar si ≥3 estaciones.
           if (toId === otherEnd && ids.length >= 3) {
-            const newLines = prev.map((l) =>
+            return prev.map((l) =>
               l.id === extendTarget.id ? { ...l, closed: true } : l,
             );
-            setLines(newLines);
-            showToast("Circuito cerrado.");
-            return newLines;
           }
 
           if (ids.includes(toId)) {
-            showToast("La estación ya está en esta línea.");
             return prev;
           }
 
           const nextIds = atStart ? [toId, ...ids] : [...ids, toId];
-          const newLines = prev.map((l) =>
+          return prev.map((l) =>
             l.id === extendTarget.id ? { ...l, stationIds: nextIds } : l,
           );
-          setLines(newLines);
-          showToast("Línea extendida.");
-          return newLines;
         }
 
         if (prev.length >= MAX_LINES) {
@@ -392,17 +477,16 @@ export function StationBoard(): React.JSX.Element {
           showToast("Máximo 3 líneas");
           return prev;
         }
-        const newLine: MetroLine = {
+        return [
+          ...prev,
+          {
             id: `line-${Date.now()}-${prev.length}`,
             color,
             stationIds: [fromId, toId],
             createdAt: Date.now(),
             closed: false,
-            trainId: null,
-        };
-        setLines([...prev, newLine]);
-        showToast("Nueva línea creada.");
-        return [...prev, newLine];
+          },
+        ];
       });
 
       clearSelection();
@@ -431,282 +515,272 @@ export function StationBoard(): React.JSX.Element {
     if (selectedId) clearSelection();
   }, [selectedId, clearSelection]);
 
+  // Rubber-band solo en desktop/web (mouse).
+  useEffect(() => {
+    if (Platform.OS !== "web" || !selectedId) return;
+    const handler = (ev: MouseEvent) => {
+      const el = document.querySelector(
+        '[data-metro-board="c"]',
+      ) as HTMLElement | null;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const scale = Math.min(rect.width / VIEW_W, rect.height / VIEW_H);
+      const offsetX = (rect.width - VIEW_W * scale) / 2;
+      const offsetY = (rect.height - VIEW_H * scale) / 2;
+      setGuide({
+        x: (ev.clientX - rect.left - offsetX) / scale,
+        y: (ev.clientY - rect.top - offsetY) / scale,
+      });
+    };
+    window.addEventListener("mousemove", handler);
+    return () => window.removeEventListener("mousemove", handler);
+  }, [selectedId]);
+
   // --- Train Management ---
 
-  /** Initializes or resets the train state. */
-  const initializeTrains = useCallback((initialLines: MetroLine[]) => {
-    const initialTrains: Train[] = [];
-    const lineTrainIds = new Set<string>();
-
-    // 1. Check existing trains assigned to lines
-    const existingTrains: Train[] = initialLines.map(line => ({
-        id: `train-${Math.random().toString(36).substring(2, 6)}`, // Unique ID for simulation
-        lineId: line.id,
-        isMoving: false,
-        progress: 0,
-        currentSegmentKey: '',
-        startTime: 0,
-        totalDuration: 0,
-    }));
-
-    // 2. Fill remaining slots with free trains
-    const assignedTrainIds = new Set(existingTrains.map(t => t.id));
-    const freeTrains: Train[] = [];
-    for (let i = 0; i < NUM_TRAINS; i++) {
-        const trainId = `train-${i + 1}`;
-        if (!assignedTrainIds.has(trainId)) {
-            freeTrains.push({
-                id: trainId,
-                lineId: null,
-                isMoving: false,
-                progress: 0,
-                currentSegmentKey: '',
-                startTime: 0,
-                totalDuration: 0,
-            });
-        }
-    }
-    
-    setTrains([...existingTrains, ...freeTrains]);
+  /** Handles removing a train from a line. */
+  const handleRemoveTrain = useCallback((trainId: number) => {
+    setTrains((prev) => prev.map((t) => (t.id === trainId ? freeTrain(t) : t)));
   }, []);
 
-  // Initialize trains whenever lines change (or on mount)
+  const handleAssignTrain = useCallback(
+    (trainId: number, targetLineId: string) => {
+      const line = linesRef.current.find((l) => l.id === targetLineId);
+      if (!line) return;
+      if (trains.some((t) => t.lineId === targetLineId)) {
+        showToast(LINE_BUSY_MSG);
+        return;
+      }
+      setTrains((prev) =>
+        prev.map((t) =>
+          t.id === trainId && !t.lineId
+            ? { ...t, lineId: targetLineId, routeKey: routeKeyOf(line), distance: 0, direction: 1 }
+            : t,
+        ),
+      );
+    },
+    [trains, showToast],
+  );
+
+  // --- Drag from the depot ---
+
+  const measureBoard = useCallback(() => {
+    const node = boardRef.current as unknown as {
+      getBoundingClientRect?: () => BoardRect;
+    } | null;
+    if (node?.getBoundingClientRect) {
+      const r = node.getBoundingClientRect();
+      boardRectRef.current = { left: r.left, top: r.top, width: r.width, height: r.height };
+      return;
+    }
+    boardRef.current?.measureInWindow((x, y, width, height) => {
+      boardRectRef.current = { left: x, top: y, width, height };
+    });
+  }, []);
+
+  const linesAtPoint = useCallback((clientX: number, clientY: number): MetroLine[] => {
+    const rect = boardRectRef.current;
+    if (!rect) return [];
+    const { scale, offsetX, offsetY } = boardScale(rect.width, rect.height);
+    if (scale <= 0) return [];
+    const p = {
+      x: (clientX - rect.left - offsetX) / scale,
+      y: (clientY - rect.top - offsetY) / scale,
+    };
+    const zone = DROP_ZONE_PX / scale;
+    return linesRef.current
+      .filter((line) => {
+        const pts = routeOf(line);
+        for (let i = 0; i < pts.length - 1; i++) {
+          if (distanceToSegment(p, pts[i], pts[i + 1]) <= zone) return true;
+        }
+        return false;
+      })
+      .sort((a, b) => a.createdAt - b.createdAt);
+  }, []);
+
+  const endDrag = useCallback(() => {
+    dragRef.current = null;
+    setDrag(null);
+  }, []);
+
+  const onDepotPointerDown = useCallback(
+    (trainId: number, e: RNPointerEvent) => {
+      const ev = e.nativeEvent;
+      if (dragRef.current) return;
+      if (ev.pointerType === "mouse" && ev.button !== 0) return;
+      const target = e.currentTarget as unknown as {
+        setPointerCapture?: (id: number) => void;
+      };
+      target.setPointerCapture?.(ev.pointerId);
+      measureBoard();
+      const next: DragState = {
+        trainId,
+        pointerId: ev.pointerId,
+        startX: ev.clientX,
+        startY: ev.clientY,
+        x: ev.clientX,
+        y: ev.clientY,
+        active: false,
+        hoverLineIds: [],
+      };
+      dragRef.current = next;
+      setDrag(next);
+    },
+    [measureBoard],
+  );
+
+  const onDepotPointerMove = useCallback(
+    (e: RNPointerEvent) => {
+      const ev = e.nativeEvent;
+      const d = dragRef.current;
+      if (!d || ev.pointerId !== d.pointerId) return;
+      const moved = Math.hypot(ev.clientX - d.startX, ev.clientY - d.startY);
+      if (!d.active && moved <= DRAG_THRESHOLD_PX) return;
+      if (
+        Platform.OS === "web" &&
+        (ev.clientX < 0 || ev.clientY < 0 || ev.clientX > window.innerWidth || ev.clientY > window.innerHeight)
+      ) {
+        endDrag();
+        return;
+      }
+      const next: DragState = {
+        ...d,
+        active: true,
+        x: ev.clientX,
+        y: ev.clientY,
+        hoverLineIds: linesAtPoint(ev.clientX, ev.clientY).map((l) => l.id),
+      };
+      dragRef.current = next;
+      setDrag(next);
+    },
+    [endDrag, linesAtPoint],
+  );
+
+  const onDepotPointerUp = useCallback(
+    (e: RNPointerEvent) => {
+      const ev = e.nativeEvent;
+      const d = dragRef.current;
+      if (!d || ev.pointerId !== d.pointerId) return;
+      endDrag();
+      if (!d.active) return;
+      const target = linesAtPoint(ev.clientX, ev.clientY)[0];
+      if (target) handleAssignTrain(d.trainId, target.id);
+    },
+    [endDrag, linesAtPoint, handleAssignTrain],
+  );
+
+  const onDepotPointerCancel = useCallback(
+    (e: RNPointerEvent) => {
+      const d = dragRef.current;
+      if (!d || e.nativeEvent.pointerId !== d.pointerId) return;
+      endDrag();
+    },
+    [endDrag],
+  );
+
+  const isDragging = drag !== null;
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    initializeTrains(lines);
-  }, [lines, initializeTrains]);
-
-
-  /** Handles assigning a train from the depot. */
-  const handleAssignTrain = useCallback((trainId: string, targetLineId: string | null) => {
-    setTrains(prevTrains => {
-        const trainIndex = prevTrains.findIndex(t => t.id === trainId);
-        if (trainIndex === -1) return prevTrains;
-
-        const train = prevTrains[trainIndex];
-        
-        if (targetLineId === null) {
-            // Case 5: Dropped nowhere or cancelled -> Train returns to depot
-            return prevTrains.map((t, i) => i === trainIndex ? { ...t, lineId: null, isMoving: false, progress: 0, currentSegmentKey: '', startTime: 0, totalDuration: 0 } : t);
-        }
-
-        // Case 4: Dropped on a line
-        const line = lines.find(l => l.id === targetLineId);
-        if (!line) {
-            return prevTrains;
-        }
-
-        // Check if line already has a train (Rule 5)
-        if (line.trainId) {
-            showToast("Esa línea ya tiene tren");
-            return prevTrains; // No change
-        }
-
-        // Assign train and start movement
-        const newTrain: Train = {
-            id: trainId,
-            lineId: targetLineId,
-            isMoving: true,
-            progress: 0,
-            currentSegmentKey: '',
-            startTime: performance.now(),
-            totalDuration: 0,
-        };
-
-        // Find the first segment to calculate initial movement parameters
-        const initialSegment = linesWithEndpoint(lines, line.stationIds[0]).find(l => l.id === targetLineId);
-        if (initialSegment) {
-            const initialSegmentKey = getSegmentKey(targetLineId, 0);
-            const segmentData = line.stationIds.length >= 2;
-            
-            if (segmentData) {
-                newTrain.currentSegmentKey = initialSegmentKey;
-                // Set initial duration based on segment length (simplified: assume fixed travel time per segment)
-                newTrain.totalDuration = 1000; // 1 second travel time per segment for simulation
-            }
-        }
-
-        return prevTrains.map((t, i) => i === trainIndex ? { ...newTrain } : t);
-    });
-  }, [lines, showToast]);
-
-  const handleDragStartDepot = useCallback(() => {}, []);
-  const handleDragEndDepot = handleAssignTrain;
-
-  /** Handles removing a train from a line. */
-  const handleRemoveTrain = useCallback((trainId: string) => {
-    setTrains(prevTrains => {
-        const trainIndex = prevTrains.findIndex(t => t.id === trainId);
-        if (trainIndex === -1) return prevTrains;
-
-        const train = prevTrains[trainIndex];
-        
-        // Reset train state to depot
-        const updatedTrains = prevTrains.map((t, i) => i === trainIndex ? { 
-            ...t, 
-            lineId: null, 
-            isMoving: false, 
-            progress: 0, 
-            currentSegmentKey: '', 
-            startTime: 0, 
-            totalDuration: 0 
-        } : t);
-        
-        // Update line state: remove trainId from the line object
-        setLines(prevLines => prevLines.map(l => 
-            l.id === train.lineId ? { ...l, trainId: null } : l
-        ));
-        
-        showToast("Tren retirado y puesto en cochera.");
-        return updatedTrains;
-    });
-  }, [showToast]);
+    if (Platform.OS !== "web" || !isDragging) return;
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") endDrag();
+    };
+    const onLeave = (ev: MouseEvent) => {
+      if (!ev.relatedTarget) endDrag();
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("blur", endDrag);
+    document.addEventListener("mouseout", onLeave);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("blur", endDrag);
+      document.removeEventListener("mouseout", onLeave);
+    };
+  }, [isDragging, endDrag]);
 
   // --- Animation Loop ---
   useEffect(() => {
-    if (trains.every(t => !t.isMoving)) {
-        if (trainTimer.current) cancelAnimationFrame(trainTimer.current);
-        return;
-    }
-
-    const animate = () => {
-        const now = performance.now();
-        const deltaTime = now - lastUpdateTime.current;
-        lastUpdateTime.current = now;
-
-        setTrains(prevTrains => {
-            const updatedTrains = prevTrains.map(train => {
-                if (!train.isMoving) return train;
-
-                const line = lines.find(l => l.id === train.lineId);
-                if (!line) return train;
-
-                const elapsed = now - train.startTime;
-                
-                // Simple movement simulation: progress increases over time
-                const newProgress = Math.min(1.0, elapsed / train.totalDuration);
-
-                if (newProgress >= 1.0) {
-                    // Simulate reaching the end of the segment and moving to the next one
-                    // In a real scenario, this logic would find the next segment key and update totalDuration.
-                    return { 
-                        ...train, 
-                        progress: 0, 
-                        startTime: now, 
-                        totalDuration: 1000, // Reset duration for next segment
-                        currentSegmentKey: train.currentSegmentKey // Keep key for drawing context
-                    };
-                }
-
-                return { 
-                    ...train, 
-                    progress: newProgress, 
-                    startTime: train.startTime,
-                    totalDuration: train.totalDuration
-                };
-            });
-            return updatedTrains;
+    let frame = 0;
+    let last: number | null = null;
+    const animate = (now: number) => {
+      const dt = last === null ? 0 : Math.min((now - last) / 1000, MAX_FRAME_S);
+      last = now;
+      setTrains((prev) => {
+        if (!prev.some((t) => t.lineId)) return prev;
+        const current = linesRef.current;
+        return prev.map((t) => {
+          if (!t.lineId) return t;
+          const line = current.find((l) => l.id === t.lineId);
+          return line ? advanceTrain(t, line, dt) : freeTrain(t);
         });
-
-        trainTimer.current = requestAnimationFrame(animate);
+      });
+      frame = requestAnimationFrame(animate);
     };
-
-    trainTimer.current = requestAnimationFrame(animate);
-
-    return () => {
-        if (trainTimer.current) cancelAnimationFrame(trainTimer.current);
-    };
-  }, [trains, lines]);
-
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   // --- Derived State & Memoization ---
 
-  const { segments: drawingSegments, segmentMap } = useMemo(() => {
-    const segments: any[] = [];
-    const segmentMap = new Map<string, { start: Station; end: Station; color: string; isClosed: boolean; isClosingSegment: boolean }>();
+  const linesById = useMemo(
+    () => Object.fromEntries(lines.map((l) => [l.id, l])) as Record<string, MetroLine>,
+    [lines],
+  );
 
+  const segments = useMemo(() => {
+    const out: {
+      key: string;
+      lineId: string;
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      color: string;
+    }[] = [];
     for (const line of lines) {
-        const ids = line.stationIds;
-        
-        // 1. Straight segments
-        for (let i = 0; i < ids.length - 1; i++) {
-            const a = STATION_BY_ID[ids[i]];
-            const b = STATION_BY_ID[ids[i + 1]];
-            const key = getSegmentKey(line.id, i);
-            segments.push({
-                key: key,
-                lineId: line.id,
-                x1: a.x,
-                y1: a.y,
-                x2: b.x,
-                y2: b.y,
-                color: line.color,
-                isClosed: false,
-                isClosingSegment: false,
-            });
-            segmentMap.set(key, { start: a, end: b, color: line.color, isClosed: false, isClosingSegment: false });
-        }
-
-        // 2. Closing segment (Circuit)
-        if (line.closed && ids.length >= 3) {
-            const a = STATION_BY_ID[ids[ids.length - 1]];
-            const b = STATION_BY_ID[ids[0]];
-            const key = getClosingSegmentKey(line.id);
-            segments.push({
-                key: key,
-                lineId: line.id,
-                x1: a.x,
-                y1: a.y,
-                x2: b.x,
-                y2: b.y,
-                color: line.color,
-                isClosed: true,
-                isClosingSegment: true,
-            });
-            segmentMap.set(key, { start: a, end: b, color: line.color, isClosed: true, isClosingSegment: true });
-        }
+      const pts = routeOf(line);
+      for (let i = 0; i < pts.length - 1; i++) {
+        out.push({
+          key: `${line.id}-${i}`,
+          lineId: line.id,
+          x1: pts[i].x,
+          y1: pts[i].y,
+          x2: pts[i + 1].x,
+          y2: pts[i + 1].y,
+          color: line.color,
+        });
+      }
     }
-    return { segments, segmentMap };
+    return out;
   }, [lines]);
 
   const selectedStation = selectedId ? STATION_BY_ID[selectedId] : null;
+  const hoverLineIds = drag?.active ? drag.hoverLineIds : [];
+  const layout = boardSize ? boardScale(boardSize.width, boardSize.height) : null;
 
-  // --- Render Train Position ---
-  const renderTrainPosition = useCallback((train: Train, line: MetroLine) => {
-    if (!train.isMoving || !line) return null;
-
-    const segmentKey = train.currentSegmentKey;
-    const segmentData = segmentMap.get(segmentKey);
-
-    if (!segmentData) return null;
-
-    const { start: startStation, end: endStation, color: lineColor } = segmentData;
-    
-    // Calculate position based on progress (0.0 to 1.0)
-    const x = startStation.x + (endStation.x - startStation.x) * train.progress;
-    const y = startStation.y + (endStation.y - startStation.y) * train.progress;
-
-    // Calculate the visual size (simplified)
-    const width = Math.sqrt(Math.pow(endStation.x - startStation.x, 2) + Math.pow(endStation.y - startStation.y, 2));
-    const visualWidth = Math.max(28, width * 0.8);
-
-    return { x, y, width: visualWidth, lineColor };
-  }, [segmentMap]);
-
+  const onBoardLayout = useCallback((e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setBoardSize({ width, height });
+  }, []);
 
   return (
     <View style={styles.wrap}>
       {toast ? (
-        <Text style={styles.toast} accessibilityLiveRegion="polite">
+        <Text
+          style={[styles.toast, toast === LINE_BUSY_MSG && styles.toastNotice]}
+          accessibilityLiveRegion="polite"
+        >
           {toast}
         </Text>
       ) : (
         <View style={styles.toastPlaceholder} />
       )}
-      
+
       {/* Metro Board Area */}
       <View
+        ref={boardRef}
         style={styles.board}
+        onLayout={onBoardLayout}
         accessibilityLabel="Tablero de estaciones"
         {...(Platform.OS === "web"
           ? ({ "data-metro-board": "c" } as object)
@@ -718,7 +792,6 @@ export function StationBoard(): React.JSX.Element {
           viewBox={VIEW_BOX}
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Background Grid */}
           <Rect
             x={0}
             y={0}
@@ -727,11 +800,9 @@ export function StationBoard(): React.JSX.Element {
             fill="#f4f6f8"
             stroke="#d0d7de"
             strokeWidth={2}
-            onPress={() => onBackgroundPress()}
+            onPress={onBackgroundPress}
           />
-
-          {/* Drawn Lines (Hit Area) */}
-          {drawingSegments.map((seg) => (
+          {segments.map((seg) => (
             <Line
               key={`hit-${seg.key}`}
               x1={seg.x1}
@@ -742,12 +813,10 @@ export function StationBoard(): React.JSX.Element {
               strokeWidth={HIT_STROKE}
               strokeLinecap="round"
               onPress={() => deleteLine(seg.lineId)}
-              accessibilityLabel={`Eliminar tramo de línea ${seg.lineId}`}
+              accessibilityLabel="Eliminar línea"
             />
           ))}
-
-          {/* Actual Line Traces */}
-          {drawingSegments.map((seg) => (
+          {segments.map((seg) => (
             <Line
               key={seg.key}
               x1={seg.x1}
@@ -755,50 +824,11 @@ export function StationBoard(): React.JSX.Element {
               x2={seg.x2}
               y2={seg.y2}
               stroke={seg.color}
-              strokeWidth={STROKE}
+              strokeWidth={hoverLineIds.includes(seg.lineId) ? STROKE * 2 : STROKE}
               strokeLinecap="round"
               pointerEvents="none"
             />
           ))}
-
-          {/* Train Visualization */}
-          {trains.map((train, index) => {
-            const line = lines.find(l => l.id === train.lineId);
-            if (!line) return null;
-
-            const segmentKey = train.currentSegmentKey;
-            const segmentData = segmentMap.get(segmentKey);
-
-            if (!segmentData) return null;
-
-            const { start: startStation, end: endStation, color: lineColor } = segmentData;
-            
-            // Calculate position based on progress (0.0 to 1.0)
-            const x = startStation.x + (endStation.x - startStation.x) * train.progress;
-            const y = startStation.y + (endStation.y - startStation.y) * train.progress;
-
-            // Calculate the visual size (simplified)
-            const width = Math.sqrt(Math.pow(endStation.x - startStation.x, 2) + Math.pow(endStation.y - startStation.y, 2));
-            const visualWidth = Math.max(28, width * 0.8);
-
-            return (
-                <rect
-                    key={`train-${train.id}`}
-                    x={x - visualWidth / 2}
-                    y={y - 7} // Height approximation
-                    width={visualWidth}
-                    height={14}
-                    rx={3}
-                    ry={3}
-                    fill={lineColor}
-                    stroke={lineColor}
-                    strokeWidth={3}
-                    pointerEvents="none"
-                />
-            );
-          })}
-
-          {/* Selection Guide */}
           {selectedStation && guide && Platform.OS === "web" ? (
             <Line
               x1={selectedStation.x}
@@ -813,8 +843,6 @@ export function StationBoard(): React.JSX.Element {
               pointerEvents="none"
             />
           ) : null}
-
-          {/* Stations */}
           {STATIONS.map((station) => (
             <StationMark
               key={station.id}
@@ -822,8 +850,6 @@ export function StationBoard(): React.JSX.Element {
               selected={station.id === selectedId}
             />
           ))}
-          
-          {/* Hit Area for Station Selection */}
           {STATIONS.map((station) => (
             <Circle
               key={`hit-${station.id}`}
@@ -836,25 +862,73 @@ export function StationBoard(): React.JSX.Element {
             />
           ))}
         </Svg>
+
+        {/* Trains in service: real-pixel size, never capture touches */}
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          {layout
+            ? trains.map((train) => {
+                const line = train.lineId ? linesById[train.lineId] : undefined;
+                if (!line) return null;
+                const pts = routeOf(line);
+                const distance = train.routeKey === routeKeyOf(line) ? train.distance : 0;
+                const pos = pointOnRoute(pts, distance);
+                const angle = train.direction === 1 ? pos.angle : pos.angle + 180;
+                return (
+                  <View
+                    key={train.id}
+                    pointerEvents="none"
+                    style={[
+                      styles.trainOnBoard,
+                      {
+                        left: layout.offsetX + pos.x * layout.scale - TRAIN_W / 2,
+                        top: layout.offsetY + pos.y * layout.scale - TRAIN_H / 2,
+                      },
+                    ]}
+                  >
+                    <TrainVisual trainId={train.id} color={line.color} angle={angle} />
+                  </View>
+                );
+              })
+            : null}
+        </View>
       </View>
 
       {/* Depot Area */}
       <TrainDepot
         trains={trains}
-        onDragStart={handleDragStartDepot}
-        onDragEnd={handleDragEndDepot}
+        linesById={linesById}
+        draggingId={drag ? drag.trainId : null}
+        onPointerDown={onDepotPointerDown}
+        onPointerMove={onDepotPointerMove}
+        onPointerUp={onDepotPointerUp}
+        onPointerCancel={onDepotPointerCancel}
         onRemoveTrain={handleRemoveTrain}
       />
+
+      {drag?.active ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.dragGhost,
+            { left: drag.x - TRAIN_W / 2, top: drag.y - TRAIN_H / 2 },
+          ]}
+        >
+          <TrainVisual trainId={drag.trainId} color={DEPOT_GREY} angle={0} />
+        </View>
+      ) : null}
     </View>
   );
 }
+
+const TRAIN_W = 44;
+const TRAIN_H = 22;
 
 const styles = StyleSheet.create({
   wrap: {
     width: "100%",
     maxWidth: 720,
     alignSelf: "center",
-    gap: 16,
+    gap: 8,
   },
   toast: {
     textAlign: "center",
@@ -862,6 +936,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
     minHeight: 20,
+  },
+  toastNotice: {
+    color: NOTICE_GREY,
   },
   toastPlaceholder: {
     minHeight: 20,
@@ -874,56 +951,112 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#e5e7eb',
-    paddingTop: 10,
+    borderColor: "#e5e7eb",
   },
   depotStatus: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 10,
-    color: '#374151',
+    color: "#374151",
   },
   trainSlots: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
   },
   slot: {
     flex: 1,
-    aspectRatio: 1,
+    minWidth: 44,
+    minHeight: 124,
     borderWidth: 2,
+    borderColor: "#d1d5db",
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-    borderStyle: 'dashed',
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#f9fafb",
+    padding: 4,
+    gap: 4,
+  },
+  slotDragging: {
+    borderStyle: "dashed",
+    borderColor: "#6b7280",
+  },
+  slotNumber: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#6b7280",
+  },
+  dragHandle: {
+    minWidth: 44,
+    minHeight: 44,
+    alignSelf: "stretch",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    userSelect: "none",
+  },
+  slotLine: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  slotDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  slotLineText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#111827",
+    textAlign: "center",
   },
   trainVisual: {
-    flex: 1,
-    height: '100%',
-    borderRadius: 8,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    width: TRAIN_W,
+    height: TRAIN_H,
+    borderRadius: TRAIN_H / 2,
     borderWidth: 3,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
   },
   trainNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#111827",
+    lineHeight: 14,
+  },
+  trainArrow: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#111827",
+    lineHeight: 14,
+  },
+  trainOnBoard: {
+    position: "absolute",
+  },
+  dragGhost: {
+    position: (Platform.OS === "web" ? "fixed" : "absolute") as "absolute",
+    zIndex: 1000,
+    elevation: 10,
+    opacity: 0.9,
   },
   removeButton: {
-    backgroundColor: '#ef4444',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-    marginTop: 5,
-  }
+    alignSelf: "stretch",
+    minHeight: 44,
+    minWidth: 44,
+    borderRadius: 8,
+    backgroundColor: "#e5e7eb",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  removeButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111827",
+  },
 });
