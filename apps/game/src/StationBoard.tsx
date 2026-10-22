@@ -154,7 +154,7 @@ const TrainDisplay: React.FC<TrainDisplayProps> = ({
   onToggleTrain,
 }) => {
   const { stationIds } = line;
-  const trainRef = useRef<HTMLDivElement>(null);
+  const trainRef = useRef<View>(null);
   const [trainPosition, setTrainPosition] = useState<{ x: number; y: number; scale: number }>({
     x: 0,
     y: 0,
@@ -165,8 +165,6 @@ const TrainDisplay: React.FC<TrainDisplayProps> = ({
   // Effect to handle train movement simulation
   useEffect(() => {
     if (!trainState || !trainState.isActive) {
-      setTrainPosition({ x: 0, y: 0, scale: 1 });
-      setIsMoving(false);
       return;
     }
 
