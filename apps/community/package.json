@@ -13,7 +13,8 @@
     "github:record-attempt": "tsx src/cli/record-attempt.ts",
     "project:reconcile": "tsx src/cli/reconcile-project.ts",
     "evaluate": "tsx src/cli/evaluate.ts",
-    "test": "node --import tsx --test src/*.test.ts src/**/*.test.ts"
+    "test": "node --import tsx --test src/*.test.ts src/**/*.test.ts",
+    "pr:check-body": "tsx src/cli/check-pr-body.ts"
   },
   "dependencies": {
     "@metro/evaluation": "workspace:*",
