@@ -10,7 +10,9 @@ El estado Base y las previews A/B/C se hospedarán en cuatro proyectos independi
 
 Base muestra el estado común que reciben los participantes antes de escribir sus prompts. Solo cambia después de la aprobación del responsable de producto. Cada brief público enlaza esta versión.
 
-En cada misión, los tres prompts elegidos por la comunidad se asignan aleatoriamente a A, B y C. Cada ranura se redespliega desde el mismo commit baseline bajo condiciones equivalentes y sobrescribe el build de la misión anterior en esa ranura.
+En las Misiones 1 y 2, los tres prompts elegidos por la comunidad se asignan aleatoriamente a A, B y C. Desde la Misión 3, A/B/C se asignan por orden a los primeros tres PRs que cumplen [ADR-0011](0011-participant-forks-and-pr-qualification.md).
+
+Durante la recepción de contribuciones, las ramas y ranuras A/B/C permanecen congeladas y bajo control del equipo. Los participantes trabajan en forks contra el SHA de `dev` fijado para la misión. Solo el equipo copia los commits aprobados a ramas controladas y redespliega A/B/C.
 
 La trazabilidad vincula cada letra con autor, texto exacto del prompt, issue, rama, pull request y preview.
 
@@ -29,7 +31,7 @@ Esto alinea el mensaje al grupo: un enlace base al publicar la misión y tres en
 
 - Hay cuatro proyectos Pages configurados: `metro-app-base`, `metro-app-a`, `metro-app-b` y `metro-app-c`.
 - La URL Base es `https://metro-app-base.pages.dev/`; las demás siguen el mismo patrón por letra.
-- El pipeline de despliegue debe sobrescribir A/B/C desde el mismo baseline y conservar el mapeo de trazabilidad.
+- El pipeline de despliegue debe sobrescribir A/B/C con contribuciones nacidas del mismo SHA de `dev` y conservar el mapeo de trazabilidad.
 - El mensaje del viernes presenta tres enlaces sin sugerir un ganador automático.
 - El despliegue es manual y supervisado mediante Wrangler o GitHub Actions; los secretos no se versionan.
 

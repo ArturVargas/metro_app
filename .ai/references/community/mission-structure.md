@@ -38,13 +38,29 @@ El sistema y los agentes reciben:
 
 La plantilla aprobada está en [`mission-internal-contract-template.md`](mission-internal-contract-template.md). Organiza esta información en seis bloques: identidad, evaluación, código base, ejecución A/B/C, GitHub y publicación.
 
+## Modalidad desde la Misión 3: entrega mediante PR
+
+Las Misiones 3, 4 y 5 conservan brief público y contrato interno, pero reemplazan la ejecución central por una entrega del participante:
+
+- SHA inmutable de `dev` como baseline;
+- fork y rama propia;
+- PR hacia `dev`;
+- prompt exacto y declaración de autoría de cambios;
+- checks y pruebas aportadas por el participante;
+- evaluación Jev del par prompt↔código;
+- revisión humana posterior al umbral;
+- asignación cronológica A/B/C a los tres primeros PRs aprobados.
+
+El contrato interno debe declarar su modalidad: `prompt-ejecutado` para M1–M2 o `participant-pr` para M3–M5. No mezcles reglas de votación de la primera fase con la cola de PRs de la segunda.
+
 ## Reglas de consistencia
 
 - Las dos capas usan el mismo identificador y versión.
 - Los criterios públicos deben corresponder con verificaciones internas.
-- La rúbrica evalúa la calidad del prompt, no si propone la solución técnica preferida por el equipo.
+- En `prompt-ejecutado`, la rúbrica evalúa la calidad del prompt. En `participant-pr`, evalúa la correspondencia entre el prompt declarado y el código del SHA revisado. Ninguna modalidad favorece la solución técnica preferida por el equipo.
 - Ninguna instrucción interna puede ampliar silenciosamente el alcance publicado.
 - Un cambio posterior a la publicación crea una nueva versión de la misión y se comunica al grupo.
+- En modalidad `participant-pr`, todos los PRs comparables deben nacer del mismo SHA de `dev` y cualquier commit nuevo invalida la evaluación anterior para esa revisión.
 
 ## Estado
 
