@@ -6,5 +6,5 @@
 
 - [ ] Definir la misión: un PR pequeño de alcance acotado (ver [`INDEX.md`](INDEX.md#diseño-de-misiones)).
 - [ ] Fechas (`[FECHAS]` en el mensaje público): sin definir. Fecha objetivo mencionada: viernes 30 de octubre de 2026.
-- [ ] SHA publicado de `dev` (`[SHA_DEV]`), del commit CI-only sobre `2e3f805` que añade los workflows de PR a `dev`.
+- [x] SHA publicado de `dev`: `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4` (commit CI-only sobre `2e3f805`; ya reemplazado en el mensaje público).
 - [ ] Recalibrar `rubric-m3-v1` con este brief y casos débil/medio/fuerte del tamaño de la misión.

@@ -2,7 +2,7 @@
 
 - **Estado:** borrador; no enviado. Requiere aprobación de Artur antes de publicarlo.
 - **Canal:** grupo Prompts de WhatsApp. El formato usa `*negrita*` de WhatsApp (un asterisco).
-- **Pendiente antes de enviar:** reemplazar `[SHA_DEV]` por el SHA publicado de `dev` y `[FECHAS]` por el calendario de las Misiones 3–5.
+- **Pendiente antes de enviar:** reemplazar `[FECHAS]` por el calendario de las Misiones 3–5.
 - **Guía aplicada:** sección «Transición desde la Misión 3» de [`participant-onboarding.md`](../../participant-onboarding.md). No menciona al evaluador interno, teléfonos, contactos ni listas de acceso.
 
 Envía cada bloque entre las líneas `---` como un mensaje separado. El brief funcional de la misión se publica aparte.
@@ -16,7 +16,7 @@ En las Misiones 1 y 2 enviaban un prompt y nosotros lo convertíamos en una vers
 Lo que queremos aprender ahora es a *supervisar a una IA sobre código real*, no solo a escribirle instrucciones.
 
 *Cómo funciona*
-• Todos parten del mismo punto: la rama `dev` del repositorio, fija en el commit `[SHA_DEV]` durante toda la misión.
+• Todos parten del mismo punto: la rama `dev` del repositorio, fija en el commit `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4` durante toda la misión.
 • Haces un fork, trabajas en tu copia con tu LLM y abres un PR hacia `dev`.
 • En el PR pegas el prompt exacto que usaste, explicas qué cambió, qué pruebas hiciste y qué partes hizo el LLM y cuáles hiciste a mano. La plantilla del PR te lo pide paso a paso.
 
@@ -48,7 +48,7 @@ Abre https://github.com/ArturVargas/metro_app y pulsa *Fork*. Desmarca «Copy th
 ```
 git clone https://github.com/TU_USUARIO/metro_app.git
 cd metro_app
-git switch -c mision-3 [SHA_DEV]
+git switch -c mision-3 e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4
 pnpm install
 ```
 

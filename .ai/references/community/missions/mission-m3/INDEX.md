@@ -10,8 +10,12 @@ En Misión 3 cada participante abre un PR desde su fork hacia `dev`. TypeSafe ca
 2. [`public-message-draft.md`](public-message-draft.md): mensaje de WhatsApp y guía de fork/PR. No enviado.
 3. [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md): calibración de la rúbrica y del umbral 80.
 4. [`../../github-project.md`](../../github-project.md): campos de cola del Project.
-5. [`../../../operations/participant-pr-workflows/`](../../../operations/participant-pr-workflows/README.md): checks de PR hacia `dev` (en `.github/workflows/`; falta el commit equivalente en `dev`).
+5. [`../../../operations/participant-pr-workflows/`](../../../operations/participant-pr-workflows/README.md): checks de PR hacia `dev` (en `.github/workflows/` de `main` y `dev`).
 6. [`../../../operations/hermes-m3/`](../../../operations/hermes-m3/README.md): cambios de Hermes pendientes de aplicar.
+
+## Base de la misión
+
+`dev` está fijo en `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4`: el commit CI-only sobre `2e3f805` (versión B de Misión 2) que añade los workflows de PR. Es el `M3_DEV_SHA` y el SHA base que declaran los PRs.
 
 ## Diseño de misiones
 

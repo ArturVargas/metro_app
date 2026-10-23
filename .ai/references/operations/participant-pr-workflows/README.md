@@ -7,7 +7,7 @@ Los checks de PR hacia `dev` definidos por ADR-0011 viven en `.github/workflows/
 Un workflow de `pull_request` se lee del commit de merge del PR (rama base + cambios del PR). Por eso deben existir en `dev`, no solo en `main`:
 
 1. `main`: llegan con esta rama. El check de descripción usa el código de `main`.
-2. `dev`: los mismos tres archivos de `.github/workflows/` en un commit sobre `2e3f805b7360d390de11e323a89ca77c8802a309`. Ese commit cambia solo `.github/` y su SHA es el que se publica como base de la Misión 3.
+2. `dev`: los mismos tres archivos de `.github/workflows/` en un commit sobre `2e3f805b7360d390de11e323a89ca77c8802a309`. Ese commit cambia solo `.github/` y su SHA es el que se publica como base de la Misión 3: `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4`.
 
 ## Checks
 
