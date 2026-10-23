@@ -43,7 +43,9 @@ const INJECTION_PATTERNS: readonly RegExp[] = [
   /\b(?:system prompt|as an ai|you are an? (?:ai|llm|language model)|eres un (?:modelo|asistente|evaluador))\b/i,
 ];
 
-const HIDDEN_TEXT = /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]|<!--/;
+// Bidi controls can reorder what a reviewer reads; HTML comments vanish when the PR renders.
+// Zero-width joiners are not flagged: WhatsApp copy-paste inserts them around bullets.
+const BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/;
 
 /** Changed file paths of a unified diff (`diff --git a/x b/y`). */
 export function changedPaths(diff: string): string[] {
@@ -80,7 +82,7 @@ export function detectM3HardFails(
   if (INJECTION_PATTERNS.some((pattern) => pattern.test(participantText))) {
     fails.push("evaluator-injection");
   }
-  if (HIDDEN_TEXT.test(participantPrompt) || /[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/.test(added)) {
+  if (BIDI_CONTROLS.test(participantPrompt) || participantPrompt.includes("<!--") || BIDI_CONTROLS.test(added)) {
     fails.push("hidden-text");
   }
   if (changedPaths(submission.diff).some((path) => M3_PROTECTED_PATHS.some((rule) => rule.test(path)))) {

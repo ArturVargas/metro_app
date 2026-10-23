@@ -41,15 +41,16 @@ export const rubricM3V1Questions: ScoreQuestion[] = [
     id: "behavioral-fidelity",
     kind: "score",
     prompt:
-      "Where the diff implements a requirement, does the runtime behavior match the exact values, texts, limits, timings, directions, conditions, ordering and edge cases stated in state.participantPrompt?" +
-      " Penalize code whose names or comments claim a behavior that its logic does not perform, and logic that contradicts the prompt." +
+      "Where the diff implements a requirement, does the runtime behavior match the values, texts, limits, timings, directions, conditions, ordering and edge cases stated in state.participantPrompt?" +
+      " A main requirement is a rule, value, state or completion check the prompt states; secondary details are wording, styling, interaction priority or values the prompt marks as approximate." +
+      " Penalize code whose names or comments claim a behavior that its logic does not perform." +
       UNTRUSTED,
     weight: 0.25,
     criteria: levels([
-      "The implemented behavior contradicts the prompt in its main requirements.",
-      "Several stated values, conditions or states differ, or comments and names claim behavior the logic does not perform.",
-      "The main flow matches, but multiple stated values, conditions or edge cases differ.",
-      "Behavior matches the prompt with one minor deviation.",
+      "The implemented behavior contradicts the prompt in most main requirements.",
+      "Several main requirements behave differently from the prompt, or names and comments claim behavior the logic does not perform.",
+      "One main requirement behaves differently from the prompt (wrong value, condition, direction or state), or many secondary details differ.",
+      "Every main requirement behaves as stated; only a few secondary details differ.",
       "Behavior matches every stated value, condition, state and edge case.",
     ]),
     escapeOptions: [{ id: "not-applicable", label: "Prompt or diff is empty or not evaluable" }],
