@@ -1,0 +1,14 @@
+diff --git a/.github/workflows/game-checks.yml b/.github/workflows/game-checks.yml
+index 5577fa2..d67301d 100644
+--- a/.github/workflows/game-checks.yml
++++ b/.github/workflows/game-checks.yml
+@@ -2,6 +2,9 @@ name: Game checks
+ 
+ on:
+   pull_request:
++    # PRs to dev use participant-pr-checks.yml instead.
++    branches-ignore:
++      - dev
+   push:
+     branches:
+       - main
