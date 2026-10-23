@@ -2,6 +2,9 @@ name: Game checks
 
 on:
   pull_request:
+    # PRs to dev use participant-pr-checks.yml instead.
+    branches-ignore:
+      - dev
   push:
     branches:
       - main
