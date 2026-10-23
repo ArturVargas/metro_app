@@ -59,7 +59,7 @@ Un finding incluye requisito, resultado observado, reproducción, impacto y seve
 
 ## Baseline inicial aprobado
 
-La primera rama `dev` partirá de la versión B de Misión 2, participante `p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`. La revisión de cierre no encontró diferencias funcionales reproducibles en el alcance probado. La creación de la rama queda condicionada a que esta decisión esté integrada en `main`.
+La rama `dev` fue creada desde la versión B de Misión 2, participante `p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`. La revisión de cierre no encontró diferencias funcionales reproducibles en el alcance probado y la referencia remota se verificó contra el mismo SHA.
 
 ## Skills relacionadas
 

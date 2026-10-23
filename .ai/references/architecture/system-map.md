@@ -72,7 +72,7 @@ El baseline aprobado contiene un workspace `pnpm`, el cliente Expo, un tablero a
 
 El flujo aprobado es `brief → fork → PR a dev → Jev (>80) → checks → revisión humana → A/B/C → despliegue supervisado`. El contador sigue limitado a cinco evaluaciones por participante y misión. GitHub conserva el SHA evaluado, prompt, código, evidencia, feedback y origen de las correcciones.
 
-El primer `dev` partirá de la versión B de Misión 2: `p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`. La rama se crea después de integrar la documentación de esta fase en `main`.
+El primer `dev` parte de la versión B de Misión 2: `p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`. La referencia remota fue creada y verificada contra ese SHA.
 
 ## Decisiones abiertas
 

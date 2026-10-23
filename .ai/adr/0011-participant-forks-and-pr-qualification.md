@@ -22,7 +22,7 @@ El equipo conserva el control de integración y despliegue. Copia cada commit ap
 
 Al cerrar una misión, el responsable de producto decide qué resultado aprobado alimenta el siguiente baseline de `dev`. `dev` solo cambia entre ventanas de misión y el nuevo SHA se comunica antes de aceptar contribuciones.
 
-El baseline inicial aprobado es la versión B de Misión 2, aportada por `p-026` y registrada en el commit `2e3f805b7360d390de11e323a89ca77c8802a309` de `metro_b`. La revisión de cierre no encontró diferencias funcionales reproducibles en su alcance. La rama `dev` se creará desde ese commit después de integrar esta decisión en `main`.
+El baseline inicial aprobado es la versión B de Misión 2, aportada por `p-026` y registrada en el commit `2e3f805b7360d390de11e323a89ca77c8802a309` de `metro_b`. La revisión de cierre no encontró diferencias funcionales reproducibles en su alcance. La rama remota `dev` fue creada desde ese commit y se verificó que resuelve al mismo SHA.
 
 ## Fuente de verdad y orden
 
