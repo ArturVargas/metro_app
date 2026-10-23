@@ -50,15 +50,34 @@ const INJECTION_PATTERNS: readonly RegExp[] = [
 // Zero-width joiners are not flagged: WhatsApp copy-paste inserts them around bullets.
 const BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/;
 
-/** Changed file paths of a unified diff (`diff --git a/x b/y`). */
+/** Changed file paths from unified-diff file markers, rename/copy metadata, and headers. */
 export function changedPaths(diff: string): string[] {
   const paths = new Set<string>();
+  const add = (token: string, stripPrefix: boolean) => {
+    const decoded = decodeGitPath(token.replace(/\t.*$/, ""));
+    if (decoded === "/dev/null") return;
+    const path = stripPrefix && /^(?:a|b)\//.test(decoded) ? decoded.slice(2) : decoded;
+    paths.add(path);
+  };
+
+  for (const line of diff.split("\n")) {
+    const fileMarker = line.match(/^(?:---|\+\+\+) (.+)$/);
+    if (fileMarker) add(fileMarker[1]!, true);
+    const renameMarker = line.match(/^(?:rename|copy) (?:from|to) (.+)$/);
+    if (renameMarker) add(renameMarker[1]!, false);
+  }
+
   const pathToken = '(?:"(?:\\\\.|[^"\\\\])*"|\\S+)';
   const header = new RegExp(`^diff --git (${pathToken}) (${pathToken})$`, "gm");
   for (const match of diff.matchAll(header)) {
-    for (const token of [match[1]!, match[2]!]) {
-      const decoded = decodeGitPath(token);
-      if (decoded.startsWith("a/") || decoded.startsWith("b/")) paths.add(decoded.slice(2));
+    add(match[1]!, true);
+    add(match[2]!, true);
+  }
+
+  for (const match of diff.matchAll(/^diff --git (a\/.+) (b\/.+)$/gm)) {
+    if (match[1]!.slice(2) === match[2]!.slice(2)) {
+      add(match[1]!, true);
+      add(match[2]!, true);
     }
   }
   return [...paths];
@@ -69,10 +88,11 @@ function decodeGitPath(token: string): string {
   try {
     return JSON.parse(token) as string;
   } catch {
-    return token
+    const bytes = token
       .slice(1, -1)
       .replace(/\\([0-7]{3})/g, (_, octal: string) => String.fromCharCode(Number.parseInt(octal, 8)))
       .replace(/\\(["\\])/g, "$1");
+    return Buffer.from(bytes, "latin1").toString("utf8");
   }
 }
 

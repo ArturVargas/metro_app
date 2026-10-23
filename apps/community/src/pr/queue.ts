@@ -39,8 +39,7 @@ export function slotFromLabels(labels: string[]): Slot | "none" | null {
 export function deriveQueueState(input: QueueInput): PrQueueState {
   const current = input.latest && input.latest.sha === input.headSha ? input.latest : undefined;
   const exhausted = input.attemptsUsed >= MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT;
-  if (!input.prOpen) return "not-selected";
-  if (!current) return exhausted ? "not-selected" : "draft";
+  if (!current) return !input.prOpen || exhausted ? "not-selected" : "draft";
   if (!current.qualifies || input.checks === "failure" || input.labels.includes(REVIEW_CHANGES_LABEL)) {
     return exhausted ? "not-selected" : "needs-revision";
   }
@@ -49,6 +48,7 @@ export function deriveQueueState(input: QueueInput): PrQueueState {
   const slot = slotFromLabels(input.labels);
   if (slot && slot !== "none") return `selected-${slot}`;
   if (slot === "none") return "not-selected";
+  if (!input.prOpen) return "not-selected";
   if (input.labels.includes(REVIEW_APPROVED_LABEL)) return "approved";
   return "technical-queue";
 }

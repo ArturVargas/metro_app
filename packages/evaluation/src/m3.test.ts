@@ -151,9 +151,34 @@ describe("detectM3HardFails", () => {
     assert.deepEqual(detectM3HardFails("ok", { ...submission, diff: quoted }), ["protected-path"]);
   });
 
+  it("flags the unquoted spaced paths emitted by Git", () => {
+    const unquoted = [
+      "diff --git a/.github/workflows/evil workflow.yml b/.github/workflows/evil workflow.yml",
+      "--- a/.github/workflows/evil workflow.yml",
+      "+++ b/.github/workflows/evil workflow.yml",
+      "+name: unsafe",
+    ].join("\n");
+    assert.deepEqual(detectM3HardFails("ok", { ...submission, diff: unquoted }), ["protected-path"]);
+  });
+
+  it("flags protected paths in rename metadata", () => {
+    const rename = [
+      "diff --git a/apps/game/safe.ts b/.github/workflows/evil workflow.yml",
+      "similarity index 100%",
+      "rename from apps/game/safe.ts",
+      "rename to .github/workflows/evil workflow.yml",
+    ].join("\n");
+    assert.ok(detectM3HardFails("ok", { ...submission, diff: rename }).includes("protected-path"));
+  });
+
   it("decodes Git octal escapes in quoted paths", () => {
     const quoted = String.raw`diff --git "a/apps/game/a\040b.ts" "b/apps/game/a\040b.ts"`;
     assert.deepEqual(changedPaths(quoted), ["apps/game/a b.ts"]);
+  });
+
+  it("decodes Git octal bytes as UTF-8", () => {
+    const quoted = String.raw`diff --git "a/apps/game/caf\303\251.ts" "b/apps/game/caf\303\251.ts"`;
+    assert.deepEqual(changedPaths(quoted), ["apps/game/café.ts"]);
   });
 
   it("does not flag ordinary game prompts", () => {
