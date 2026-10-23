@@ -147,3 +147,18 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 ## Estado
 
 La incorporación está completa: el formato, los límites de contenido, los cinco mensajes y la guía fijada están aprobados.
+
+## Transición desde la Misión 3
+
+Los mensajes anteriores documentan la incorporación y la dinámica usada en las Misiones 1 y 2. Desde la Misión 3 cambia la entrega: los participantes reciben acceso al repositorio, trabajan en un fork y abren un PR hacia `dev`.
+
+La comunicación de esta fase debe explicar, sin mencionar Jev:
+
+- que el objetivo ahora es supervisar al LLM sobre código real;
+- que cada PR debe incluir el prompt, el código y la evidencia de pruebas;
+- que pueden corregir el resultado con feedback, hasta cinco evaluaciones;
+- que necesitan más de 80 puntos, checks exitosos y revisión técnica;
+- que los primeros tres PRs aprobados se convierten en A, B y C;
+- que el equipo conserva integración y despliegues.
+
+Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo. El mensaje público específico de Misión 3 se redacta después de crear `dev` desde el baseline aprobado y cerrar su rúbrica.

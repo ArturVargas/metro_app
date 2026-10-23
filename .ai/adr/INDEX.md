@@ -14,5 +14,6 @@ Lee un ADR cuando una tarea toque su decisión o cuando aparezca una condición 
 | [`0008`](0008-openrouter-mentor-feedback.md) | Aceptada | `FEEDBACK_MODE=openrouter` + `mentor.md` (Picosito); plantilla de respaldo; secretos solo en env |
 | [`0009`](0009-m1-rubric-v2-hard-fails.md) | Aceptada | `rubric-m1-v2` + política hard-fail de elegibilidad (cap &lt;70); soft fails solo vía Score |
 | [`0010`](0010-hermes-dm-evaluations.md) | Aceptada | DMs con Hermes para M2: id `p-NNN[b-z]` (3 últimos dígitos + sufijo por colisión), intento derivado de GitHub, respuesta solo en DM, publicar en grupo solo con sí explícito |
+| [`0011`](0011-participant-forks-and-pr-qualification.md) | Aceptada | Desde M3 los participantes entregan forks y PRs contra `dev`; Jev puntúa prompt↔código y los tres primeros PRs con >80 y revisión aprobada ocupan A/B/C |
 
 Al reemplazar una decisión, conserva el ADR anterior con estado `reemplazada` y enlaza el nuevo ADR.

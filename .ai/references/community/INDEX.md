@@ -14,15 +14,18 @@ Lee esta sección para misiones, intentos, evaluación de prompts, feedback, vot
 6. [`execution-review.md`](execution-review.md) para revisar fidelidad, documentar findings y convertirlos en feedback sin recalificar el prompt.
 7. [`missions/mission-m1/INDEX.md`](missions/mission-m1/INDEX.md) para el brief, contrato interno, calibración y ejecución de la Misión 1.
 8. [`missions/mission-m2/INDEX.md`](missions/mission-m2/INDEX.md) para el brief, contrato interno y evaluación de la Misión 2.
-9. [`GitHub Project del experimento comunitario`](../../../docs/superpowers/specs/2026-10-01-github-community-project-design.md) para el flujo WhatsApp → TypeSafe → Issues → Project, sus campos, vistas, sincronización y permisos aprobados.
-10. [`github-project.md`](github-project.md) para la URL y número reales, campos exactos, vistas y operación del tablero activo.
-10. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
-11. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
-12. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
-13. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para hosting de ranuras A/B/C y reglas de promoción al baseline.
-14. [ADR-0006](../../adr/0006-jev-backend-integration.md) para el contrato Jev ↔ backend, rúbrica en `packages/evaluation` y flujo de evaluación.
-15. [ADR-0007](../../adr/0007-github-attempt-issue-comment-convention.md) para issue por participante×misión, comentarios de intento y tags.
-16. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
+9. [`participant-code-contributions.md`](participant-code-contributions.md) para forks, PRs, intentos y selección desde la Misión 3.
+10. [`Diseño de contribuciones mediante forks y PRs`](../../../docs/superpowers/specs/2026-10-22-mission-3-participant-pr-design.md) para el flujo completo, estados, seguridad, trazabilidad y pendientes de implementación de las Misiones 3–5.
+11. [`GitHub Project del experimento comunitario`](../../../docs/superpowers/specs/2026-10-01-github-community-project-design.md) para el flujo WhatsApp → TypeSafe → Issues → Project, sus campos, vistas, sincronización y permisos aprobados.
+12. [`github-project.md`](github-project.md) para la URL y número reales, campos exactos, vistas y operación del tablero activo.
+13. [ADR-0001](../../adr/0001-prompt-evaluation-and-variant-experiment.md) para la razón del pipeline Jev + LLM + A/B/C.
+14. [ADR-0002](../../adr/0002-github-as-community-system-of-record.md) para persistencia y auditoría.
+15. [ADR-0003](../../adr/0003-hermes-as-whatsapp-group-adapter.md) para la frontera con WhatsApp.
+16. [ADR-0005](../../adr/0005-cloudflare-abc-preview-slots.md) para hosting de ranuras A/B/C y reglas de promoción al baseline.
+17. [ADR-0006](../../adr/0006-jev-backend-integration.md) para el contrato Jev ↔ backend, rúbrica en `packages/evaluation` y flujo de evaluación.
+18. [ADR-0007](../../adr/0007-github-attempt-issue-comment-convention.md) para issue por participante×misión, comentarios de intento y tags.
+19. [ADR-0011](../../adr/0011-participant-forks-and-pr-qualification.md) para la fase de forks y PRs de las Misiones 3–5.
+20. [Mapa de arquitectura](../architecture/system-map.md) si se modifican contratos entre componentes.
 
 ## Skills relacionados
 
