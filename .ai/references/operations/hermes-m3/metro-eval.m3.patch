@@ -7,7 +7,7 @@
 +# M2 scores the message as a prompt; M3 reads a PR link from it and scores that PR's head SHA.
  # Usage: metro-eval | metro-eval --previous | metro-eval --share
  set -uo pipefail
- 
+
  CLOSED_MSG='La ventana de evaluación está cerrada. Evaluamos de martes a domingo, de 6:00 a 23:55 (hora Colombia); los lunes está cerrada.'
  FAIL_MSG='No pude procesar tu evaluación en este momento. Por favor reenvía tu prompt más tarde.'
  RACE_MSG='Hubo un envío simultáneo de tu prompt; por favor reenvíalo en un momento.'
@@ -28,7 +28,7 @@
 +[ -f "$BRIEF_SRC" ] || fail "brief missing" 1
  RECORD_FLAG=""
  if [ "${RECORD_ATTEMPTS:-0}" = "1" ]; then RECORD_FLAG="--record"; fi
- 
+
 +if [ "$MISSION" != mission-m2 ]; then
 +  # Only the PR number leaves the message; it is digits-only before it reaches argv.
 +  PR=$(python3 - "$PROMPT_FILE" <<'PYPR'

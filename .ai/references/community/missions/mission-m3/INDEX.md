@@ -15,7 +15,7 @@ En Misión 3 cada participante abre un PR desde su fork hacia `dev`. TypeSafe ca
 
 ## Base de la misión
 
-`dev` está fijo en `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4`: el commit CI-only sobre `2e3f805` (versión B de Misión 2) que añade los workflows de PR. Es el `M3_DEV_SHA` y el SHA base que declaran los PRs.
+`dev` está fijo en `acd8258ce3dcc45f01c449e47204b10aa7e45b7f`: el segundo commit de tooling sobre `2e3f805` (versión B de Misión 2). Añade los workflows de PR, el checker mínimo de la descripción y lo fija al SHA de la base. Es el `M3_DEV_SHA` y el SHA base que declaran los PRs.
 
 ## Diseño de misiones
 

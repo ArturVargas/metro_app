@@ -30,13 +30,16 @@ export function summarizeChecks(
 ): ChecksSummary {
   let completedAt: string | null = null;
   for (const name of required) {
-    const latest = runs
-      .filter((run) => run.name === name)
+    const named = runs.filter((run) => run.name === name);
+    const latest = named
       .sort((a, b) => (b.completed_at ?? "9").localeCompare(a.completed_at ?? "9"))[0];
     if (!latest || latest.status !== "completed") return { state: "pending", completedAt: null };
     if (latest.conclusion !== "success") return { state: "failure", completedAt: latest.completed_at };
-    if (latest.completed_at && (!completedAt || latest.completed_at > completedAt)) {
-      completedAt = latest.completed_at;
+    const firstSuccess = named
+      .filter((run) => run.conclusion === "success" && run.completed_at)
+      .sort((a, b) => a.completed_at!.localeCompare(b.completed_at!))[0];
+    if (firstSuccess?.completed_at && (!completedAt || firstSuccess.completed_at > completedAt)) {
+      completedAt = firstSuccess.completed_at;
     }
   }
   return { state: "success", completedAt };

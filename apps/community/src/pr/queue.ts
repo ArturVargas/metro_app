@@ -37,19 +37,20 @@ export function slotFromLabels(labels: string[]): Slot | "none" | null {
 
 // ADR-0011: only the latest evaluation counts and only for the SHA it scored.
 export function deriveQueueState(input: QueueInput): PrQueueState {
-  const slot = slotFromLabels(input.labels);
-  if (slot && slot !== "none") return `selected-${slot}`;
-  if (slot === "none") return "not-selected";
-
   const current = input.latest && input.latest.sha === input.headSha ? input.latest : undefined;
   const exhausted = input.attemptsUsed >= MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT;
   if (!input.prOpen) return "not-selected";
   if (!current) return exhausted ? "not-selected" : "draft";
-  if (input.labels.includes(REVIEW_APPROVED_LABEL)) return "approved";
   if (!current.qualifies || input.checks === "failure" || input.labels.includes(REVIEW_CHANGES_LABEL)) {
     return exhausted ? "not-selected" : "needs-revision";
   }
-  return input.checks === "success" ? "technical-queue" : "evaluating";
+  if (input.checks !== "success") return "evaluating";
+
+  const slot = slotFromLabels(input.labels);
+  if (slot && slot !== "none") return `selected-${slot}`;
+  if (slot === "none") return "not-selected";
+  if (input.labels.includes(REVIEW_APPROVED_LABEL)) return "approved";
+  return "technical-queue";
 }
 
 export type QueueEntry = { prUrl: string; state: PrQueueState; queuedAt: string | null };

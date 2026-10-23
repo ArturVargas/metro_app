@@ -23,12 +23,12 @@
 @@ -52,7 +53,7 @@
  - If the current message is a prompt for evaluation (group: the @mention message itself; DM: the full message), go to step 2.
  - If it is ambiguous, ask first (e.g. "¿Quieres que evalúe este prompt? Contará como un intento.") and wait for a clear yes (see DM section for `--previous`).
- 
+
 -### 2. Run metro-eval — MUST (fresh M2 every time)
 +### 2. Run metro-eval — MUST (fresh evaluation every time)
- 
+
  Run exactly this, with no arguments and nothing else in the command:
- 
+
 @@ -64,10 +65,10 @@
  - reads the current inbound message for this session from the session store (strips the gateway preamble, reply quote and the bot @mention);
  - checks the Tue–Sun 06:00–23:55 (Monday closed) America/Bogota window (exit 3 + fixed closed text);
@@ -36,20 +36,20 @@
 -- runs `pnpm --filter @metro/community evaluate` from ~/repos/metro_app with `.env.local`, `--mission mission-m2`, the M2 public brief, and `--record` when `RECORD_ATTEMPTS=1` (attempt number derived by the CLI from GitHub, max 5);
 +- M2: runs `pnpm --filter @metro/community evaluate` with the M2 public brief; M3+: runs `evaluate:pr` for the PR number found in the message, with that mission's public brief. Both add `--record` when `RECORD_ATTEMPTS=1` (attempt number derived by the CLI from GitHub, max 5; M3 also refuses a SHA that was already evaluated);
  - after a recorded success, runs `project:reconcile` when configured.
- 
+
 -Exit codes: 0 = evaluated (JSON on stdout); 3 = window closed (reply the printed text exactly); anything else = failure (rule 12).
 +Exit codes: 0 = evaluated (JSON on stdout); 3 = window closed (reply the printed text exactly); 2 or 8 = not evaluated, no attempt used (reply the printed lines exactly); anything else = failure (rule 12).
- 
+
  - **Attempt**: never pass or guess one. If the output says the maximum was reached, reply that the participant used their 5 evaluations for M2.
  - **Race (group + DM at once)**: if the output contains "Hubo un envío simultáneo de tu prompt; por favor reenvíalo en un momento.", reply exactly that. Do not retry automatically.
 @@ -79,8 +80,9 @@
  From the JSON (field names may nest; use totals and eligibility flags as present):
- 
+
  - Score (puntaje)
 -- Eligibility (elegible / no elegible)
 +- Eligibility (M2: elegible / no elegible; M3: "califica para revisión técnica" only when eligible is true, otherwise "no califica todavía")
  - Feedback text if present
 +- M3 only: say which commit was evaluated (first 7 characters of `state.submission.headSha`) and remind that a new commit needs a new evaluation. Do not mention checks, queue position or reviewers; the team communicates those.
- 
+
  Never invent values if the CLI failed. Never mention Jev/TypeSafe. Never leak env or keys.
- 
+

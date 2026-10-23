@@ -41,6 +41,15 @@ describe("deriveQueueState", () => {
     assert.equal(deriveQueueState({ ...base, labels: ["review:approved", "slot:b"] }), "selected-b");
     assert.equal(deriveQueueState({ ...base, labels: ["slot:none"] }), "not-selected");
   });
+
+  it("does not let review or slot labels bypass SHA, checks, or PR guards", () => {
+    assert.equal(deriveQueueState({ ...base, checks: "failure", labels: ["review:approved"] }), "needs-revision");
+    assert.equal(
+      deriveQueueState({ ...base, headSha: "b".repeat(40), labels: ["slot:a"] }),
+      "draft",
+    );
+    assert.equal(deriveQueueState({ ...base, prOpen: false, labels: ["slot:a"] }), "not-selected");
+  });
 });
 
 describe("queue order", () => {

@@ -12,7 +12,7 @@ Cambios propuestos para que Fortgate evalúe PRs en lugar de prompts. No están 
 | Variable | Valor |
 | --- | --- |
 | `METRO_ACTIVE_MISSION` | `mission-m3` |
-| `M3_DEV_SHA` | `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4` (`dev` publicado para la misión) |
+| `M3_DEV_SHA` | `acd8258ce3dcc45f01c449e47204b10aa7e45b7f` (`dev` publicado para la misión) |
 | `JEV_TIMEOUT_MS` | opcional: los diffs grandes tardan más que un prompt |
 
 ## Antes de aplicar

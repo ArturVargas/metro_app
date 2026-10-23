@@ -53,11 +53,27 @@ const BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/;
 /** Changed file paths of a unified diff (`diff --git a/x b/y`). */
 export function changedPaths(diff: string): string[] {
   const paths = new Set<string>();
-  for (const match of diff.matchAll(/^diff --git a\/(\S+) b\/(\S+)$/gm)) {
-    paths.add(match[1]!);
-    paths.add(match[2]!);
+  const pathToken = '(?:"(?:\\\\.|[^"\\\\])*"|\\S+)';
+  const header = new RegExp(`^diff --git (${pathToken}) (${pathToken})$`, "gm");
+  for (const match of diff.matchAll(header)) {
+    for (const token of [match[1]!, match[2]!]) {
+      const decoded = decodeGitPath(token);
+      if (decoded.startsWith("a/") || decoded.startsWith("b/")) paths.add(decoded.slice(2));
+    }
   }
   return [...paths];
+}
+
+function decodeGitPath(token: string): string {
+  if (!token.startsWith('"')) return token;
+  try {
+    return JSON.parse(token) as string;
+  } catch {
+    return token
+      .slice(1, -1)
+      .replace(/\\([0-7]{3})/g, (_, octal: string) => String.fromCharCode(Number.parseInt(octal, 8)))
+      .replace(/\\(["\\])/g, "$1");
+  }
 }
 
 /** Only added lines carry participant text; removed lines belong to the baseline. */

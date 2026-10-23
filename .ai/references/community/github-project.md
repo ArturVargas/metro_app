@@ -51,6 +51,8 @@ El Issue sintético cerrado `#12` no pertenece al Project.
 
 Los campos de Misión 3 se crearon el 2026-10-22 con `pnpm --filter @metro/community project:ensure-m3-fields --apply`, que solo agrega campos que faltan. En Misión 3, `Pull request` guarda la URL del PR y la sincronización escribe los campos de cola en lugar de `Voting`. `Queue state` se deriva de los intentos, los checks y las etiquetas `review:approved`, `review:changes-requested` y `slot:a|b|c|none` (`apps/community/src/pr/queue.ts`).
 
+Las etiquetas de revisión y de ranura solo se aplican cuando el PR sigue abierto, el SHA evaluado coincide con el head, el puntaje califica y los checks están en verde. `Queued at` conserva la primera hora en que ese mismo SHA tuvo todos los checks requeridos en verde; volver a ejecutar un check no cambia su posición.
+
 ## Vistas
 
 - `Misiones`: board con filtro `item-type:Mission`.

@@ -16,7 +16,7 @@ En las Misiones 1 y 2 enviaban un prompt y nosotros lo convertíamos en una vers
 Lo que queremos aprender ahora es a *supervisar a una IA sobre código real*, no solo a escribirle instrucciones.
 
 *Cómo funciona*
-• Todos parten del mismo punto: la rama `dev` del repositorio, fija en el commit `e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4` durante toda la misión.
+• Todos parten del mismo punto: la rama `dev` del repositorio, fija en el commit `acd8258ce3dcc45f01c449e47204b10aa7e45b7f` durante toda la misión.
 • Haces un fork, trabajas en tu copia con tu LLM y abres un PR hacia `dev`.
 • En el PR pegas el prompt exacto que usaste, explicas qué cambió, qué pruebas hiciste y qué partes hizo el LLM y cuáles hiciste a mano. La plantilla del PR te lo pide paso a paso.
 
@@ -48,7 +48,7 @@ Abre https://github.com/ArturVargas/metro_app y pulsa *Fork*. Desmarca «Copy th
 ```
 git clone https://github.com/TU_USUARIO/metro_app.git
 cd metro_app
-git switch -c mision-3 e402b2a1dbc7ed58c6ad3ad2c3485b41f2076cd4
+git switch -c mision-3 acd8258ce3dcc45f01c449e47204b10aa7e45b7f
 pnpm install
 ```
 

@@ -47,6 +47,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test Evaluation
+        run: pnpm --filter @metro/evaluation test
+
+      - name: Typecheck Evaluation
+        run: pnpm --filter @metro/evaluation typecheck
+
       - name: Test Community
         run: pnpm --filter @metro/community test
 

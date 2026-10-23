@@ -82,4 +82,15 @@ describe("summarizeChecks", () => {
       "failure",
     );
   });
+
+  it("keeps the first successful completion time when a green check is rerun", () => {
+    assert.deepEqual(
+      summarizeChecks([
+        run("Lint, typecheck and web build", "success", "2026-11-03T10:00:00Z"),
+        run("PR description", "success", "2026-11-03T10:01:00Z"),
+        run("PR description", "success", "2026-11-03T12:00:00Z"),
+      ]),
+      { state: "success", completedAt: "2026-11-03T10:01:00Z" },
+    );
+  });
 });
