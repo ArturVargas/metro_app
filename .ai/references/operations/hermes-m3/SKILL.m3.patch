@@ -52,4 +52,3 @@
 +- M3 only: say which commit was evaluated (first 7 characters of `state.submission.headSha`) and remind that a new commit needs a new evaluation. Do not mention checks, queue position or reviewers; the team communicates those.
 
  Never invent values if the CLI failed. Never mention Jev/TypeSafe. Never leak env or keys.
-
