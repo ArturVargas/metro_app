@@ -10,7 +10,6 @@ export type PullRequestInfo = {
   baseRepo: string;
   headSha: string;
   body: string;
-  authorLogin: string;
 };
 
 export type ChecksSummary = { state: ChecksState; completedAt: string | null };
@@ -64,7 +63,6 @@ export class GitHubPullRequests {
       baseRepo: data.base.repo.full_name,
       headSha: data.head.sha,
       body: data.body ?? "",
-      authorLogin: data.user?.login ?? "",
     };
   }
 

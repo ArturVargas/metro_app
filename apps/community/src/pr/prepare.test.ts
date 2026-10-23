@@ -18,7 +18,6 @@ function source(pr: Partial<PullRequestInfo> = {}, mergeBase = DEV_SHA): PrSourc
         baseRepo: "ArturVargas/metro_app",
         headSha: head,
         body: filledBody(),
-        authorLogin: "someone",
         ...pr,
       };
     },
@@ -56,10 +55,6 @@ describe("preparePrSubmission", () => {
     );
   });
 
-  it("checks the optional GitHub login registry", async () => {
-    assert.equal((await preparePrSubmission(source(), { ...input, logins: { "p-026": "someone" } })).ok, true);
-    assert.equal((await preparePrSubmission(source(), { ...input, logins: { "p-026": "other" } })).ok, false);
-  });
 });
 
 describe("summarizeChecks", () => {

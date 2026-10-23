@@ -54,6 +54,7 @@ export {
 } from "./rubrics/m3-v1.js";
 export {
   M3_HARD_FAIL_CAP,
+  M3_CORE_GAP_TOTAL,
   M3_HARD_FAIL_IDS,
   M3_MAX_DIFF_CHARS,
   M3_PROTECTED_PATHS,

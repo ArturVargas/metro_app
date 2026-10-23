@@ -42,8 +42,6 @@ async function main(): Promise<void> {
   const devSha = process.env.M3_DEV_SHA?.trim() ?? "";
   if (!/^[0-9a-f]{40}$/.test(devSha)) throw new Error("M3_DEV_SHA must be the frozen 40-char dev SHA");
   const config = requireGitHubStoreConfig();
-  const loginsFile = process.env.M3_GITHUB_LOGINS_FILE?.trim();
-  const logins = loginsFile ? (JSON.parse(readFileSync(loginsFile, "utf8")) as Record<string, string>) : undefined;
 
   const prepared = await preparePrSubmission(new GitHubPullRequests(config), {
     prNumber: args.pr!,
@@ -51,7 +49,6 @@ async function main(): Promise<void> {
     missionId: args.mission,
     devSha,
     repoFullName: `${config.owner}/${config.repo}`,
-    logins,
   });
   if (!prepared.ok) {
     process.stdout.write(`${prepared.reasons.join("\n")}\n`);

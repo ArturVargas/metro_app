@@ -74,7 +74,7 @@ git push -u origin mision-3
 
 *6. Abre el PR hacia dev*
 En tu fork pulsa *Contribute → Open pull request*. Elige como base `ArturVargas/metro_app` y la rama `dev` (no `main`). Llena todas las secciones de la plantilla: tu identificador p-XXX, el prompt exacto, el SHA de `dev`, qué cambia, pruebas, limitaciones, origen de los cambios y la confirmación de privacidad.
-Tu identificador aparece en los resultados de tus evaluaciones anteriores. Si no lo tienes, pídelo en el grupo y te lo enviamos en privado.
+Tu identificador es p- seguido de los últimos 3 dígitos de tu teléfono (por ejemplo, p-123). Si tu identificador lleva una letra al final (por ejemplo, p-123b), ya te lo enviamos: usa ese.
 
 *7. Espera los checks y pide tu evaluación*
 La primera vez, el equipo tiene que aprobar que los checks corran en tu PR; puede tardar un poco. Cuando estén en verde, menciona al bot con el enlace de tu PR.

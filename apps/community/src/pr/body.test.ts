@@ -17,6 +17,12 @@ describe("parsePrBody", () => {
     assert.match(result.value.tests, /pnpm lint/);
   });
 
+  it("accepts an id with a collision suffix", () => {
+    const result = parsePrBody(filledBody({ participant: "Participante: p-123b\nMisión: mission-m3" }));
+    assert.ok(result.ok);
+    assert.equal(result.value.participantId, "p-123b");
+  });
+
   it("rejects the untouched repository template", () => {
     const template = readFileSync(new URL("../../../../.github/pull_request_template.md", import.meta.url), "utf8");
     const result = parsePrBody(template);

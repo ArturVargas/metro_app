@@ -1,8 +1,11 @@
 import { M3_QUALIFICATION_THRESHOLD } from "./rubrics/m3-v1.js";
 import type { CodeSubmission, ScoreResult } from "./types.js";
 
-/** Any M3 hard fail caps the total here, which never qualifies (`> 80`). */
+/** Hard fails other than core-gap cap the total here, which never qualifies (`> 80`). */
 export const M3_HARD_FAIL_CAP = M3_QUALIFICATION_THRESHOLD;
+
+/** Code that does not do what the prompt asks scores 0; dimensions and feedback stay intact. */
+export const M3_CORE_GAP_TOTAL = 0;
 
 /** Diffs above this size are not sent whole; the attempt cannot qualify. */
 export const M3_MAX_DIFF_CHARS = 120_000;
@@ -117,13 +120,15 @@ export function applyM3Policy(
   if (unique.length === 0) {
     return { score: { ...score, eligible: qualifiesM3(score.total) }, hardFails: [] };
   }
-  const total = Math.min(score.total, M3_HARD_FAIL_CAP);
+  const coreGap = unique.includes("core-gap");
+  const total = coreGap ? M3_CORE_GAP_TOTAL : Math.min(score.total, M3_HARD_FAIL_CAP);
+  const effect = coreGap ? `total set to ${M3_CORE_GAP_TOTAL}` : `total capped at ${M3_HARD_FAIL_CAP}`;
   return {
     score: {
       ...score,
       total,
       eligible: false,
-      notes: `${score.notes} M3 policy (${unique.join(", ")}): not qualified, total capped at ${M3_HARD_FAIL_CAP}.`,
+      notes: `${score.notes} M3 policy (${unique.join(", ")}): not qualified, ${effect} (rubric total ${score.total}).`,
     },
     hardFails: unique,
   };

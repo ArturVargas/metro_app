@@ -13,8 +13,6 @@ export type PrepareInput = {
   missionId: string;
   devSha: string;
   repoFullName: string;
-  /** Optional p-XXX → GitHub login registry kept outside the repo. */
-  logins?: Record<string, string>;
 };
 
 export type Prepared =
@@ -27,10 +25,6 @@ export async function preparePrSubmission(source: PrSource, input: PrepareInput)
   if (!pr.open) return { ok: false, reasons: ["El PR está cerrado."] };
   if (pr.baseRepo !== input.repoFullName || pr.baseRef !== "dev") {
     return { ok: false, reasons: [`El PR debe apuntar a la rama \`dev\` de ${input.repoFullName}.`] };
-  }
-  const expectedLogin = input.logins?.[input.participantId];
-  if (input.logins && (!expectedLogin || expectedLogin.toLowerCase() !== pr.authorLogin.toLowerCase())) {
-    return { ok: false, reasons: ["Este PR no está registrado a tu nombre de participante."] };
   }
 
   const body = parsePrBody(pr.body);
