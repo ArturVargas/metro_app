@@ -1,3 +1,4 @@
+import type { QueueReader } from "../pr/queue-reader.js";
 import type { ProjectPromptSnapshot, ProjectStore } from "./types.js";
 
 export type ReconcileResult = {
@@ -8,12 +9,14 @@ export type ReconcileResult = {
 export async function reconcileProject(
   snapshots: ProjectPromptSnapshot[],
   store: ProjectStore,
+  readQueue?: QueueReader,
 ): Promise<ReconcileResult> {
   const failed: ReconcileResult["failed"] = [];
   let synced = 0;
   for (const snapshot of snapshots) {
     try {
-      await store.syncPrompt(snapshot);
+      const queue = snapshot.pr && readQueue ? await readQueue(snapshot) : undefined;
+      await store.syncPrompt(queue ? { ...snapshot, queue } : snapshot);
       synced += 1;
     } catch {
       failed.push({

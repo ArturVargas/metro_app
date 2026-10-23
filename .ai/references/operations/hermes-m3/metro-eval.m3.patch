@@ -1,0 +1,80 @@
+--- metro-eval.orig	2026-10-22 20:40:50.918031125 -0600
++++ metro-eval.m3	2026-10-22 20:41:11.766045507 -0600
+@@ -1,13 +1,15 @@
+ #!/usr/bin/env bash
+-# Score the current inbound WhatsApp message for mission M2. Never takes prompt text as input.
++# Score the current inbound WhatsApp message for the active mission. Never takes prompt text as input.
++# M2 scores the message as a prompt; M3 reads a PR link from it and scores that PR's head SHA.
+ # Usage: metro-eval | metro-eval --previous | metro-eval --share
+ set -uo pipefail
+
+ CLOSED_MSG='La ventana de evaluación está cerrada. Evaluamos de martes a domingo, de 6:00 a 23:55 (hora Colombia); los lunes está cerrada.'
+ FAIL_MSG='No pude procesar tu evaluación en este momento. Por favor reenvía tu prompt más tarde.'
+ RACE_MSG='Hubo un envío simultáneo de tu prompt; por favor reenvíalo en un momento.'
++NO_PR_MSG='Para evaluar en esta misión envíame el enlace de tu PR hacia dev (https://github.com/ArturVargas/metro_app/pull/N).'
++SAME_SHA_MSG='Ese commit ya fue evaluado. Sube un commit nuevo a tu PR antes de pedir otra evaluación.'
+ REPO=/home/el_chalan/repos/metro_app
+-BRIEF_SRC=$REPO/.ai/references/community/missions/mission-m2/public-brief.md
+ DB=$HOME/.hermes/state.db
+ STATE_DIR=$HOME/.hermes/state/metro-eval
+ NOW_ARGS=()
+@@ -140,9 +142,59 @@
+ source .env.local || fail "env missing" 1
+ set +a
+ [ "$TEST" = 1 ] && RECORD_ATTEMPTS=0
++MISSION=${METRO_ACTIVE_MISSION:-mission-m2}
++[[ "$MISSION" =~ ^mission-m[0-9]+$ ]] || fail "bad mission" 1
++BRIEF_SRC=$REPO/.ai/references/community/missions/$MISSION/public-brief.md
++[ -f "$BRIEF_SRC" ] || fail "brief missing" 1
+ RECORD_FLAG=""
+ if [ "${RECORD_ATTEMPTS:-0}" = "1" ]; then RECORD_FLAG="--record"; fi
+
++if [ "$MISSION" != mission-m2 ]; then
++  # Only the PR number leaves the message; it is digits-only before it reaches argv.
++  PR=$(python3 - "$PROMPT_FILE" <<'PYPR'
++import re, sys
++m = re.search(r"https://github\.com/ArturVargas/metro_app/pull/(\d{1,6})\b", open(sys.argv[1], encoding="utf-8").read())
++print(m.group(1) if m else "")
++PYPR
++)
++  [[ "$PR" =~ ^[0-9]{1,6}$ ]] || { echo "$NO_PR_MSG"; exit 8; }
++  pnpm --filter @metro/community evaluate:pr -- \
++    --pr "$PR" --participant "$PID" --mission "$MISSION" --brief "$BRIEF_SRC" \
++    $RECORD_FLAG </dev/null >"$TMPD/out" 2>"$TMPD/err"
++  EVAL_EC=$?
++  if [ "$EVAL_EC" -eq 2 ]; then
++    # Refused before consuming an attempt; the CLI printed participant-facing Spanish lines.
++    grep -v '^>' "$TMPD/out" | sed '/^\s*$/d'
++    exit 2
++  fi
++  cat "$TMPD/out"; cat "$TMPD/err" >&2
++  if [ "$EVAL_EC" -ne 0 ]; then
++    grep -q 'already evaluated' "$TMPD/err" && echo "$SAME_SHA_MSG"
++    grep -qE 'Invalid attempt|next attempt is|attempt lock' "$TMPD/out" "$TMPD/err" && echo "$RACE_MSG"
++    echo "EVALUATE_FAILED exit=$EVAL_EC record=${RECORD_ATTEMPTS:-0}" >&2
++    exit "$EVAL_EC"
++  fi
++  mkdir -p "$STATE_DIR" && chmod 700 "$STATE_DIR"
++  (umask 077; python3 - "$TMPD/out" "$SAVED" <<'PYS') || echo "metro-eval: share text not saved" >&2
++import json, sys
++raw, out = sys.argv[1:3]
++text = open(raw, encoding="utf-8").read()
++res = json.loads(text[text.index("\n{") + 1:])
++st, sc = res["state"], res["score"]
++total = sc["total"]
++total = int(total) if float(total).is_integer() else round(float(total), 1)
++sub = st["submission"]
++head = f'{st["participantId"]} · intento {st["attempt"]} · puntaje {total}/100 · {"califica" if sc["eligible"] else "no califica"}'
++with open(out, "w", encoding="utf-8") as f:
++    f.write(head + "\n\n" + sub["prUrl"] + " (commit " + sub["headSha"][:7] + ")")
++PYS
++  if [ "${RECORD_ATTEMPTS:-0}" = "1" ] && [ -n "${GITHUB_PROJECT_TOKEN:-}" ] && [ -n "${GITHUB_PROJECT_NUMBER:-}" ]; then
++    pnpm --filter @metro/community project:reconcile </dev/null >/dev/null 2>&1 \
++      || echo "PROJECT_RECONCILE_FAILED (issue already recorded; ops can re-run project:reconcile)" >&2
++  fi
++  exit 0
++fi
++
+ # pnpm re-runs argv through sh, so prompt and brief travel in a JSON fixture, never in argv.
+ FIXTURE=$TMPD/fixture.json
+ python3 - "$PROMPT_FILE" "$BRIEF_SRC" "$FIXTURE" <<'PY2' || fail "fixture" 1

@@ -18,7 +18,7 @@ Un PR entra a la cola técnica cuando el mismo SHA obtiene **más de 80 puntos**
 
 Si el PR falla la revisión, el participante puede corregirlo y solicitar otra evaluación mientras conserve intentos. El lugar en la cola se calcula de nuevo para el nuevo SHA. Los primeros tres PRs que superan Jev, checks y revisión humana ocupan A, B y C en ese orden. No hay votación ni asignación aleatoria en esta fase.
 
-El equipo conserva el control de integración y despliegue. Copia cada commit aprobado a una rama controlada, registra el mapeo y despliega las ranuras estables de Cloudflare. Los demás PRs permanecen como evidencia aunque posteriormente superen 80. Ningún PR participante se mezcla directamente a `dev` o `main` por obtener puntuación.
+El equipo conserva el control de integración y despliegue. Copia cada commit aprobado a una rama controlada, registra el mapeo y despliega las ranuras estables de Cloudflare. Después de asignar una ranura, el PR participante puede cerrarse sin perder su estado `selected-a`, `selected-b` o `selected-c`; la etiqueta de ranura conserva el resultado de selección. Los demás PRs permanecen como evidencia aunque posteriormente superen 80. Ningún PR participante se mezcla directamente a `dev` o `main` por obtener puntuación.
 
 Al cerrar una misión, el responsable de producto decide qué resultado aprobado alimenta el siguiente baseline de `dev`. `dev` solo cambia entre ventanas de misión y el nuevo SHA se comunica antes de aceptar contribuciones.
 

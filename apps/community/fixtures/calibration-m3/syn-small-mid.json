@@ -1,0 +1,17 @@
+{
+ "missionId": "mission-m3",
+ "rubricVersion": "rubric-m3-v1",
+ "participantId": "p-000",
+ "attempt": 1,
+ "publicBrief": "# Misión de ensayo: reiniciar el tablero\n\nAgrega una forma de reiniciar el tablero sin recargar la página.\n\nDebe mantenerse: las ocho estaciones, la creación de líneas actual y el estado local. Sin backend, sin persistencia y sin cambios de dependencias.\n\nEstará listo cuando se pueda borrar todas las líneas con una acción y comprobarlo con mouse y con toque.",
+ "participantPrompt": "En el tablero actual agrega, debajo del tablero, un botón \"Reiniciar tablero\" de al menos 44×44 px que funcione con mouse y con toque.\nAl pulsarlo: se eliminan todas las líneas, se quita la estación seleccionada y la guía, y aparece el mensaje \"Tablero reiniciado\" durante 2 s usando el mismo mensaje temporal que ya muestra \"Máximo 3 líneas\".\nSi no hay líneas, el botón está deshabilitado y se ve gris (#9CA3AF).\nNo cambies las ocho estaciones ni la forma de crear, extender, cerrar o eliminar líneas. No agregues confirmación ni persistencia.\nPrueba: crea dos líneas, pulsa el botón y verifica que el tablero queda vacío, que aparece el mensaje y que después puedes crear una línea nueva; con el tablero vacío el botón no hace nada.",
+ "submission": {
+  "prUrl": "https://github.com/ArturVargas/metro_app/pull/0",
+  "headSha": "ffffffffffffffffffffffffffffffffffffffff",
+  "baseSha": "348f02411096c9837ca98459ed77b8b06119c6a3",
+  "diff": "diff --git a/apps/game/src/StationBoard.tsx b/apps/game/src/StationBoard.tsx\n--- a/apps/game/src/StationBoard.tsx\n+++ b/apps/game/src/StationBoard.tsx\n@@ -1,6 +1,7 @@\n import { useCallback, useEffect, useMemo, useRef, useState } from \"react\";\n import {\n   Platform,\n+  Pressable,\n   StyleSheet,\n   Text,\n   View,\n@@ -424,6 +425,9 @@ export function StationBoard(): React.JSX.Element {\n           ))}\n         </Svg>\n       </View>\n+      <Pressable onPress={() => setLines([])} style={styles.reset}>\n+        <Text style={styles.resetText}>Reiniciar</Text>\n+      </Pressable>\n     </View>\n   );\n }\n@@ -448,4 +452,13 @@ const styles = StyleSheet.create({\n     width: \"100%\",\n     aspectRatio: VIEW_W / VIEW_H,\n   },\n+  reset: {\n+    alignSelf: \"center\",\n+    padding: 6,\n+    backgroundColor: \"#111827\",\n+  },\n+  resetText: {\n+    color: \"#ffffff\",\n+  },\n });\n",
+  "declaredTests": "- `pnpm lint`: pasa.\n- Pulsé el botón y se borraron las líneas.",
+  "changeOrigin": "llm",
+  "changeDeclaration": "Explicación: todo lo generó el LLM."
+ }
+}

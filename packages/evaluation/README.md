@@ -36,7 +36,7 @@ See [ADR-0009](../../.ai/adr/0009-m1-rubric-v2-hard-fails.md).
 
 `evaluate(input)` builds `EvaluationState`, selects `rubric-m1-v2` for Misión 1 or `rubric-m2-v1` for Misión 2, asks the Jev client for Score answers, runs `scoreFromAnswers`, applies a hard-fail policy when applicable, and returns `AttemptResult` with feedback plus evaluator/feedback provenance.
 
-Wired rubrics: `rubric-m1-v2` (M1 default + hard-fail cap 69), `rubric-m1-v1`, and `rubric-m2-v1` (M2 default, no hard-fails until calibration). Inject `options.client` / `options.hardFails` in tests; otherwise `createJevClient(env)` and any applicable prompt-based hard-fail detection.
+Wired rubrics: `rubric-m1-v2` (M1 default + hard-fail cap 69), `rubric-m1-v1`, `rubric-m2-v1` (M2 default, no hard-fails until calibration), and `rubric-m3-v1` (M3 default, prompt↔code; requires a submission; `core-gap` sets the total to 0, other M3 hard fails cap it at 80, qualifies above 80). Inject `options.client` / `options.hardFails` in tests; otherwise `createJevClient(env)` and any applicable prompt-based hard-fail detection.
 
 ## Jev HTTP
 

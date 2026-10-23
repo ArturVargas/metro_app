@@ -37,7 +37,13 @@ export function readHttpJevConfig(
   const model =
     (env.TYPESAFE_DEFAULT_MODEL ?? env.JEV_MODEL ?? DEFAULT_JEV_MODEL).trim() ||
     DEFAULT_JEV_MODEL;
-  return { apiKey, baseUrl, model };
+  const timeout = Number(env.JEV_TIMEOUT_MS);
+  return {
+    apiKey,
+    baseUrl,
+    model,
+    ...(Number.isInteger(timeout) && timeout > 0 ? { timeoutMs: timeout } : {}),
+  };
 }
 
 export function createJevClient(env: NodeJS.ProcessEnv = process.env): JevClient {

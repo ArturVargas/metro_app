@@ -95,6 +95,8 @@ export async function evaluate(
     }
 
     let feedback = options.feedback;
+    // The mentor feedback prompt only knows prompt missions; PR missions keep the template.
+    if (input.submission) return scored;
     if (!feedback) {
       try {
         feedback = await (

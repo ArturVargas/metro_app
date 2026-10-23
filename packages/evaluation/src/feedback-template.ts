@@ -3,6 +3,7 @@ import type { ScoreResult } from "./types.js";
 
 export const FEEDBACK_TEMPLATE_M1_V1 = "feedback-template-m1-v1" as const;
 export const FEEDBACK_TEMPLATE_M2_V1 = "feedback-template-m2-v1" as const;
+export const FEEDBACK_TEMPLATE_M3_V1 = "feedback-template-m3-v1" as const;
 
 type FeedbackCopy = Record<
   string,
@@ -63,12 +64,58 @@ const M2_COPY: FeedbackCopy = {
   },
 };
 
-export function buildTemplateFeedback(score: ScoreResult): {
+const M3_COPY: FeedbackCopy = {
+  "requirement-coverage": {
+    name: "Cobertura del prompt",
+    strength: "El código implementa los requisitos que pide tu prompt.",
+    problem: "Hay requisitos del prompt que el código no implementa o que solo aparecen como nombres, comentarios o funciones vacías.",
+    suggestion: "Recorre tu prompt requisito por requisito y comprueba en el juego que cada uno ocurre de verdad.",
+  },
+  "behavioral-fidelity": {
+    name: "Comportamiento",
+    strength: "El comportamiento coincide con los valores y condiciones de tu prompt.",
+    problem: "El código hace algo distinto a lo que dice el prompt en algunos valores, condiciones o casos límite.",
+    suggestion: "Compara cada número, texto y condición del prompt con lo que ves al probar el juego.",
+  },
+  "scope-fidelity": {
+    name: "Alcance",
+    strength: "El cambio se limita a lo que pide el prompt y respeta los límites de la misión.",
+    problem: "El PR incluye cambios que el prompt no pide o toca partes que la misión protege.",
+    suggestion: "Quita del PR lo que el prompt no pide y conserva lo que la misión dice que debe mantenerse.",
+  },
+  "verification-evidence": {
+    name: "Evidencia de pruebas",
+    strength: "Las pruebas declaradas comprueban el comportamiento pedido.",
+    problem: "Las pruebas declaradas no demuestran que el comportamiento pedido funciona.",
+    suggestion: "Escribe en el PR cada prueba que hiciste, qué esperabas y qué resultado obtuviste.",
+  },
+  traceability: {
+    name: "Origen de los cambios",
+    strength: "La declaración LLM/manual/combinado es clara y coincide con el código.",
+    problem: "La declaración de origen no explica qué partes cambiaste a mano.",
+    suggestion: "Indica qué cambios generó el LLM, cuáles hiciste a mano y por qué.",
+  },
+};
+
+const M3_HARD_FAIL_COPY: Record<string, string> = {
+  "evaluator-injection": "El PR contiene texto dirigido a quien evalúa. Quítalo; no cuenta como evidencia.",
+  "hidden-text": "El prompt o el código contienen texto oculto o caracteres invisibles. Quítalos.",
+  "protected-path": "El PR modifica archivos protegidos (checks, evaluación, dependencias o configuración).",
+  "empty-diff": "El PR no contiene cambios de código.",
+  "diff-too-large": "El cambio es demasiado grande para evaluarlo completo. Redúcelo a lo que pide el prompt.",
+  "core-gap": "El código todavía no hace lo que pide el prompt en sus requisitos principales.",
+};
+
+export function buildTemplateFeedback(
+  score: ScoreResult,
+  hardFails: readonly string[] = [],
+): {
   text: string;
   metadata: FeedbackMetadata;
 } {
   const isMission2 = score.rubricVersion === "rubric-m2-v1";
-  const copy = isMission2 ? M2_COPY : M1_COPY;
+  const isMission3 = score.rubricVersion === "rubric-m3-v1";
+  const copy = isMission3 ? M3_COPY : isMission2 ? M2_COPY : M1_COPY;
   const ranked = [...score.dimensions]
     .filter((dimension) => dimension.normalized !== null && copy[dimension.questionId])
     .sort((a, b) => (b.normalized ?? 0) - (a.normalized ?? 0));
@@ -81,12 +128,23 @@ export function buildTemplateFeedback(score: ScoreResult): {
     strongest?.level !== null && strongest?.level !== undefined && strongest.level >= 2
       ? copy[strongest.questionId]?.strength
       : "No se identificó una fortaleza concreta; la siguiente versión debe desarrollar al menos un criterio de la misión.";
-  const problems = weakest.length
-    ? weakest.map((dimension) => `- ${copy[dimension.questionId]?.name}: ${copy[dimension.questionId]?.problem}`)
-    : ["- No hay problemas prioritarios en esta evaluación."];
-  const suggestions = weakest.length
+  const policyProblems = hardFails
+    .map((id) => M3_HARD_FAIL_COPY[id])
+    .filter((text): text is string => Boolean(text))
+    .slice(0, 2)
+    .map((text) => `- ${text}`);
+  const dimensionProblems = weakest.map((dimension) => `- ${copy[dimension.questionId]?.name}: ${copy[dimension.questionId]?.problem}`);
+  const problems = policyProblems.length
+    ? policyProblems
+    : dimensionProblems.length
+      ? dimensionProblems
+      : ["- No hay problemas prioritarios en esta evaluación."];
+  const dimensionSuggestions = weakest.length
     ? weakest.map((dimension) => `- ${copy[dimension.questionId]?.suggestion}`)
     : ["- Conserva la precisión actual y elimina cualquier frase que no ayude a construir o comprobar el cambio."];
+  const suggestions = policyProblems.length
+    ? policyProblems.map((_, index) => dimensionSuggestions[index] ?? "- Corrige el punto anterior y solicita una nueva evaluación.")
+    : dimensionSuggestions;
   const question = weakest[0]
     ? `¿Cómo puedes hacer más comprobable el criterio de ${copy[weakest[0].questionId]?.name.toLowerCase()} en tu siguiente versión?`
     : "¿Puedes mantener estos criterios usando menos texto y sin perder información comprobable?";
@@ -104,7 +162,11 @@ export function buildTemplateFeedback(score: ScoreResult): {
     ].join("\n"),
     metadata: {
       kind: "template",
-      version: isMission2 ? FEEDBACK_TEMPLATE_M2_V1 : FEEDBACK_TEMPLATE_M1_V1,
+      version: isMission3
+        ? FEEDBACK_TEMPLATE_M3_V1
+        : isMission2
+          ? FEEDBACK_TEMPLATE_M2_V1
+          : FEEDBACK_TEMPLATE_M1_V1,
     },
   };
 }
