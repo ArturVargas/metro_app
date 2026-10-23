@@ -1,0 +1,95 @@
+import { Octokit } from "@octokit/rest";
+import type { GitHubStoreConfig } from "../github/config.js";
+import type { ChecksState } from "./queue.js";
+
+export type PullRequestInfo = {
+  number: number;
+  url: string;
+  open: boolean;
+  baseRef: string;
+  baseRepo: string;
+  headSha: string;
+  body: string;
+  authorLogin: string;
+};
+
+export type ChecksSummary = { state: ChecksState; completedAt: string | null };
+
+/** Check-run names required by ADR-0011; they come from `.github/workflows/participant-pr-checks.yml`. */
+export const REQUIRED_CHECKS = ["Lint, typecheck and web build", "PR description"] as const;
+
+const PR_URL = /^https:\/\/github\.com\/([A-Za-z0-9-]+)\/([A-Za-z0-9._-]+)\/pull\/(\d+)\/?$/;
+
+export function parsePrUrl(url: string): { owner: string; repo: string; number: number } | null {
+  const match = url.trim().match(PR_URL);
+  return match ? { owner: match[1]!, repo: match[2]!, number: Number(match[3]) } : null;
+}
+
+export function summarizeChecks(
+  runs: Array<{ name: string; status: string; conclusion: string | null; completed_at: string | null }>,
+  required: readonly string[] = REQUIRED_CHECKS,
+): ChecksSummary {
+  let completedAt: string | null = null;
+  for (const name of required) {
+    const latest = runs
+      .filter((run) => run.name === name)
+      .sort((a, b) => (b.completed_at ?? "9").localeCompare(a.completed_at ?? "9"))[0];
+    if (!latest || latest.status !== "completed") return { state: "pending", completedAt: null };
+    if (latest.conclusion !== "success") return { state: "failure", completedAt: latest.completed_at };
+    if (latest.completed_at && (!completedAt || latest.completed_at > completedAt)) {
+      completedAt = latest.completed_at;
+    }
+  }
+  return { state: "success", completedAt };
+}
+
+export class GitHubPullRequests {
+  private readonly octokit: Octokit;
+
+  constructor(private readonly config: GitHubStoreConfig, octokit?: Octokit) {
+    this.octokit = octokit ?? new Octokit({ auth: config.token, userAgent: "metro-community-pr-reader" });
+  }
+
+  async get(number: number): Promise<PullRequestInfo> {
+    const { data } = await this.octokit.rest.pulls.get({
+      owner: this.config.owner,
+      repo: this.config.repo,
+      pull_number: number,
+    });
+    return {
+      number: data.number,
+      url: data.html_url,
+      open: data.state === "open",
+      baseRef: data.base.ref,
+      baseRepo: data.base.repo.full_name,
+      headSha: data.head.sha,
+      body: data.body ?? "",
+      authorLogin: data.user?.login ?? "",
+    };
+  }
+
+  /** Diff from the frozen `dev` SHA to the PR head, plus the merge base GitHub computed. */
+  async diffFromBase(baseSha: string, headSha: string): Promise<{ diff: string; mergeBase: string }> {
+    const params = {
+      owner: this.config.owner,
+      repo: this.config.repo,
+      basehead: `${baseSha}...${headSha}`,
+    };
+    const { data } = await this.octokit.rest.repos.compareCommitsWithBasehead(params);
+    const raw = await this.octokit.rest.repos.compareCommitsWithBasehead({
+      ...params,
+      mediaType: { format: "diff" },
+    });
+    return { diff: String(raw.data), mergeBase: data.merge_base_commit.sha };
+  }
+
+  async checks(sha: string): Promise<ChecksSummary> {
+    const { data } = await this.octokit.rest.checks.listForRef({
+      owner: this.config.owner,
+      repo: this.config.repo,
+      ref: sha,
+      per_page: 100,
+    });
+    return summarizeChecks(data.check_runs);
+  }
+}

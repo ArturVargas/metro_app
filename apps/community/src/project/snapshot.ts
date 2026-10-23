@@ -3,15 +3,17 @@ import {
   resolveEligible,
   scoreTagValue,
 } from "@metro/evaluation";
-import { attemptNumberFromComment } from "../github/attempt-sequence.js";
+import { attemptNumberFromComment, submissionFromComment } from "../github/attempt-sequence.js";
 import type { PersistAttemptResult } from "../github/issue-store.js";
 import { parseIssueIdentity } from "../github/markers.js";
-import type { ProjectPromptSnapshot } from "./types.js";
+import type { ProjectPrSnapshot, ProjectPromptSnapshot } from "./types.js";
 
 type AttemptSnapshot = {
   attempt: number;
   score: number;
   eligible: boolean;
+  body: string;
+  createdAt?: string;
 };
 
 const attemptMarkerPrefix = "<!-- metro-attempt:";
@@ -40,7 +42,7 @@ function parseAttempt(
   ) {
     return null;
   }
-  return { attempt, score, eligible: tags[4] === "yes" };
+  return { attempt, score, eligible: tags[4] === "yes", body };
 }
 
 export function latestProjectSnapshot(input: {
@@ -48,15 +50,17 @@ export function latestProjectSnapshot(input: {
   issueUrl: string;
   issueBody: string;
   comments: string[];
+  commentDates?: string[];
+  labels?: string[];
 }): ProjectPromptSnapshot | null {
   const identity = parseIssueIdentity(input.issueBody);
   if (!identity) return null;
 
   const attempts: AttemptSnapshot[] = [];
-  for (const body of input.comments) {
+  for (const [index, body] of input.comments.entries()) {
     const attempt = parseAttempt(body, identity.missionId, identity.participantId);
     if (attempt === null) return null;
-    if (attempt) attempts.push(attempt);
+    if (attempt) attempts.push({ ...attempt, createdAt: input.commentDates?.[index] });
   }
   attempts.sort((a, b) => a.attempt - b.attempt);
   if (
@@ -67,6 +71,19 @@ export function latestProjectSnapshot(input: {
   }
 
   const latest = attempts.at(-1)!;
+  const submission = submissionFromComment(latest.body);
+  const pr: ProjectPrSnapshot | undefined =
+    submission && latest.createdAt
+      ? {
+          prUrl: submission.prUrl,
+          evaluatedSha: submission.sha,
+          baseSha: submission.baseSha,
+          origin: submission.origin as ProjectPrSnapshot["origin"],
+          evaluatedAt: latest.createdAt,
+          qualifies: latest.eligible,
+          labels: input.labels ?? [],
+        }
+      : undefined;
   return {
     issueNumber: input.issueNumber,
     issueUrl: input.issueUrl,
@@ -76,6 +93,7 @@ export function latestProjectSnapshot(input: {
     latestScore: latest.score,
     eligible: latest.eligible,
     voting: latest.eligible ? "Candidate" : "Not eligible",
+    ...(pr ? { pr } : {}),
   };
 }
 

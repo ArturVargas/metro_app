@@ -3,6 +3,12 @@ export type JevEvaluationState = {
   rubricVersion: string;
   publicBrief: string;
   participantPrompt: string;
+  codeDiff?: string;
+  declaredTests?: string;
+  changeOrigin?: string;
+  changeDeclaration?: string;
+  headSha?: string;
+  baseSha?: string;
 };
 
 export type JevScoreQuestionPayload = {

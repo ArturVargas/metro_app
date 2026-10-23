@@ -48,3 +48,20 @@ export function assertNextAttempt(
     );
   }
 }
+
+const SUBMISSION_MARKER =
+  /^<!-- metro-submission: pr:(\S+) sha:([0-9a-f]{40}) base:([0-9a-f]{40}) origin:(llm|manual|combined) -->$/m;
+
+export type SubmissionRef = { prUrl: string; sha: string; baseSha: string; origin: string };
+
+export function submissionFromComment(body: string): SubmissionRef | null {
+  const match = body.match(SUBMISSION_MARKER);
+  return match ? { prUrl: match[1]!, sha: match[2]!, baseSha: match[3]!, origin: match[4]! } : null;
+}
+
+// One evaluation per SHA: re-scoring the same commit would let noise decide qualification.
+export function assertShaNotEvaluated(commentBodies: string[], sha: string): void {
+  if (commentBodies.some((body) => submissionFromComment(body)?.sha === sha)) {
+    throw new Error(`SHA ${sha.slice(0, 12)} was already evaluated; push a new commit before requesting another evaluation`);
+  }
+}

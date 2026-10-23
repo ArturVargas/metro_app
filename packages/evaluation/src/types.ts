@@ -74,6 +74,19 @@ export type ScoreQuestion = QuestionBase & {
 
 export type Question = NoulQuestion | ChoiceQuestion | ScoreQuestion;
 
+export type ChangeOrigin = "llm" | "manual" | "combined";
+
+/** Code under evaluation for PR missions (ADR-0011). The diff is relative to the frozen `dev` SHA. */
+export type CodeSubmission = {
+  prUrl: string;
+  headSha: string;
+  baseSha: string;
+  diff: string;
+  declaredTests: string;
+  changeOrigin: ChangeOrigin;
+  changeDeclaration: string;
+};
+
 export type EvaluationState = {
   missionId: string;
   rubricVersion: string;
@@ -88,6 +101,8 @@ export type EvaluationState = {
    * Cap: MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT (5 por misión por participante).
    */
   attempt: number;
+  /** Present only for PR missions; never sent for prompt-only missions. */
+  submission?: CodeSubmission;
 };
 
 export type NoulAnswer = {

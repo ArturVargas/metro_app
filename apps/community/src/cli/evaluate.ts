@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { MockJevClient } from "@metro/evaluation";
+import { MockJevClient, type CodeSubmission } from "@metro/evaluation";
 import { evaluate } from "../evaluate.js";
 import { requireGitHubStoreConfig } from "../github/config.js";
 import { GitHubIssueStore } from "../github/issue-store.js";
@@ -59,6 +59,7 @@ type Fixture = {
   participantPrompt?: string;
   publicBrief?: string;
   attempt?: number;
+  submission?: CodeSubmission;
 };
 
 async function main(): Promise<void> {
@@ -82,7 +83,14 @@ async function main(): Promise<void> {
       : 1;
   }
   const result = await evaluate(
-    { missionId, participantId, participantPrompt, publicBrief, attempt },
+    {
+      missionId,
+      participantId,
+      participantPrompt,
+      publicBrief,
+      attempt,
+      ...(fixture.submission ? { submission: fixture.submission } : {}),
+    },
     { record: args.record, client: args.mock ? new MockJevClient() : undefined },
   );
   process.stdout.write(JSON.stringify(result, null, 2) + "\n");

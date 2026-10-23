@@ -4,6 +4,7 @@ export type HttpJevConfig = {
   apiKey: string;
   baseUrl: string;
   model: string;
+  timeoutMs?: number;
 };
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
@@ -71,7 +72,7 @@ export class HttpJevClient implements JevClient {
         Accept: "application/json",
       },
       body: JSON.stringify(buildSystemOneBody(request, this.config.model)),
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(this.config.timeoutMs ?? 20_000),
     });
     const text = await response.text();
     if (!response.ok) {
