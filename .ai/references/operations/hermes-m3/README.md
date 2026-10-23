@@ -1,0 +1,23 @@
+# Hermes para Misión 3 (pendiente de aplicar)
+
+Cambios propuestos para que Fortgate evalúe PRs en lugar de prompts. No están aplicados en el VPS.
+
+## Archivos
+
+- `metro-eval.m3.patch`: sobre `~/bin/metro-eval`. Lee `METRO_ACTIVE_MISSION`, toma el brief de la misión activa y, en `mission-m3`, extrae el número del PR del mensaje y ejecuta `evaluate:pr`. Sale con 2 si el PR se rechaza antes de gastar intento y con 8 si el mensaje no trae enlace de PR.
+- `SKILL.m3.patch`: sobre el skill de Hermes (v0.5.0). Fortgate nunca abre ni revisa el PR; responde "califica" o "no califica" y menciona el commit evaluado.
+
+## Variables nuevas en `.env.local`
+
+| Variable | Valor |
+| --- | --- |
+| `METRO_ACTIVE_MISSION` | `mission-m3` |
+| `M3_DEV_SHA` | SHA de 40 caracteres de `dev` publicado para la misión |
+| `M3_GITHUB_LOGINS_FILE` | opcional: JSON `{"login": "p-XXX"}` para exigir que el autor del PR sea el participante |
+| `JEV_TIMEOUT_MS` | opcional: los diffs grandes tardan más que un prompt |
+
+## Antes de aplicar
+
+1. Publicar `missions/mission-m3/public-brief.md`; el script falla si no existe.
+2. Instalar los workflows de `../participant-pr-workflows/` en `main` y `dev`.
+3. `bash -n ~/bin/metro-eval` y una prueba con `--mock` sobre un PR de ensayo, sin `--record`.

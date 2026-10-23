@@ -41,6 +41,15 @@ El Issue sintético cerrado `#12` no pertenece al Project.
 | `Branch` | text | nombre de rama |
 | `Pull request` | text | URL del PR |
 | `Preview` | text | URL publicada |
+| `Queue state` | single select | `draft`, `evaluating`, `needs-revision`, `technical-queue`, `approved`, `selected-a`, `selected-b`, `selected-c`, `not-selected` (Misión 3) |
+| `Evaluated SHA` | text | SHA del head evaluado en el último intento (Misión 3) |
+| `Head SHA` | text | head actual del PR (Misión 3) |
+| `Base SHA` | text | SHA de `dev` declarado (Misión 3) |
+| `Change origin` | single select | `LLM`, `Manual`, `Combined` (Misión 3) |
+| `Checks` | single select | `Pending`, `Success`, `Failure` (Misión 3) |
+| `Queued at` | text | fecha ISO en que el SHA calificó (Misión 3) |
+
+Los campos de Misión 3 se crearon el 2026-10-22 con `pnpm --filter @metro/community project:ensure-m3-fields --apply`, que solo agrega campos que faltan. En Misión 3, `Pull request` guarda la URL del PR y la sincronización escribe los campos de cola en lugar de `Voting`. `Queue state` se deriva de los intentos, los checks y las etiquetas `review:approved`, `review:changes-requested` y `slot:a|b|c|none` (`apps/community/src/pr/queue.ts`).
 
 ## Vistas
 
