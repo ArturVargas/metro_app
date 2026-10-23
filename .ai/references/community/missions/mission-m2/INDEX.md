@@ -11,6 +11,7 @@ Lee el brief público para conocer exactamente lo que recibe el grupo. Usa el co
 3. [`../mission-m1/execution-findings-2026-10-02.md`](../mission-m1/execution-findings-2026-10-02.md): contexto histórico; sus findings no forman parte de la evaluación de Misión 2.
 4. [`calibration-2026-10-06.md`](calibration-2026-10-06.md): calibración TypeSafe de `rubric-m2-v1` (débil / medio / fuerte).
 5. [`execution-findings-2026-10-22.md`](execution-findings-2026-10-22.md): revisión de fidelidad, funcionamiento y seguridad de las variantes A, B y C desplegadas.
+6. [`dev-promotion-2026-10-22.md`](dev-promotion-2026-10-22.md): decisión y verificación de la versión B como primer baseline de `dev`.
 
 ## Skills relacionadas
 

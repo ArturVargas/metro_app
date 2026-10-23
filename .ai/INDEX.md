@@ -17,4 +17,4 @@ Este archivo es el punto de entrada para agentes y colaboradores. No leas todas 
 - Product Brief: aprobado y versionado.
 - Arquitectura del juego: stack y baseline técnico implementados; la evolución funcional continúa por misiones.
 - Experimento comunitario: Misiones 1 y 2 cerradas; el flujo de forks y PRs para las Misiones 3–5 está aprobado y pendiente de implementación.
-- Implementación: `metro_a`, `metro_b` y `metro_c` contienen los resultados de Misión 2 y quedan congeladas. La versión B (`p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`) fue aprobada como origen de `dev`; falta crear la rama después de integrar la documentación.
+- Implementación: `metro_a`, `metro_b` y `metro_c` contienen los resultados de Misión 2 y quedan congeladas. `dev` fue creada desde la versión B (`p-026`) y apunta al commit `2e3f805b7360d390de11e323a89ca77c8802a309`.
