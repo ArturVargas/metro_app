@@ -72,11 +72,12 @@ El baseline aprobado contiene un workspace `pnpm`, el cliente Expo, un tablero a
 
 El flujo aprobado es `brief → fork → PR a dev → Jev (>80) → checks → revisión humana → A/B/C → despliegue supervisado`. El contador sigue limitado a cinco evaluaciones por participante y misión. GitHub conserva el SHA evaluado, prompt, código, evidencia, feedback y origen de las correcciones.
 
+El primer `dev` partirá de la versión B de Misión 2: `p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`. La rama se crea después de integrar la documentación de esta fase en `main`.
+
 ## Decisiones abiertas
 
 - Votación pública o mecanismo auxiliar para ocultarla dentro del requisito de grupo único.
 - Stack definitivo del backend comunitario ahora que no necesita PostgreSQL ni una interfaz web principal.
 - Proveedor de observabilidad de errores.
 - Proveedor y modelo del LLM ligero.
-- Resultado de Misión 2 que se promoverá para crear el primer baseline de `dev`.
 - Rúbrica y calibración Jev de correspondencia prompt↔código.

@@ -161,4 +161,4 @@ La comunicación de esta fase debe explicar, sin mencionar Jev:
 - que los primeros tres PRs aprobados se convierten en A, B y C;
 - que el equipo conserva integración y despliegues.
 
-Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo. El mensaje público específico de Misión 3 se redacta después de elegir el primer baseline de `dev` y cerrar su rúbrica.
+Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo. El mensaje público específico de Misión 3 se redacta después de crear `dev` desde el baseline aprobado y cerrar su rúbrica.

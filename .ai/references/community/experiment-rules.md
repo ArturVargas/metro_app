@@ -53,6 +53,7 @@
 ### Contribuciones de código — Misiones 3, 4 y 5
 
 - `dev` es la rama base controlada por el equipo. Cada misión fija y publica un SHA inmutable de `dev`.
+- El primer `dev` nace de la versión B de Misión 2 (`p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`), aprobada por producto después de la revisión de cierre.
 - Cada participante trabaja desde un fork y abre su PR hacia `dev`; no trabaja directamente sobre `main`, A, B o C.
 - A/B/C permanecen congeladas durante la recepción. Solo el equipo puede actualizar sus ramas y despliegues.
 - El PR incluye prompt exacto, código, pruebas, limitaciones y una declaración de cambios `LLM`, `manual` o `combinado`.
@@ -96,7 +97,6 @@
 - Definir los nombres definitivos de los comandos de Hermes.
 - Definir la fórmula y pesos exactos de la rúbrica de 100 puntos.
 - Elegir el proveedor y modelo del LLM ligero.
-- Elegir qué resultado de Misión 2 origina el primer baseline de `dev`.
 - Definir y calibrar la rúbrica Jev de correspondencia prompt↔código para Misión 3.
 - Definir el calendario exacto de las Misiones 3, 4 y 5.
 

@@ -57,6 +57,10 @@ Un finding incluye requisito, resultado observado, reproducción, impacto y seve
 - Copiar los commits aprobados a ramas controladas y desplegar las ranuras.
 - Registrar mapeo, findings, resultados y promoción del siguiente baseline.
 
+## Baseline inicial aprobado
+
+La primera rama `dev` partirá de la versión B de Misión 2, participante `p-026`, commit `2e3f805b7360d390de11e323a89ca77c8802a309`. La revisión de cierre no encontró diferencias funcionales reproducibles en el alcance probado. La creación de la rama queda condicionada a que esta decisión esté integrada en `main`.
+
 ## Skills relacionadas
 
 - `architecture-workflow`: cambios en ramas, fuentes de verdad o responsabilidades.
@@ -66,6 +70,5 @@ Un finding incluye requisito, resultado observado, reproducción, impacto y seve
 
 ## Decisiones todavía abiertas
 
-- Resultado de Misión 2 que originará el primer SHA de `dev`.
 - Rúbrica y calibración Jev para prompt↔código.
 - Calendario exacto de las tres semanas.
