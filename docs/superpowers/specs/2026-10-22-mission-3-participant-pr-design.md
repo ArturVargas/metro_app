@@ -136,9 +136,8 @@ GitHub Issues conserva el historial autoritativo de intentos. El PR conserva có
 
 ## Pendientes antes de abrir Misión 3
 
-1. Crear `dev` desde B/p-026 (`2e3f805b7360d390de11e323a89ca77c8802a309`) y registrar el SHA de la rama.
-2. Diseñar y calibrar la rúbrica prompt↔código.
-3. Crear plantilla de PR y checks seguros para forks.
-4. Adaptar Issues y Project al SHA, URL del PR, estado de cola y origen de cambios.
-5. Preparar el mensaje público y un instructivo breve para hacer fork y abrir PR.
-6. Ejecutar un ensayo con un fork de prueba antes de invitar al grupo.
+1. Diseñar y calibrar la rúbrica prompt↔código.
+2. Crear plantilla de PR y checks seguros para forks.
+3. Adaptar Issues y Project al SHA, URL del PR, estado de cola y origen de cambios.
+4. Preparar el mensaje público y un instructivo breve para hacer fork y abrir PR.
+5. Ejecutar un ensayo con un fork de prueba antes de invitar al grupo.
