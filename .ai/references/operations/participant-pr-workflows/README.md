@@ -1,13 +1,13 @@
-# Workflows pendientes para PRs participantes
+# Workflows para PRs participantes
 
-Estos archivos son los checks de PR hacia `dev` definidos por ADR-0011. No están en `.github/workflows/` porque el token que preparó la rama no tiene el scope `workflow`. Una persona con ese permiso debe copiarlos.
+Los checks de PR hacia `dev` definidos por ADR-0011 viven en `.github/workflows/participant-pr-checks.yml` y `.github/workflows/participant-pr-description.yml`. `game-checks.yml` ignora los PRs hacia `dev` (`branches-ignore: [dev]`).
 
-## Dónde instalarlos
+## Dónde deben estar
 
 Un workflow de `pull_request` se lee del commit de merge del PR (rama base + cambios del PR). Por eso deben existir en `dev`, no solo en `main`:
 
-1. `main`: copiar `participant-pr-checks.yml` y `participant-pr-description.yml` a `.github/workflows/` y aplicar `game-checks-skip-dev.patch`. El check de descripción usa el código de `main`.
-2. `dev`: añadir los mismos dos archivos y el patch en un commit sobre `2e3f805b7360d390de11e323a89ca77c8802a309`. Ese commit cambia solo `.github/` y su SHA es el que se publica como base de la Misión 3.
+1. `main`: llegan con esta rama. El check de descripción usa el código de `main`.
+2. `dev`: los mismos tres archivos de `.github/workflows/` en un commit sobre `2e3f805b7360d390de11e323a89ca77c8802a309`. Ese commit cambia solo `.github/` y su SHA es el que se publica como base de la Misión 3.
 
 ## Checks
 

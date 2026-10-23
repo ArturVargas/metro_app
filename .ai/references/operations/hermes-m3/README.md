@@ -18,5 +18,5 @@ Cambios propuestos para que Fortgate evalúe PRs en lugar de prompts. No están 
 ## Antes de aplicar
 
 1. Reemplazar el stub `missions/mission-m3/public-brief.md` por el brief real.
-2. Instalar los workflows de `../participant-pr-workflows/` en `main` y `dev`.
+2. Tener los workflows de PR en `main` y en `dev` (ver `../participant-pr-workflows/README.md`).
 3. `bash -n ~/bin/metro-eval` y una prueba con `--mock` sobre un PR de ensayo, sin `--record`.

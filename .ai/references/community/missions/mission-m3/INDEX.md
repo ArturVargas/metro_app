@@ -10,7 +10,7 @@ En Misión 3 cada participante abre un PR desde su fork hacia `dev`. TypeSafe ca
 2. [`public-message-draft.md`](public-message-draft.md): mensaje de WhatsApp y guía de fork/PR. No enviado.
 3. [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md): calibración de la rúbrica y del umbral 80.
 4. [`../../github-project.md`](../../github-project.md): campos de cola del Project.
-5. [`../../../operations/participant-pr-workflows/`](../../../operations/participant-pr-workflows/README.md): checks de PR pendientes de instalar.
+5. [`../../../operations/participant-pr-workflows/`](../../../operations/participant-pr-workflows/README.md): checks de PR hacia `dev` (en `.github/workflows/`; falta el commit equivalente en `dev`).
 6. [`../../../operations/hermes-m3/`](../../../operations/hermes-m3/README.md): cambios de Hermes pendientes de aplicar.
 
 ## Diseño de misiones
