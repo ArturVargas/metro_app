@@ -8,12 +8,12 @@ El resultado elegido es incorporar pasajeros visibles en espera. Esto conecta el
 
 ## Objetivos
 
-- Mostrar pasajeros que aparecen progresivamente en las ocho estaciones mientras la simulación está activa.
+- Mostrar pasajeros que aparecen progresivamente en las ocho estaciones después de asignar al menos un tren y pulsar **Ejecutar**.
 - Representar en cada pasajero la forma de su destino: círculo, cuadrado o triángulo.
 - Evitar destinos de la misma forma que la estación de origen.
 - Respetar un máximo de doce pasajeros esperando por estación.
 - Detener la generación al pausar y continuarla al reanudar la simulación.
-- Producir la misma secuencia de pasajeros al repetir una partida con el mismo estado inicial y las mismas acciones.
+- Producir el mismo orden de origen y destino para los primeros diez pasajeros de cada partida nueva.
 - Mantener funcionando las líneas, los trenes y los controles existentes en escritorio y teléfono.
 
 ## Fuera de alcance
@@ -22,6 +22,7 @@ El resultado elegido es incorporar pasajeros visibles en espera. Esto conecta el
 - Los trenes no cambian su comportamiento por la presencia de pasajeros.
 - Una estación con doce pasajeros no inicia alertas, cuenta regresiva, derrota ni puntuación.
 - No se agregan días, victoria, derrota, demanda basada en datos, guardado ni backend del juego.
+- El comportamiento al ocultar la pestaña o enviar la aplicación a segundo plano no se evalúa en esta misión y no equivale a pulsar **Parar**.
 - No se cambian las ocho estaciones, el límite de líneas ni el comportamiento aprobado de Misión 2.
 - No se añaden dependencias ni se modifican rutas protegidas para resolver la misión.
 
@@ -30,8 +31,8 @@ El resultado elegido es incorporar pasajeros visibles en espera. Esto conecta el
 1. Un pasajero pertenece a una estación de origen y expresa un destino mediante una forma.
 2. La forma de destino siempre es distinta de la forma de la estación donde espera.
 3. Cada estación muestra como máximo doce pasajeros. Cuando alcanza el límite, la generación no añade otro pasajero a esa estación.
-4. Los pasajeros solo se generan durante el tiempo activo de la simulación. Una pausa no consume tiempo de generación ni altera la secuencia pendiente.
-5. Dos partidas nuevas con las mismas acciones y tiempos de simulación producen la misma secuencia observable de orígenes y destinos.
+4. La generación comienza cuando existe al menos un tren asignado y el jugador pulsa **Ejecutar**, igual que el movimiento actual. Pulsar **Parar** detiene la generación; pulsar **Ejecutar** de nuevo la continúa sin crear llegadas acumuladas durante la pausa.
+5. En dos partidas nuevas, los primeros diez pasajeros aparecen en el mismo orden de estación de origen y forma de destino. El ritmo visual puede variar sin cambiar ese orden.
 6. Recargar inicia una partida nueva y vacía las colas de pasajeros, igual que el resto del estado local.
 
 Estas reglas son criterios de producto. El brief no prescribe componentes, estructuras de datos, temporizadores ni algoritmos.
@@ -44,20 +45,21 @@ Cada participante debe decidir y expresar en su prompt:
 - cómo se distribuyen entre las estaciones;
 - cómo se distribuyen las formas de destino válidas;
 - cómo se acomodan y representan visualmente los pasajeros en espera;
-- cómo comprobará los comportamientos principales y los casos límite.
+- cómo comprobará manualmente los comportamientos principales y los casos límite.
 
 El código del PR debe corresponder con esas decisiones. Diferentes participantes pueden producir experiencias distintas y aun cumplir la misión.
 
 ## Criterios observables de aceptación
 
-- Al iniciar o reanudar la simulación, aparecen pasajeros con el paso del tiempo sin interacción adicional.
+- Después de crear una línea, asignar un tren y pulsar **Ejecutar**, aparecen pasajeros con el paso del tiempo. Sin un tren asignado, **Ejecutar** conserva su comportamiento actual y no comienza la generación.
 - Cada pasajero permite reconocer si busca un círculo, un cuadrado o un triángulo, y esa forma difiere de la estación donde espera.
 - Pausar durante un intervalo suficiente impide que aparezcan pasajeros nuevos; al reanudar, la generación continúa.
 - Ninguna estación muestra más de doce pasajeros, incluso después de dejar correr la simulación.
-- Dos partidas limpias sometidas a la misma secuencia de acciones producen la misma secuencia de pasajeros.
+- En dos partidas nuevas, los primeros diez pasajeros coinciden en el orden de estación de origen y forma de destino.
+- En vista de teléfono, las colas siguen siendo legibles y no tapan otra estación ni los controles del juego.
 - Crear y modificar líneas, asignar o retirar trenes, pausar, reanudar y usar el juego mediante ratón o toque sigue funcionando.
 
-La revisión puede comprobar estos resultados manualmente. El participante elige evidencia adicional y la registra en el PR.
+La evidencia de comportamiento es manual: pasos con su resultado y, si ayuda, capturas o video. `apps/game` no tiene runner de pruebas y `package.json` está protegido; la misión no pide instalar uno. El participante puede separar lógica en funciones puras que faciliten la revisión, pero debe demostrar el resultado mediante el juego y registrar esa evidencia en el PR.
 
 ## Restricciones técnicas y operativas
 
@@ -78,8 +80,10 @@ El brief público explica resultados y límites en lenguaje cotidiano. No mencio
 - **Los resultados no son comparables:** las reglas fijas permiten comprobar el núcleo; las decisiones abiertas se comparan contra el prompt declarado de cada participante.
 - **La aleatoriedad vuelve irreproducible un finding:** la reproducibilidad es un criterio obligatorio, aunque el mecanismo quede abierto.
 - **La interfaz deja de caber en móvil:** la revisión prueba una vista de teléfono y exige que los pasajeros no oculten controles ni impidan usar las estaciones.
+- **Una pestaña oculta reanuda con un `elapsed` grande:** queda fuera del alcance; solo el control **Parar/Ejecutar** define la pausa evaluada.
 - **El límite de doce se interpreta como derrota:** en esta misión solo detiene nuevas llegadas a esa estación.
 - **Un prompt copia una solución completa del brief:** el documento público evita intervalos, probabilidades, layout y detalles de implementación.
+- **Las siguientes misiones amplían el mismo archivo:** el baseline concentra el tablero en `StationBoard.tsx`; no afecta la comparación A/B/C de Misión 3, pero deberá revisarse antes de diseñar Misión 4.
 
 ## Enfoques considerados
 

@@ -13,20 +13,21 @@
 ## Global Constraints
 
 - Mission mode is `participant-pr`: each participant works from frozen `dev` SHA `acd8258ce3dcc45f01c449e47204b10aa7e45b7f` and opens a PR toward `dev`.
-- The public brief fixes passenger meaning, pause behavior, capacity 12, reproducibility, reset behavior, and preserved baseline behavior.
+- The public brief fixes passenger meaning, start/pause behavior, capacity 12, first-ten reproducibility, reset behavior, and preserved baseline behavior.
 - Participants choose frequency, origin distribution, valid destination-shape distribution, visual arrangement, and verification evidence.
 - Passengers do not board, travel, transfer, trigger congestion, score, victory, or defeat in Mission 3.
 - Expected changes stay in `apps/game/`; no dependency, backend, protected-path, or workflow changes are permitted.
+- Behavioral evidence is manual: reproducible steps with results and optional screenshots or video. `apps/game` has no test runner and participants must not modify protected `package.json` to add one.
 - Qualification remains strictly above 80, with at most five evaluations per participant and checks plus human approval required.
 - Do not activate Hermes, write real attempts, publish to WhatsApp, or modify the VPS in this plan.
 - Dates remain explicitly pending; publication cannot proceed until Artur approves them.
 
 ## Review Focus
 
-- Public and internal documents must contain the same six observable acceptance behaviors; Task 1 verifies their mapping explicitly.
-- Open participant decisions must not become hidden evaluator requirements; Task 1 records them as variable and Task 2 uses different valid choices in the strong fixture.
-- A paused simulation must not accumulate hidden arrivals that burst on resume; the strong fixture and its declared tests cover pause, waiting, and resume behavior.
-- Determinism must concern simulated elapsed time and the same actions, not wall-clock rendering cadence; Task 1 states this and Task 2 demonstrates two clean runs.
+- Public and internal documents must map the same observable behaviors while keeping frequency, distribution, layout, and verification choices open; Task 1 records the mapping and Task 2 uses one valid set of choices.
+- Generation starts only after a train is assigned and **Ejecutar** is pressed, and **Parar** must not accumulate arrivals; Tasks 1 and 2 cover the complete start/pause/resume cycle.
+- Reproducibility concerns the ordered origins and destination shapes of the first ten passengers, independent of rendering cadence; Task 1 states this and Task 2 demonstrates two clean runs.
+- Twelve passengers at one station must remain readable on a phone without covering another station or controls; Task 1 makes this observable and Task 2 includes mobile evidence.
 - Calibration must be stable enough for an 80-point boundary: Task 3 runs each case three times and rejects eligibility changes or dimension swings greater than one level.
 
 ---
@@ -37,6 +38,7 @@
 - Modify: `.ai/references/community/missions/mission-m3/public-brief.md`
 - Create: `.ai/references/community/missions/mission-m3/internal-contract.md`
 - Modify: `.ai/references/community/missions/mission-m3/INDEX.md`
+- Modify: `.github/pull_request_template.md`
 
 **Interfaces:**
 - Consumes: the approved rules and exclusions in `docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md`.
@@ -44,7 +46,7 @@
 
 - [ ] **Step 1: Replace the public stub with the participant-facing brief**
 
-Use the headings from `.ai/references/community/mission-public-brief-template.md`. State the problem, objective, current Base/dev context, fixed rules, preserved behavior, and three-to-five grouped observable completion criteria. Include the Mission 3–5 PR participation footer verbatim. Do not include implementation suggestions, intervals, probabilities, layout instructions, TypeSafe, rubric weights, or hard-fail rules.
+Use the headings from `.ai/references/community/mission-public-brief-template.md`. State the problem, objective, current Base/dev context, fixed rules, preserved behavior, and three-to-five grouped observable completion criteria. Define active simulation as at least one assigned train followed by **Ejecutar**. Require manual evidence and state that participants must not add a test runner or modify protected `package.json`. Include the Mission 3–5 PR participation footer verbatim. Do not include implementation suggestions, intervals, probabilities, layout instructions, TypeSafe, rubric weights, or hard-fail rules.
 
 - [ ] **Step 2: Create the internal contract**
 
@@ -52,32 +54,38 @@ Set `mission-m3`, version `1`, modality `participant-pr`, state `borrador`, bran
 
 - [ ] **Step 3: Make determinism observable without choosing an implementation**
 
-In both documents, define reproducibility as: two clean runs with the same player actions and the same amount of active simulation time produce the same ordered origins and destination shapes. A pause advances neither passenger generation nor its pending schedule.
+In both documents, define reproducibility as: the first ten passengers in two new games have the same ordered station origins and destination shapes. The order advances once per generated passenger rather than from rendering frames. **Parar** advances neither generation nor its pending schedule, and **Ejecutar** resumes without accumulated arrivals. Browser-tab visibility is outside the mission and is not treated as a pause.
 
-- [ ] **Step 4: Update the Mission 3 index**
+- [ ] **Step 4: Clarify evidence in the participant PR template**
+
+Keep the existing lint, typecheck, and web-build fields. Under `## Pruebas ejecutadas`, state that gameplay evidence consists of manual steps with observed results and optional screenshots or video. State that `apps/game` has no automated test runner and participants must not add one or edit protected `package.json` for this mission.
+
+- [ ] **Step 5: Update the Mission 3 index**
 
 Replace the stub labels with links to the real brief, internal contract, design, existing general rubric calibration, and the passenger-specific calibration that Task 3 will create. Keep Hermes and public-message status pending.
 
-- [ ] **Step 5: Verify document consistency**
+- [ ] **Step 6: Verify document consistency**
 
 Run:
 
 ```bash
 rg -n "STUB|TODO antes de publicar" .ai/references/community/missions/mission-m3
-rg -n "12|paus|reanuda|reproduc|recarg|abord|transfer" \
+rg -n "12|Parar|Ejecutar|diez|manual|teléfono|recarg|abord|transfer" \
   .ai/references/community/missions/mission-m3/public-brief.md \
   .ai/references/community/missions/mission-m3/internal-contract.md
+rg -n "manual|runner|package.json" .github/pull_request_template.md
 git diff --check
 ```
 
 Expected: the first command returns no brief/contract stub markers; both mission documents expose the fixed rules and exclusions; `git diff --check` is clean.
 
-- [ ] **Step 6: Commit the mission documents**
+- [ ] **Step 7: Commit the mission documents and participant template**
 
 ```bash
 git add .ai/references/community/missions/mission-m3/public-brief.md \
   .ai/references/community/missions/mission-m3/internal-contract.md \
-  .ai/references/community/missions/mission-m3/INDEX.md
+  .ai/references/community/missions/mission-m3/INDEX.md \
+  .github/pull_request_template.md
 git commit -m "docs(mission3): define waiting passengers brief"
 ```
 
@@ -94,15 +102,15 @@ git commit -m "docs(mission3): define waiting passengers brief"
 
 - [ ] **Step 1: Create the weak fixture**
 
-Use participant `p-000`, attempt `1`, rubric `rubric-m3-v1`, base SHA `acd8258ce3dcc45f01c449e47204b10aa7e45b7f`, and a small `apps/game/` diff. The prompt says only to show random passenger shapes; the diff renders a fixed decorative shape and implements none of generation, pause, capacity, valid destination, or reproducibility. Declared tests are generic. Manual expectation: `core-gap`, final total `0`, not qualified.
+Use participant `p-000`, attempt `1`, rubric `rubric-m3-v1`, base SHA `acd8258ce3dcc45f01c449e47204b10aa7e45b7f`, and a small `apps/game/` diff. The prompt says only to show random passenger shapes; the diff renders a fixed decorative shape and implements none of generation, pause, capacity, valid destination, or reproducibility. Declared evidence is generic. Manual expectation: `core-gap`, final total `0`, not qualified.
 
 - [ ] **Step 2: Create the medium fixture**
 
-Use the same metadata and public brief. The prompt makes concrete choices for frequency and visual placement. The diff progressively adds passenger shapes but uses nondeterministic randomness, continues during pause, and lacks the capacity guard. Declared tests acknowledge only appearance and progression. Manual expectation: coverage or fidelity at level 2, `core-gap`, final total `0`, not qualified.
+Use the same metadata and public brief. The prompt makes concrete choices for frequency and visual placement. The diff progressively adds passenger shapes after **Ejecutar** but uses nondeterministic randomness, continues during **Parar**, and lacks the capacity guard. Declared evidence acknowledges only appearance and progression. Manual expectation: coverage or fidelity at level 2, `core-gap`, final total `0`, not qualified.
 
 - [ ] **Step 3: Create the strong fixture**
 
-Use the same metadata and public brief. The prompt chooses its own frequency, distribution, layout, and verification. The small diff changes only `apps/game/`, implements a deterministic passenger sequence based on active simulation time, rejects same-shape destinations, stops at 12, pauses without catch-up, resumes, and clears on reload. Declared tests include two clean-run sequence comparisons plus desktop/mobile checks and the existing lint, typecheck, and web build. Manual expectation: coverage and fidelity at least level 3, total above 80, no hard-fail, qualified.
+Use the same metadata and public brief. The prompt chooses its own frequency, distribution, layout, and verification. The small diff changes only `apps/game/`, begins after a train is assigned and **Ejecutar** is pressed, advances a fixed sequence once per generated passenger, rejects same-shape destinations, stops at 12, pauses without catch-up, resumes, and clears on reload. Declared evidence consists of manual steps with results: compare the first ten passengers in two new games, pause and resume, fill a station to 12, verify phone layout, and preserve the existing lint, typecheck, and web build. Do not add a test runner or change `package.json`. Manual expectation: coverage and fidelity at least level 3, total above 80, no hard-fail, qualified.
 
 - [ ] **Step 4: Validate fixture syntax and local policy behavior**
 
