@@ -18,7 +18,7 @@
  DB=$HOME/.hermes/state.db
  STATE_DIR=$HOME/.hermes/state/metro-eval
  NOW_ARGS=()
-@@ -140,9 +142,59 @@
+@@ -140,9 +142,64 @@
  source .env.local || fail "env missing" 1
  set +a
  [ "$TEST" = 1 ] && RECORD_ATTEMPTS=0
@@ -38,13 +38,18 @@
 +PYPR
 +)
 +  [[ "$PR" =~ ^[0-9]{1,6}$ ]] || { echo "$NO_PR_MSG"; exit 8; }
-+  pnpm --filter @metro/community evaluate:pr -- \
-+    --pr "$PR" --participant "$PID" --mission "$MISSION" --brief "$BRIEF_SRC" \
-+    $RECORD_FLAG </dev/null >"$TMPD/out" 2>"$TMPD/err"
-+  EVAL_EC=$?
-+  if [ "$EVAL_EC" -eq 2 ]; then
++  run_pr() {
++    pnpm --filter @metro/community evaluate:pr -- \
++      --pr "$PR" --participant "$PID" --mission "$MISSION" --brief "$BRIEF_SRC" \
++      $RECORD_FLAG </dev/null >"$TMPD/out" 2>"$TMPD/err"
++  }
++  run_pr; EVAL_EC=$?
++  # 4 = contexto incompleto: GitHub did not return every base file; nothing was consumed or recorded.
++  if [ "$EVAL_EC" -eq 4 ]; then sleep 20; run_pr; EVAL_EC=$?; fi
++  if [ "$EVAL_EC" -eq 2 ] || [ "$EVAL_EC" -eq 4 ]; then
 +    # Refused before consuming an attempt; the CLI printed participant-facing Spanish lines.
 +    grep -v '^>' "$TMPD/out" | sed '/^\s*$/d'
++    [ "$EVAL_EC" -eq 4 ] && exit 9
 +    exit 2
 +  fi
 +  cat "$TMPD/out"; cat "$TMPD/err" >&2

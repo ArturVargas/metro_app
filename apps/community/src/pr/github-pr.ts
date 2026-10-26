@@ -1,11 +1,32 @@
 import { M3_MAX_DIFF_CHARS } from "@metro/evaluation";
 import { Octokit } from "@octokit/rest";
 import type { GitHubStoreConfig } from "../github/config.js";
-import { oldPathOf, splitDiffFiles, widenDiffContext } from "./diff-context.js";
+import {
+  type DiffContextReport,
+  MAX_WIDENED_FILES,
+  PR_DIFF_CONTEXT_LINES,
+  widenablePaths,
+  widenDiffContext,
+} from "./diff-context.js";
 import type { ChecksState } from "./queue.js";
 
-/** At most this many base files are fetched to widen a diff; the rest keep GitHub's context. */
-const MAX_WIDENED_FILES = 20;
+/** Pauses between tries when GitHub fails to return a base file (rate limit, 5xx, network). */
+export const BASE_FILE_RETRY_DELAYS_MS: readonly number[] = [1_000, 3_000];
+
+export type PrDiff = { diff: string; mergeBase: string; context: DiffContextReport };
+
+export type GitHubPullRequestsOptions = {
+  retryDelaysMs?: readonly number[];
+  sleep?: (ms: number) => Promise<void>;
+  log?: (line: string) => void;
+};
+
+/** Transient GitHub failures worth retrying: no HTTP status (network), 429, 403 rate limit, 5xx. */
+function isTransient(error: unknown): boolean {
+  const status = (error as { status?: unknown } | null)?.status;
+  if (typeof status !== "number") return true;
+  return status === 429 || status === 403 || status >= 500;
+}
 
 export type PullRequestInfo = {
   number: number;
@@ -52,9 +73,19 @@ export function summarizeChecks(
 
 export class GitHubPullRequests {
   private readonly octokit: Octokit;
+  private readonly retryDelaysMs: readonly number[];
+  private readonly sleep: (ms: number) => Promise<void>;
+  private readonly log: (line: string) => void;
 
-  constructor(private readonly config: GitHubStoreConfig, octokit?: Octokit) {
+  constructor(
+    private readonly config: GitHubStoreConfig,
+    octokit?: Octokit,
+    options: GitHubPullRequestsOptions = {},
+  ) {
     this.octokit = octokit ?? new Octokit({ auth: config.token, userAgent: "metro-community-pr-reader" });
+    this.retryDelaysMs = options.retryDelaysMs ?? BASE_FILE_RETRY_DELAYS_MS;
+    this.sleep = options.sleep ?? ((ms) => new Promise((done) => setTimeout(done, ms)));
+    this.log = options.log ?? ((line) => console.error(line));
   }
 
   async get(number: number): Promise<PullRequestInfo> {
@@ -76,10 +107,12 @@ export class GitHubPullRequests {
 
   /**
    * Diff from the frozen `dev` SHA to the PR head, plus the merge base GitHub computed.
-   * Context is widened to PR_DIFF_CONTEXT_LINES using the base files, unless that would
-   * exceed M3_MAX_DIFF_CHARS; then GitHub's 3-line diff is returned unchanged.
+   * Context is widened to PR_DIFF_CONTEXT_LINES using the base files. The only exceptions
+   * keep GitHub's 3-line diff on purpose and say so in `context`: more than
+   * MAX_WIDENED_FILES base files, or a widened diff above M3_MAX_DIFF_CHARS. A base file that
+   * still fails after retries makes `context.status` "incomplete"; callers must not evaluate.
    */
-  async diffFromBase(baseSha: string, headSha: string): Promise<{ diff: string; mergeBase: string }> {
+  async diffFromBase(baseSha: string, headSha: string): Promise<PrDiff> {
     const params = {
       owner: this.config.owner,
       repo: this.config.repo,
@@ -91,25 +124,55 @@ export class GitHubPullRequests {
       mediaType: { format: "diff" },
     });
     const diff = String(raw.data);
-    const baseContent = await this.baseFiles(diff, baseSha);
-    const widened = widenDiffContext(diff, baseContent);
+    const mergeBase = data.merge_base_commit.sha;
+    const paths = widenablePaths(diff);
+
+    if (paths.length > MAX_WIDENED_FILES) {
+      return this.fallback(diff, mergeBase, paths.length, "too-many-files");
+    }
+    const { content, missing } = await this.baseFiles(paths, baseSha);
+    if (missing.length > 0) {
+      this.log(`diff context incomplete: ${missing.length} base file(s) could not be fetched`);
+      return { diff, mergeBase, context: { status: "incomplete", missing } };
+    }
+    const widened = widenDiffContext(diff, content);
+    if (widened.length > M3_MAX_DIFF_CHARS) {
+      return this.fallback(diff, mergeBase, paths.length, "diff-too-large");
+    }
     return {
-      diff: widened.length <= M3_MAX_DIFF_CHARS ? widened : diff,
-      mergeBase: data.merge_base_commit.sha,
+      diff: widened,
+      mergeBase,
+      context: { status: "widened", contextLines: PR_DIFF_CONTEXT_LINES, files: paths.length },
     };
   }
 
-  /** Raw base-side content of the files a diff modifies; files that fail to load are skipped. */
-  private async baseFiles(diff: string, baseSha: string): Promise<Map<string, string>> {
-    const paths = [
-      ...new Set(
-        splitDiffFiles(diff)
-          .map(oldPathOf)
-          .filter((path): path is string => path !== null),
-      ),
-    ].slice(0, MAX_WIDENED_FILES);
-    const out = new Map<string, string>();
+  private fallback(
+    diff: string,
+    mergeBase: string,
+    files: number,
+    reason: "diff-too-large" | "too-many-files",
+  ): PrDiff {
+    this.log(`diff context fallback: ${reason} (${files} base files); evaluating GitHub's 3-line diff`);
+    return { diff, mergeBase, context: { status: "fallback", contextLines: 3, files, reason } };
+  }
+
+  /** Raw base-side content of `paths`, retrying transient failures; failures are listed in `missing`. */
+  private async baseFiles(
+    paths: readonly string[],
+    baseSha: string,
+  ): Promise<{ content: Map<string, string>; missing: string[] }> {
+    const content = new Map<string, string>();
+    const missing: string[] = [];
     for (const path of paths) {
+      const text = await this.baseFile(path, baseSha);
+      if (text === null) missing.push(path);
+      else content.set(path, text);
+    }
+    return { content, missing };
+  }
+
+  private async baseFile(path: string, baseSha: string): Promise<string | null> {
+    for (let attempt = 0; ; attempt++) {
       try {
         const response = await this.octokit.rest.repos.getContent({
           owner: this.config.owner,
@@ -118,12 +181,13 @@ export class GitHubPullRequests {
           ref: baseSha,
           mediaType: { format: "raw" },
         });
-        if (typeof response.data === "string") out.set(path, response.data);
-      } catch {
-        // Keep GitHub's context for this file.
+        return typeof response.data === "string" ? response.data : null;
+      } catch (error) {
+        const delay = this.retryDelaysMs[attempt];
+        if (delay === undefined || !isTransient(error)) return null;
+        await this.sleep(delay);
       }
     }
-    return out;
   }
 
   async checks(sha: string): Promise<ChecksSummary> {

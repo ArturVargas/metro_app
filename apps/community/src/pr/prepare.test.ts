@@ -1,13 +1,20 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { DEV_SHA, filledBody } from "./fixtures.js";
+import type { DiffContextReport } from "./diff-context.js";
 import type { PullRequestInfo } from "./github-pr.js";
-import { preparePrSubmission, type PrSource } from "./prepare.js";
+import { INCOMPLETE_CONTEXT_MESSAGE, preparePrSubmission, type PrSource } from "./prepare.js";
 import { summarizeChecks } from "./github-pr.js";
 
 const head = "f".repeat(40);
 
-function source(pr: Partial<PullRequestInfo> = {}, mergeBase = DEV_SHA): PrSource {
+const widened: DiffContextReport = { status: "widened", contextLines: 25, files: 1 };
+
+function source(
+  pr: Partial<PullRequestInfo> = {},
+  mergeBase = DEV_SHA,
+  context: DiffContextReport = widened,
+): PrSource {
   return {
     async get(number) {
       return {
@@ -22,7 +29,7 @@ function source(pr: Partial<PullRequestInfo> = {}, mergeBase = DEV_SHA): PrSourc
       };
     },
     async diffFromBase() {
-      return { diff: "diff --git a/apps/game/x.ts b/apps/game/x.ts\n+x", mergeBase };
+      return { diff: "diff --git a/apps/game/x.ts b/apps/game/x.ts\n+x", mergeBase, context };
     },
   };
 }
@@ -43,9 +50,29 @@ describe("preparePrSubmission", () => {
     assert.equal(result.submission.baseSha, DEV_SHA);
     assert.equal(result.submission.changeOrigin, "combined");
     assert.match(result.prompt, /contador/);
+    assert.deepEqual(result.diffContext, widened);
+  });
+
+  it("refuses with a retryable 'contexto incompleto' when a base file is missing", async () => {
+    const result = await preparePrSubmission(
+      source({}, DEV_SHA, { status: "incomplete", missing: ["apps/game/x.ts"] }),
+      input,
+    );
+    assert.deepEqual(result, { ok: false, retryable: true, reasons: [INCOMPLETE_CONTEXT_MESSAGE] });
+    assert.match(INCOMPLETE_CONTEXT_MESSAGE, /contexto incompleto/);
+    assert.doesNotMatch(INCOMPLETE_CONTEXT_MESSAGE, /apps\//);
+  });
+
+  it("evaluates an intentional fallback and reports it", async () => {
+    const fallback: DiffContextReport = { status: "fallback", contextLines: 3, files: 25, reason: "too-many-files" };
+    const result = await preparePrSubmission(source({}, DEV_SHA, fallback), input);
+    assert.ok(result.ok);
+    assert.deepEqual(result.diffContext, fallback);
   });
 
   it("refuses PRs that target another branch, another participant or a stale base", async () => {
+    const refused = await preparePrSubmission(source({ baseRef: "main" }), input);
+    assert.ok(!refused.ok && !refused.retryable);
     assert.equal((await preparePrSubmission(source({ baseRef: "main" }), input)).ok, false);
     assert.equal((await preparePrSubmission(source(), { ...input, participantId: "p-111" })).ok, false);
     assert.equal((await preparePrSubmission(source({}, "0".repeat(40)), input)).ok, false);

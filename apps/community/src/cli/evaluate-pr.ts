@@ -9,7 +9,9 @@ import { assertParticipantId } from "../participant-id.js";
 import { GitHubPullRequests } from "../pr/github-pr.js";
 import { preparePrSubmission } from "../pr/prepare.js";
 
-// Exit codes: 0 evaluated (JSON), 2 refused before consuming an attempt (Spanish lines), 1 failure.
+// Exit codes: 0 evaluated (JSON), 2 refused before consuming an attempt (Spanish lines),
+// 4 "contexto incompleto": GitHub did not return every base file, nothing was consumed or
+// recorded and the same request can be retried (Spanish line), 1 failure.
 type Args = { pr?: number; participant?: string; mission: string; brief?: string; record: boolean; mock: boolean };
 
 function parseArgs(argv: string[]): Args {
@@ -52,7 +54,7 @@ async function main(): Promise<void> {
   });
   if (!prepared.ok) {
     process.stdout.write(`${prepared.reasons.join("\n")}\n`);
-    process.exitCode = 2;
+    process.exitCode = prepared.retryable ? 4 : 2;
     return;
   }
 
@@ -70,7 +72,8 @@ async function main(): Promise<void> {
     },
     { record: args.record, client: args.mock ? new MockJevClient() : undefined },
   );
-  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  // diffContext says whether the evaluator saw the calibrated ±25-line context or a reported fallback.
+  process.stdout.write(`${JSON.stringify({ ...result, diffContext: prepared.diffContext }, null, 2)}\n`);
 }
 
 main().catch((error: unknown) => {

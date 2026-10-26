@@ -1,6 +1,36 @@
 /** Context lines around each change sent to the evaluator (GitHub's compare diff has 3). */
 export const PR_DIFF_CONTEXT_LINES = 25;
 
+/** More base files than this are not fetched; the whole diff keeps GitHub's context. */
+export const MAX_WIDENED_FILES = 20;
+
+/**
+ * How much context the evaluated diff carries. Calibration used `widened`; `fallback` is an
+ * intentional, reported exception; `incomplete` means a base file could not be fetched and
+ * the evaluation must not run.
+ */
+export type DiffContextReport =
+  | { status: "widened"; contextLines: number; files: number }
+  | {
+      status: "fallback";
+      contextLines: 3;
+      files: number;
+      reason: "diff-too-large" | "too-many-files";
+    }
+  | { status: "incomplete"; missing: string[] };
+
+/** Base-side paths of text hunks whose content is needed to widen the diff, in diff order. */
+export function widenablePaths(diff: string): string[] {
+  return [
+    ...new Set(
+      splitDiffFiles(diff)
+        .filter((block) => /^@@ /m.test(block))
+        .map(oldPathOf)
+        .filter((path): path is string => path !== null),
+    ),
+  ];
+}
+
 type Op = { kind: " " | "-" | "+" | "\\"; text: string };
 
 const HUNK = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
