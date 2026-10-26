@@ -1,9 +1,13 @@
 import { resolveEligible, type FeedbackMetadata } from "./attempt.js";
-import type { ScoreResult } from "./types.js";
+import { lowLevelMass, M3_CORE_GAP_LOW_MASS } from "./m3-policy.js";
+import { isM3Rubric } from "./rubrics/m3-v2.js";
+import type { DimensionScore, ScoreResult } from "./types.js";
 
 export const FEEDBACK_TEMPLATE_M1_V1 = "feedback-template-m1-v1" as const;
 export const FEEDBACK_TEMPLATE_M2_V1 = "feedback-template-m2-v1" as const;
 export const FEEDBACK_TEMPLATE_M3_V1 = "feedback-template-m3-v1" as const;
+/** Per-dimension M3 feedback from expected levels and probabilities. */
+export const FEEDBACK_TEMPLATE_M3_V2 = "feedback-template-m3-v2" as const;
 
 type FeedbackCopy = Record<
   string,
@@ -106,6 +110,92 @@ const M3_HARD_FAIL_COPY: Record<string, string> = {
   "core-gap": "El código todavía no hace lo que pide el prompt en sus requisitos principales.",
 };
 
+/** What to make clearer when the evaluator is unsure about a dimension. Generic on purpose. */
+const M3_DOUBT_COPY: Record<string, string> = {
+  "requirement-coverage": "Numera los requisitos del prompt y asegúrate de que cada uno tenga código que se ejecuta en el juego.",
+  "behavioral-fidelity": "Revisa que cada número, condición y caso límite del prompt coincida exactamente con lo que hace el código.",
+  "scope-fidelity": "Deja fuera del PR todo lo que el prompt no pide.",
+  "verification-evidence": "Para cada requisito, escribe una prueba con los pasos que hiciste y el resultado que viste.",
+  traceability: "Di qué partes generó el LLM y qué cambiaste a mano, archivo por archivo.",
+};
+
+/** Score levels are 0–4; strong ≥ 3.5, partial ≥ 2.5. */
+const M3_STRONG_LEVEL = 3.5;
+const M3_PARTIAL_LEVEL = 2.5;
+/** Mass on levels ≤ 2 from which a dimension is reported as uncertain (below the core-gap mass). */
+const M3_DOUBT_MASS = 0.25;
+
+function decimal(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(".", ",");
+}
+
+function expectedLevel(dimension: DimensionScore): number | null {
+  if (dimension.level === null) return null;
+  return dimension.expected ?? dimension.level;
+}
+
+/**
+ * Mission 3 feedback: one line per rubric dimension plus at most two priorities.
+ * Uses only rubric copy, levels and probabilities; never the participant's code or any reference solution.
+ */
+function buildM3Feedback(
+  score: ScoreResult,
+  hardFails: readonly string[],
+): { text: string; metadata: FeedbackMetadata } {
+  const dims = score.dimensions.filter((dimension) => M3_COPY[dimension.questionId]);
+  const doubt = (dimension: DimensionScore) => {
+    const mass = lowLevelMass(dimension);
+    return mass !== null && mass >= M3_DOUBT_MASS && mass < M3_CORE_GAP_LOW_MASS;
+  };
+  const status = (dimension: DimensionScore) => {
+    const level = expectedLevel(dimension);
+    if (level === null) return "sin evaluar";
+    const base = level >= M3_STRONG_LEVEL ? "bien" : level >= M3_PARTIAL_LEVEL ? "a mejorar" : "falta";
+    return doubt(dimension) ? `${base}, con dudas` : base;
+  };
+  const rows = dims.map((dimension) => {
+    const level = expectedLevel(dimension);
+    const copy = M3_COPY[dimension.questionId]!;
+    return `- ${copy.name}: ${level === null ? "—" : level.toFixed(1).replace(".", ",")}/4 (${status(dimension)})`;
+  });
+
+  // Weakest first by weighted points lost, so priorities follow what moves the total most.
+  const lost = (dimension: DimensionScore) => (4 - (expectedLevel(dimension) ?? 0)) * dimension.weight;
+  const needsWork = dims
+    .filter((dimension) => (expectedLevel(dimension) ?? 0) < M3_STRONG_LEVEL || doubt(dimension))
+    .sort((a, b) => lost(b) - lost(a))
+    .slice(0, 2);
+
+  const policy = hardFails
+    .map((id) => M3_HARD_FAIL_COPY[id])
+    .filter((text): text is string => Boolean(text))
+    .slice(0, 2);
+  const priorities = policy.length
+    ? policy.map((text) => `- ${text}`)
+    : needsWork.length
+      ? needsWork.map((dimension) => {
+          const copy = M3_COPY[dimension.questionId]!;
+          const level = expectedLevel(dimension) ?? 0;
+          return level >= M3_STRONG_LEVEL || (doubt(dimension) && level >= M3_PARTIAL_LEVEL)
+            ? `- ${copy.name}: no queda claro en el PR. ${M3_DOUBT_COPY[dimension.questionId]}`
+            : `- ${copy.name}: ${copy.problem} ${copy.suggestion}`;
+        })
+      : ["- Sin prioridades: el PR cumple todos los criterios."];
+
+  const eligible = resolveEligible(score);
+  return {
+    text: [
+      `Puntaje: ${decimal(score.total)}/100`,
+      `Elegibilidad: ${eligible ? "Elegible" : "No elegible (hace falta más de 80, sin bloqueos)"}`,
+      "Por criterio (0 a 4):",
+      ...rows,
+      "Prioridades:",
+      ...priorities,
+    ].join("\n"),
+    metadata: { kind: "template", version: FEEDBACK_TEMPLATE_M3_V2 },
+  };
+}
+
 export function buildTemplateFeedback(
   score: ScoreResult,
   hardFails: readonly string[] = [],
@@ -113,9 +203,9 @@ export function buildTemplateFeedback(
   text: string;
   metadata: FeedbackMetadata;
 } {
+  if (isM3Rubric(score.rubricVersion)) return buildM3Feedback(score, hardFails);
   const isMission2 = score.rubricVersion === "rubric-m2-v1";
-  const isMission3 = score.rubricVersion === "rubric-m3-v1";
-  const copy = isMission3 ? M3_COPY : isMission2 ? M2_COPY : M1_COPY;
+  const copy = isMission2 ? M2_COPY : M1_COPY;
   const ranked = [...score.dimensions]
     .filter((dimension) => dimension.normalized !== null && copy[dimension.questionId])
     .sort((a, b) => (b.normalized ?? 0) - (a.normalized ?? 0));
@@ -162,11 +252,7 @@ export function buildTemplateFeedback(
     ].join("\n"),
     metadata: {
       kind: "template",
-      version: isMission3
-        ? FEEDBACK_TEMPLATE_M3_V1
-        : isMission2
-          ? FEEDBACK_TEMPLATE_M2_V1
-          : FEEDBACK_TEMPLATE_M1_V1,
+      version: isMission2 ? FEEDBACK_TEMPLATE_M2_V1 : FEEDBACK_TEMPLATE_M1_V1,
     },
   };
 }

@@ -10,7 +10,8 @@ import {
   scoreTagValue,
 } from "./attempt.js";
 import { ELIGIBILITY_THRESHOLD } from "./attempt.js";
-import { M3_QUALIFICATION_THRESHOLD, RUBRIC_M3_V1_ID } from "./rubrics/m3-v1.js";
+import { M3_QUALIFICATION_THRESHOLD } from "./rubrics/m3-v1.js";
+import { isM3Rubric } from "./rubrics/m3-v2.js";
 
 /** HTML comment marker embedded in attempt comments for tooling. */
 export function attemptCommentMarker(result: AttemptResult): string {
@@ -42,7 +43,7 @@ export function submissionMarker(result: AttemptResult): string | null {
 }
 
 function thresholdLabel(result: AttemptResult): string {
-  return result.state.rubricVersion === RUBRIC_M3_V1_ID
+  return isM3Rubric(result.state.rubricVersion)
     ? `threshold >${M3_QUALIFICATION_THRESHOLD}`
     : `threshold ≥${ELIGIBILITY_THRESHOLD}`;
 }

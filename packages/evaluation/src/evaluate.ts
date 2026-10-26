@@ -12,6 +12,7 @@ import { RUBRIC_M1_V1_ID, rubricM1V1Questions } from "./rubrics/m1-v1.js";
 import { RUBRIC_M1_V2_ID, rubricM1V2Questions } from "./rubrics/m1-v2.js";
 import { RUBRIC_M2_V1_ID, rubricM2V1Questions } from "./rubrics/m2-v1.js";
 import { RUBRIC_M3_V1_ID, rubricM3V1Questions } from "./rubrics/m3-v1.js";
+import { isM3Rubric, RUBRIC_M3_V2_ID, rubricM3V2Questions } from "./rubrics/m3-v2.js";
 import {
   M3_MAX_DIFF_CHARS,
   applyM3Policy,
@@ -51,12 +52,13 @@ const RUBRIC_QUESTIONS: Record<string, ScoreQuestion[]> = {
   [RUBRIC_M1_V2_ID]: rubricM1V2Questions,
   [RUBRIC_M2_V1_ID]: rubricM2V1Questions,
   [RUBRIC_M3_V1_ID]: rubricM3V1Questions,
+  [RUBRIC_M3_V2_ID]: rubricM3V2Questions,
 };
 
 const PR_MISSIONS = new Set(["mission-m3"]);
 
 function defaultRubricVersion(missionId: string): string {
-  if (PR_MISSIONS.has(missionId)) return RUBRIC_M3_V1_ID;
+  if (PR_MISSIONS.has(missionId)) return RUBRIC_M3_V2_ID;
   return missionId === "mission-m2" ? RUBRIC_M2_V1_ID : RUBRIC_M1_V2_ID;
 }
 
@@ -102,9 +104,9 @@ export async function evaluate(
     ...(input.submission ? { submission: input.submission } : {}),
   };
   failValidation(validateEvaluationState(state));
-  const isM3 = rubricVersion === RUBRIC_M3_V1_ID;
+  const isM3 = isM3Rubric(rubricVersion);
   if (isM3 && !state.submission) {
-    throw new Error(`${RUBRIC_M3_V1_ID} requires a code submission (PR, SHA and diff)`);
+    throw new Error(`${rubricVersion} requires a code submission (PR, SHA and diff)`);
   }
   const m3HardFails =
     isM3 && state.submission
@@ -125,7 +127,8 @@ export async function evaluate(
   const answers = decisionsToScoreAnswers(questions, evaluation.decisions);
   failValidation(validateAnswersForQuestions(questions, answers));
 
-  let score = scoreFromAnswers(state, answers, questions);
+  // PR missions weight the unrounded expected level; M1/M2 keep rounded levels.
+  let score = scoreFromAnswers(state, answers, questions, { continuous: isM3 });
   let appliedHardFails: string[] = [];
 
   if (isM3) {
