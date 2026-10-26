@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { oldPathOf, splitDiffFiles, widenDiffContext, widenFileBlock } from "./diff-context.js";
+import { oldPathOf, splitDiffFiles, widenablePaths, widenDiffContext, widenFileBlock } from "./diff-context.js";
 
 const base = Array.from({ length: 60 }, (_, i) => `line ${i + 1}`);
 const baseText = `${base.join("\n")}\n`;
@@ -81,5 +81,19 @@ describe("widenDiffContext", () => {
     assert.ok(wide.endsWith(added));
     assert.deepEqual(hunks(wide), ["@@ -5,56 +5,57 @@", "@@ -0,0 +1 @@"]);
     assert.equal(widenDiffContext(diff, new Map(), 25), diff);
+  });
+
+  it("decodes quoted UTF-8 paths and widens their context", () => {
+    const quoted = narrow
+      .replace("diff --git a/src/a.ts b/src/a.ts", 'diff --git "a/src/caf\\303\\251.ts" "b/src/caf\\303\\251.ts"')
+      .replace("--- a/src/a.ts", '--- "a/src/caf\\303\\251.ts"')
+      .replace("+++ b/src/a.ts", '+++ "b/src/caf\\303\\251.ts"');
+
+    assert.equal(oldPathOf(quoted), "src/café.ts");
+    assert.deepEqual(widenablePaths(quoted), ["src/café.ts"]);
+
+    const wide = widenDiffContext(quoted, new Map([["src/café.ts", baseText]]), 25);
+    assert.deepEqual(hunks(wide), ["@@ -5,56 +5,57 @@"]);
+    assert.match(wide, /^ line 5$/m);
   });
 });

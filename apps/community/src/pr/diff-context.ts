@@ -35,11 +35,32 @@ type Op = { kind: " " | "-" | "+" | "\\"; text: string };
 
 const HUNK = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
 
-/** Old-side path of a file block (`--- a/path`), or null for new, quoted or unparseable files. */
+function decodeGitPathToken(token: string): string | null {
+  if (!token.startsWith('"')) return token.replace(/\t.*$/, "");
+  if (!token.endsWith('"')) return null;
+  try {
+    return JSON.parse(token) as string;
+  } catch {
+    const bytes = token
+      .slice(1, -1)
+      .replace(/\\([0-7]{3})/g, (_, octal: string) =>
+        String.fromCharCode(Number.parseInt(octal, 8)),
+      )
+      .replace(/\\(["\\])/g, "$1");
+    return Buffer.from(bytes, "latin1").toString("utf8");
+  }
+}
+
+/** Old-side path of a file block (`--- a/path`), or null for new or unparseable files. */
 export function oldPathOf(block: string): string | null {
-  const match = block.match(/^--- a\/(.+)$/m);
-  if (!match || match[1]!.startsWith('"')) return null;
-  return match[1]!.replace(/\t.*$/, "");
+  const line = block.match(/^--- (.+)$/m)?.[1];
+  if (!line) return null;
+  const token = line.startsWith('"')
+    ? line.match(/^("(?:\\.|[^"\\])*")(?:\t.*)?$/)?.[1]
+    : line;
+  if (!token) return null;
+  const decoded = decodeGitPathToken(token);
+  return decoded?.startsWith("a/") ? decoded.slice(2) : null;
 }
 
 /** Splits a unified diff into per-file blocks, each starting at `diff --git`. */
