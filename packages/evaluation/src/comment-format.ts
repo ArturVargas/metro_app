@@ -10,6 +10,8 @@ import {
   scoreTagValue,
 } from "./attempt.js";
 import { ELIGIBILITY_THRESHOLD } from "./attempt.js";
+import { M3_QUALIFICATION_THRESHOLD } from "./rubrics/m3-v1.js";
+import { isM3Rubric } from "./rubrics/m3-v2.js";
 
 /** HTML comment marker embedded in attempt comments for tooling. */
 export function attemptCommentMarker(result: AttemptResult): string {
@@ -31,6 +33,34 @@ function evaluationMetadataMarker(result: AttemptResult): string {
     `feedback:${feedbackValue}`,
     "-->",
   ].join(" ");
+}
+
+/** Machine-readable PR binding for M3 attempts; one line, parsed by the community backend. */
+export function submissionMarker(result: AttemptResult): string | null {
+  const submission = result.state.submission;
+  if (!submission) return null;
+  return `<!-- metro-submission: pr:${submission.prUrl} sha:${submission.headSha} base:${submission.baseSha} origin:${submission.changeOrigin} -->`;
+}
+
+function thresholdLabel(result: AttemptResult): string {
+  return isM3Rubric(result.state.rubricVersion)
+    ? `threshold >${M3_QUALIFICATION_THRESHOLD}`
+    : `threshold ≥${ELIGIBILITY_THRESHOLD}`;
+}
+
+function formatSubmission(result: AttemptResult): string[] {
+  const submission = result.state.submission;
+  if (!submission) return [];
+  return [
+    "### Submission",
+    "",
+    `- **Pull request:** ${submission.prUrl}`,
+    `- **Evaluated SHA:** \`${submission.headSha}\``,
+    `- **Base SHA:** \`${submission.baseSha}\``,
+    `- **Change origin:** \`${submission.changeOrigin}\``,
+    ...(result.hardFails?.length ? [`- **Policy:** \`${result.hardFails.join(", ")}\``] : []),
+    "",
+  ];
 }
 
 function escapeCell(value: string): string {
@@ -68,6 +98,7 @@ export function formatAttemptCommentMarkdown(result: AttemptResult): string {
   const sections = [
     attemptCommentMarker(result),
     evaluationMetadataMarker(result),
+    ...(submissionMarker(result) ? [submissionMarker(result)!] : []),
     "",
     `## Evaluation attempt ${state.attempt}`,
     "",
@@ -84,11 +115,12 @@ export function formatAttemptCommentMarkdown(result: AttemptResult): string {
     "### Score",
     "",
     `- **Total:** ${totalDisplay} / 100`,
-    `- **Eligible:** ${eligible ? "yes" : "no"} (threshold ≥${ELIGIBILITY_THRESHOLD})`,
+    `- **Eligible:** ${eligible ? "yes" : "no"} (${thresholdLabel(result)})`,
     `- **Routing:** \`${score.routing.action}\``,
     "",
     formatDimensionsTable(result),
     "",
+    ...formatSubmission(result),
     "### Feedback",
     "",
     feedback.trim() || "_No feedback provided._",

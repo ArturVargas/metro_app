@@ -37,16 +37,30 @@ No incluyas la rúbrica interna, los pesos de evaluación ni una solución técn
 
 Usa entre tres y cinco criterios. Cada criterio debe poder comprobarse al jugar o revisar la versión resultante.
 
-## Pie fijo de participación
+## Pie fijo de participación — Misiones 1 y 2
 
 **Cómo participar**
 
-- Envía tu prompt en este grupo mencionando al bot, únicamente el martes o el jueves.
+- Envía tu prompt en este grupo mencionando al bot, únicamente de martes a domingo, de 6:00 a 23:55 (hora Colombia; lunes cerrado).
 - Puedes evaluarlo hasta cinco veces y recibirás un puntaje y feedback en cada intento.
 - Solo tu último prompt con un puntaje de 70 o más participará en la votación.
 
 **Entrega del viernes**  
 Los tres prompts elegidos por el grupo se convertirán en las versiones A, B y C. El viernes compartiremos sus enlaces para que puedan probarlas, compararlas y compartir sus resultados.
+
+## Pie fijo de participación — Misiones 3, 4 y 5
+
+**Cómo participar**
+
+- Actualiza tu fork desde el commit de `dev` indicado en esta misión y crea una rama propia.
+- Usa tu LLM para analizar el repositorio e implementar el objetivo.
+- Abre un PR hacia `dev` e incluye tu prompt exacto, las pruebas realizadas y qué partes fueron generadas, corregidas manualmente o combinadas.
+- Puedes solicitar hasta cinco evaluaciones. Cada evaluación corresponde al commit actual de tu PR.
+- Para calificar, la revisión actual necesita más de 80 puntos, checks exitosos y aprobación técnica.
+- Si recibes findings, corrige tu PR y solicita otra evaluación; no se te entregará el parche.
+
+**Entrega de resultados**
+Los primeros tres PRs que pasen todos los controles se convertirán, en orden, en A, B y C. El equipo administrará su integración y despliegue para que el grupo pueda probarlos y compararlos.
 
 ## Revisión antes de publicar
 
@@ -56,4 +70,4 @@ Los tres prompts elegidos por el grupo se convertirán en las versiones A, B y C
 - Los criterios describen resultados y no una implementación específica.
 - Todos los enlaces y referencias funcionan.
 - La versión Base desplegada corresponde al commit indicado en el contrato interno.
-- El pie fijo conserva las reglas aprobadas.
+- El pie fijo corresponde a la modalidad declarada por el contrato interno y conserva sus reglas aprobadas.

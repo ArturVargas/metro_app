@@ -1,4 +1,4 @@
-type ChangeOrigin = "llm" | "manual" | "combined";
+import type { ChangeOrigin } from "@metro/evaluation";
 
 /** Section headings of `.github/pull_request_template.md`. Changing one is a contract change. */
 export const PR_SECTIONS = {

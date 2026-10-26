@@ -3,6 +3,12 @@ export type JevEvaluationState = {
   rubricVersion: string;
   publicBrief: string;
   participantPrompt: string;
+  codeDiff?: string;
+  declaredTests?: string;
+  changeOrigin?: string;
+  changeDeclaration?: string;
+  headSha?: string;
+  baseSha?: string;
 };
 
 export type JevScoreQuestionPayload = {
@@ -21,6 +27,8 @@ export type JevScoreDecision = {
   score: number | null;
   confidence: number | null;
   escapeOptionId?: string;
+  /** Probability of levels 0..4; `score` is their expected value. */
+  probabilities?: number[];
 };
 
 export type EvaluatorMetadata = {

@@ -74,6 +74,19 @@ export type ScoreQuestion = QuestionBase & {
 
 export type Question = NoulQuestion | ChoiceQuestion | ScoreQuestion;
 
+export type ChangeOrigin = "llm" | "manual" | "combined";
+
+/** Code under evaluation for PR missions (ADR-0011). The diff is relative to the frozen `dev` SHA. */
+export type CodeSubmission = {
+  prUrl: string;
+  headSha: string;
+  baseSha: string;
+  diff: string;
+  declaredTests: string;
+  changeOrigin: ChangeOrigin;
+  changeDeclaration: string;
+};
+
 export type EvaluationState = {
   missionId: string;
   rubricVersion: string;
@@ -88,6 +101,8 @@ export type EvaluationState = {
    * Cap: MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT (5 por misión por participante).
    */
   attempt: number;
+  /** Present only for PR missions; never sent for prompt-only missions. */
+  submission?: CodeSubmission;
 };
 
 export type NoulAnswer = {
@@ -116,6 +131,10 @@ export type ScoreAnswer = {
   escapeOptionId?: string;
   /** Optional confidence for routing (auto / caution / defer); does not change score. */
   confidence?: ConfidenceBand;
+  /** Unrounded expected level 0–4 as returned by Jev; `value` is its rounding. */
+  expected?: number;
+  /** Probability of levels 0..4 as returned by Jev, when available. */
+  probabilities?: readonly number[];
 };
 
 export type Answer = NoulAnswer | ChoiceAnswer | ScoreAnswer;
@@ -124,10 +143,14 @@ export type DimensionScore = {
   questionId: string;
   /** Raw level 0–4, or null if escaped / missing. */
   level: ScoreLevel | null;
-  /** Normalized level/4 in [0, 1], or null if not scored. */
+  /** Normalized level/4 in [0, 1] (expected/4 under continuous scoring), or null if not scored. */
   normalized: number | null;
   weight: number;
   confidence?: ConfidenceBand;
+  /** Unrounded expected level 0–4, when the evaluator returned one. */
+  expected?: number;
+  /** Probability of levels 0..4, when the evaluator returned them. */
+  probabilities?: readonly number[];
 };
 
 export type ScoreResult = {

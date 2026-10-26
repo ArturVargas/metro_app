@@ -13,12 +13,12 @@ export function attemptNumberFromComment(
   return Number(match[3]);
 }
 
-export function assertNextAttempt(
+// Next attempt = recorded attempts + 1; throws on gaps or when the max is reached.
+export function nextAttemptNumber(
   commentBodies: string[],
   missionId: string,
   participantId: string,
-  requestedAttempt: number,
-): void {
+): number {
   const attempts = commentBodies
     .map((body) => attemptNumberFromComment(body, missionId, participantId))
     .filter((attempt): attempt is number => attempt !== null)
@@ -32,10 +32,36 @@ export function assertNextAttempt(
       `Participant reached the maximum of ${MAX_EVALUATIONS_PER_MISSION_PER_PARTICIPANT} evaluations for ${missionId}`,
     );
   }
-  const expected = attempts.length + 1;
+  return attempts.length + 1;
+}
+
+export function assertNextAttempt(
+  commentBodies: string[],
+  missionId: string,
+  participantId: string,
+  requestedAttempt: number,
+): void {
+  const expected = nextAttemptNumber(commentBodies, missionId, participantId);
   if (requestedAttempt !== expected) {
     throw new Error(
       `Invalid attempt ${requestedAttempt} for ${missionId}/${participantId}; next attempt is ${expected}`,
     );
+  }
+}
+
+const SUBMISSION_MARKER =
+  /^<!-- metro-submission: pr:(\S+) sha:([0-9a-f]{40}) base:([0-9a-f]{40}) origin:(llm|manual|combined) -->$/m;
+
+export type SubmissionRef = { prUrl: string; sha: string; baseSha: string; origin: string };
+
+export function submissionFromComment(body: string): SubmissionRef | null {
+  const match = body.match(SUBMISSION_MARKER);
+  return match ? { prUrl: match[1]!, sha: match[2]!, baseSha: match[3]!, origin: match[4]! } : null;
+}
+
+// One evaluation per SHA: re-scoring the same commit would let noise decide qualification.
+export function assertShaNotEvaluated(commentBodies: string[], sha: string): void {
+  if (commentBodies.some((body) => submissionFromComment(body)?.sha === sha)) {
+    throw new Error(`SHA ${sha.slice(0, 12)} was already evaluated; push a new commit before requesting another evaluation`);
   }
 }

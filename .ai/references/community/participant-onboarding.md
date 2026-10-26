@@ -72,9 +72,11 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 
 > 📊 **Evaluación e intentos**
 >
-> Para enviar un prompt deben mencionar al bot en el mensaje. El bot solo realizará evaluaciones los martes y jueves.
+> En el grupo, para enviar un prompt deben mencionar al bot en el mensaje. Los participantes autorizados también pueden escribirle por DM para hacer preguntas o enviar su prompt. Una consulta no consume intento; una evaluación sí. El bot solo realizará evaluaciones de martes a domingo, de 6:00 a 23:55 (hora Colombia; lunes cerrado).
 >
-> Cada evaluación devuelve una puntuación sobre 100 y feedback para mejorar. Tienen un máximo de cinco intentos por misión, repartidos como prefieran entre esos dos días.
+> Cada evaluación devuelve una puntuación sobre 100 y feedback para mejorar. Tienen un máximo de cinco intentos por misión, repartidos como prefieran entre esos días (martes a domingo).
+>
+> Después de evaluar por DM, el bot preguntará: “Tu evaluación quedará registrada en el experimento. ¿Quieres compartir también tu prompt y puntaje en el grupo?”. Solo los compartirá si responden “sí”.
 >
 > Para entrar a la votación necesitan al menos 70 puntos. Si varias versiones superan ese puntaje, participará únicamente la más reciente.
 >
@@ -100,9 +102,9 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 >
 > **Objetivo:** convertir buenas ideas en prompts claros que puedan producir mejoras reales y comprobables en el juego.
 >
-> **Martes y jueves**
+> **Martes a domingo (6:00–23:55, hora Colombia)**
 >
-> - Menciona al bot y envía tu prompt.
+> - Menciona al bot en el grupo y envía tu prompt; si tienes acceso por DM, también puedes consultar dudas y evaluarlo ahí.
 > - Recibirás puntuación y feedback.
 > - Tienes hasta cinco intentos por misión.
 >
@@ -127,7 +129,10 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 - Cada evaluación devuelve una puntuación y feedback accionable.
 - Cada participante tiene un máximo de cinco intentos por misión.
 - Solo se considera el intento más reciente. Si ese intento obtiene menos de 70 puntos, el participante no entra en la votación.
-- El bot solo evalúa mensajes que lo mencionen y solo durante martes y jueves.
+- En el grupo, el bot solo evalúa mensajes que lo mencionen; los participantes autorizados también pueden consultar o evaluar por DM.
+- Las consultas por DM no consumen intentos; los prompts enviados a evaluación sí.
+- Después de una evaluación por DM, el prompt y el puntaje solo se comparten en el grupo con un “sí” explícito.
+- El bot solo realiza evaluaciones de martes a domingo, de 6:00 a 23:55 (hora Colombia; lunes cerrado) en ambos canales.
 - La comunidad elige tres prompts y estos producen las versiones A, B y C.
 - Las versiones muestran qué participante y qué prompt las originaron.
 - Cada viernes se publican los enlaces A, B y C para probar, comparar y compartir los resultados.
@@ -142,3 +147,18 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 ## Estado
 
 La incorporación está completa: el formato, los límites de contenido, los cinco mensajes y la guía fijada están aprobados.
+
+## Transición desde la Misión 3
+
+Los mensajes anteriores documentan la incorporación y la dinámica usada en las Misiones 1 y 2. Desde la Misión 3 cambia la entrega: los participantes reciben acceso al repositorio, trabajan en un fork y abren un PR hacia `dev`.
+
+La comunicación de esta fase debe explicar, sin mencionar Jev:
+
+- que el objetivo ahora es supervisar al LLM sobre código real;
+- que cada PR debe incluir el prompt, el código y la evidencia de pruebas;
+- que pueden corregir el resultado con feedback, hasta cinco evaluaciones;
+- que necesitan más de 80 puntos, checks exitosos y revisión técnica;
+- que los primeros tres PRs aprobados se convierten en A, B y C;
+- que el equipo conserva integración y despliegues.
+
+Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo. El mensaje público específico de Misión 3 se redacta después de cerrar su rúbrica y fijar el SHA de apertura de `dev`.

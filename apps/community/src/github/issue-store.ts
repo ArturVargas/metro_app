@@ -13,7 +13,9 @@ import {
 import type { GitHubStoreConfig } from "./config.js";
 import {
   assertNextAttempt,
+  assertShaNotEvaluated,
   attemptNumberFromComment,
+  nextAttemptNumber,
 } from "./attempt-sequence.js";
 import {
   buildIssueBody,
@@ -39,7 +41,7 @@ export type PersistAttemptResult = AttemptResult & {
   issueNumber: number;
 };
 
-type CommentRef = { body: string; htmlUrl: string };
+type CommentRef = { body: string; htmlUrl: string; createdAt: string };
 
 const attemptLocks = new Map<string, Promise<void>>();
 
@@ -151,13 +153,26 @@ export class GitHubIssueStore {
     );
   }
 
+  // Derive the next attempt from recorded comments; recordAttempt re-checks under lock.
+  async nextAttempt(missionId: string, participantId: string): Promise<number> {
+    const issue = await this.findIssue(missionId, participantId);
+    const comments = issue ? await this.listAttemptComments(issue.number) : [];
+    return nextAttemptNumber(
+      comments.map((comment) => comment.body),
+      missionId,
+      participantId,
+    );
+  }
+
   private async assertAttemptAllowedUnlocked(
     missionId: string,
     participantId: string,
     attempt: number,
+    headSha?: string,
   ): Promise<void> {
     const issue = await this.findIssue(missionId, participantId);
     const comments = issue ? await this.listAttemptComments(issue.number) : [];
+    if (headSha) assertShaNotEvaluated(comments.map((comment) => comment.body), headSha);
     assertNextAttempt(
       comments.map((comment) => comment.body),
       missionId,
@@ -178,7 +193,7 @@ export class GitHubIssueStore {
       },
     )) {
       for (const comment of response.data) {
-        comments.push({ body: comment.body ?? "", htmlUrl: comment.html_url });
+        comments.push({ body: comment.body ?? "", htmlUrl: comment.html_url, createdAt: comment.created_at });
       }
     }
     return comments;
@@ -205,6 +220,8 @@ export class GitHubIssueStore {
           issueUrl: issue.html_url,
           issueBody,
           comments: comments.map((comment) => comment.body),
+          commentDates: comments.map((comment) => comment.createdAt),
+          labels: (issue.labels ?? []).map((label) => (typeof label === "string" ? label : label.name ?? "")),
         });
         if (!snapshot) {
           throw new Error(`Issue #${issue.number} has malformed attempt history`);
@@ -273,6 +290,7 @@ export class GitHubIssueStore {
         input.missionId,
         input.participantId,
         input.attempt,
+        input.submission?.headSha,
       );
       const attempt = await runEvaluation();
       if (attempt.evaluator?.provider !== "typesafe") {
@@ -365,6 +383,7 @@ export class GitHubIssueStore {
       "eligible:",
       "attempt:",
       "score:",
+      "review:",
     ];
     const keep = (issue.labels ?? [])
       .map((l) => (typeof l === "string" ? l : l.name ?? ""))

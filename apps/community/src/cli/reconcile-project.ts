@@ -4,12 +4,19 @@ import { GitHubIssueStore } from "../github/issue-store.js";
 import { requireProjectConfig } from "../project/config.js";
 import { GitHubProjectStore } from "../project/github-project-store.js";
 import { reconcileProject } from "../project/reconcile.js";
+import { GitHubPullRequests } from "../pr/github-pr.js";
+import { githubQueueReader } from "../pr/queue-reader.js";
 
 async function main(): Promise<void> {
-  const issueStore = new GitHubIssueStore(requireGitHubStoreConfig());
+  const githubConfig = requireGitHubStoreConfig();
+  const issueStore = new GitHubIssueStore(githubConfig);
   const projectStore = new GitHubProjectStore(requireProjectConfig());
   const snapshots = await issueStore.listOpenProjectSnapshots();
-  const result = await reconcileProject(snapshots, projectStore);
+  const result = await reconcileProject(
+    snapshots,
+    projectStore,
+    githubQueueReader(new GitHubPullRequests(githubConfig)),
+  );
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   if (result.failed.length > 0) process.exitCode = 1;
 }
