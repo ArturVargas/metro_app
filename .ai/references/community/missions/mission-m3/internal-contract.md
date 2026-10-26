@@ -16,7 +16,7 @@
 
 | Misión | Apertura | Cierre | Estado |
 | --- | --- | --- | --- |
-| Misión 3 | viernes 30 de octubre de 2026 | jueves 5 de noviembre de 2026, 23:55 | apertura aprobada por Artur (2026-10-26); **cierre: PROPUESTA** |
+| Misión 3 | viernes 30 de octubre de 2026 | jueves 5 de noviembre de 2026, 23:55 | apertura **APROBADA** por Artur (decisión D1); **cierre: PROPUESTA** |
 | Misión 4 | viernes 6 de noviembre de 2026 | jueves 12 de noviembre de 2026, 23:55 | **PROPUESTA**, confirmar Artur |
 | Misión 5 | viernes 13 de noviembre de 2026 | jueves 19 de noviembre de 2026, 23:55 | **PROPUESTA**, confirmar Artur |
 
@@ -62,7 +62,7 @@ Fuera de alcance (un diff que lo implemente pierde en `scope-fidelity`): abordaj
 - **Umbral:** total estrictamente mayor que 80, sin hard-fail, con los dos checks en verde.
 - **Intentos:** máximo cinco evaluaciones por participante en la misión; cada una pertenece al HEAD exacto del PR. Un SHA ya evaluado no se reevalúa.
 - **Identificador:** `p-` + últimos 3 dígitos del teléfono (sufijo de colisión si ya se asignó).
-- **Calibración:** [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md) (general) y [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md) (esta misión): **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 13 de 13 corridas (81.9–84.4); débil, medio y la variante con una desviación quedan en 0. Con `rubric-m3-v1` fue `not ready` (1 de 3). Los fixtures de calibración son privados y viven solo en el VPS (`~/m3-calib/private/`).
+- **Calibración:** [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md) (general) y [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md) (esta misión): **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 16 de 16 corridas (81.9–85.4); débil, medio y la variante con una desviación quedan en 0. Con `rubric-m3-v1` fue `not ready` (1 de 3). Los fixtures de calibración son privados y viven solo en el VPS (`~/m3-calib/private/`).
 
 ## 6. Revisión técnica y A/B/C
 
@@ -85,6 +85,14 @@ Fuera de alcance (un diff que lo implemente pierde en `scope-fidelity`): abordaj
 
 - Mergear `feat/m3-continuous-scoring` (`rubric-m3-v2`) y actualizar el checkout del VPS.
 - Aprobación de Artur de este contrato, del brief y del mensaje público.
-- Confirmar cierre de Misión 3 y fechas de Misiones 4 y 5 (hoy son propuesta).
+- Confirmar cierre de Misión 3 (jueves 5 de noviembre) y fechas de Misiones 4 y 5: siguen siendo **PROPUESTA**. La apertura del viernes 30 de octubre ya está aprobada (D1).
 - Crear el Issue principal de Misión 3 en el Project.
 - Aplicar y verificar los cambios de Hermes en el VPS (`../../../operations/hermes-m3/`) y activar `METRO_ACTIVE_MISSION=mission-m3` con `RECORD_ATTEMPTS=1` solo el día de apertura.
+
+## Decisiones registradas
+
+| ID | Fecha y hora | Decisión | Quién y dónde |
+| --- | --- | --- | --- |
+| D1 | 2026-10-26, 09:17 America/Mexico_City | Misión 3 abre el **viernes 30 de octubre de 2026**. El cierre de Misión 3 (jueves 5 de noviembre) y las fechas de Misiones 4 (viernes 6 de noviembre) y 5 (viernes 13 de noviembre) siguen siendo **PROPUESTA**. | Artur, aprobación explícita en el chat de trabajo con el asistente del equipo |
+| D2 | 2026-10-26 | Los fixtures de calibración de Misión 3 quedan privados en el VPS hasta el cierre de la misión; el reporte publica solo puntajes y hashes SHA-256. Al cerrar, se versionan en `apps/community/fixtures/calibration-m3/`. | Artur, en el chat de trabajo y en la respuesta a la revisión del PR #49 |
+| D3 | 2026-10-26, 10:50 America/Mexico_City | Abrir los PRs de `rubric-m3-v2` (#48) y de esta documentación (#49) contra `main`, sin mergear hasta revisión. | Artur, en el chat de trabajo |

@@ -2,7 +2,7 @@
 
 - **Estado:** borrador; no enviado. Requiere aprobación de Artur antes de publicarlo.
 - **Canal:** grupo Prompts de WhatsApp. El formato usa `*negrita*` de WhatsApp (un asterisco).
-- **Fechas:** la apertura de Misión 3 el viernes 30 de octubre de 2026 está aprobada por Artur (2026-10-26). Las fechas de Misiones 4 y 5 son una **propuesta**: antes de enviar, confírmalas y quita los corchetes `[PROPUESTA: …]`, o borra esa frase.
+- **Fechas:** la apertura de Misión 3 el viernes 30 de octubre de 2026 está aprobada por Artur (2026-10-26, 09:17 America/Mexico_City; decisión D1 en [`internal-contract.md`](internal-contract.md#decisiones-registradas)). Las fechas de Misiones 4 y 5 son una **propuesta**: antes de enviar, confírmalas y quita los corchetes `[PROPUESTA: …]`, o borra esa frase.
 - **Pendiente antes de enviar:** confirmar fechas de Misiones 4 y 5; aprobación del brief público y de este mensaje.
 - **Guía aplicada:** sección «Transición desde la Misión 3» de [`participant-onboarding.md`](../../participant-onboarding.md). No menciona al evaluador interno, teléfonos, contactos ni listas de acceso.
 
