@@ -20,7 +20,7 @@
 - Behavioral evidence is manual: reproducible steps with results and optional screenshots or video. `apps/game` has no test runner and participants must not modify protected `package.json` to add one.
 - Qualification remains strictly above 80, with at most five evaluations per participant and checks plus human approval required.
 - Do not activate Hermes, write real attempts, publish to WhatsApp, or modify the VPS in this plan.
-- Dates remain explicitly pending; publication cannot proceed until Artur approves them.
+- Dates: Artur approved the Mission 3 opening on Friday 2026-10-30 (2026-10-26, 09:17 America/Mexico_City; decision D1 in `.ai/references/community/missions/mission-m3/internal-contract.md`). The Mission 3 close and the Mission 4 and 5 dates remain PROPOSED until Artur approves them.
 
 ## Review Focus
 
@@ -90,6 +90,8 @@ git commit -m "docs(mission3): define waiting passengers brief"
 ```
 
 ### Task 2: Passenger-specific calibration fixtures
+
+> **Decision D2 (2026-10-26, Artur):** these fixtures stay private on the team VPS until Mission 3 closes, because the strong case is a working solution. The calibration report records their SHA-256 hashes and how to verify them; the files below are committed when the mission closes.
 
 **Files:**
 - Create: `apps/community/fixtures/calibration-m3/passengers-weak.json`
@@ -178,7 +180,7 @@ Record date, timezone `America/Mexico_City`, rubric and policy versions, request
 
 - [ ] **Step 4: Update the Mission 3 index**
 
-Link the passenger calibration report and state its readiness result. Keep dates, fork rehearsal, Hermes VPS application, and WhatsApp publication explicitly pending.
+Link the passenger calibration report and state its readiness result. Keep the PROPOSED dates (Mission 3 close, Missions 4 and 5), fork rehearsal, Hermes VPS application, and WhatsApp publication explicitly pending; the Mission 3 opening is approved (D1).
 
 - [ ] **Step 5: Run final repository verification**
 

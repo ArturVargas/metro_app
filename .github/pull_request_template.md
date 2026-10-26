@@ -29,6 +29,7 @@ PEGA AQUÍ TU PROMPT EXACTO
 ## Pruebas ejecutadas
 
 <!-- Escribe cada prueba y su resultado. Incluye los comandos y lo que probaste a mano (mouse, toque, pantalla). -->
+<!-- Las pruebas del juego son manuales: escribe cada paso que hiciste en el juego y lo que observaste; si ayuda, agrega capturas o un video. `apps/game` no tiene runner de pruebas automáticas: no agregues uno ni modifiques `package.json` (es una ruta protegida). -->
 
 - `pnpm lint`:
 - `pnpm typecheck`:
