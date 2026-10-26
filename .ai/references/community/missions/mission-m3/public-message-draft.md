@@ -1,9 +1,9 @@
 # Misión 3 — borrador del mensaje público y del instructivo
 
-- **Estado:** borrador; no enviado. Requiere aprobación de Artur antes de publicarlo.
+- **Estado:** aprobado por Artur; no enviado. Se publica al abrir la misión.
 - **Canal:** grupo Prompts de WhatsApp. El formato usa `*negrita*` de WhatsApp (un asterisco).
-- **Fechas:** la apertura de Misión 3 el viernes 30 de octubre de 2026 está aprobada por Artur (2026-10-26, 09:17 America/Mexico_City; decisión D1 en [`internal-contract.md`](internal-contract.md#decisiones-registradas)). Las fechas de Misiones 4 y 5 son una **propuesta**: antes de enviar, confírmalas y quita los corchetes `[PROPUESTA: …]`, o borra esa frase.
-- **Pendiente antes de enviar:** confirmar fechas de Misiones 4 y 5; aprobación del brief público y de este mensaje.
+- **Fechas:** Misión 3 abre el viernes 30 de octubre de 2026 y cierra el jueves 5 de noviembre a las 23:55. Misión 4 abre el viernes 6 de noviembre y Misión 5 el viernes 13 de noviembre. Calendario aprobado por Artur; decisiones D1 y D4 en [`internal-contract.md`](internal-contract.md#decisiones-registradas).
+- **Pendiente antes de enviar:** completar la preparación operativa de Hermes y del Project.
 - **Guía aplicada:** sección «Transición desde la Misión 3» de [`participant-onboarding.md`](../../participant-onboarding.md). No menciona al evaluador interno, teléfonos, contactos ni listas de acceso.
 
 Envía cada bloque entre las líneas `---` como un mensaje separado. El brief funcional de la misión se publica aparte.
@@ -17,7 +17,7 @@ En las Misiones 1 y 2 enviaban un prompt y nosotros lo convertíamos en una vers
 Lo que queremos aprender ahora es a *supervisar a una IA sobre código real*, no solo a escribirle instrucciones.
 
 *Cómo funciona*
-• Todos parten del mismo punto: la rama `dev` del repositorio, fija en el commit `acd8258ce3dcc45f01c449e47204b10aa7e45b7f` durante toda la misión.
+• Todos parten del mismo punto: la rama `dev` del repositorio, fija en el commit `1c60eea3b88962768dae0501e2cc9b8f20041b29` durante toda la misión.
 • Haces un fork, trabajas en tu copia con tu LLM y abres un PR hacia `dev`.
 • En el PR pegas el prompt exacto que usaste, explicas qué cambió, qué pruebas hiciste y qué partes hizo el LLM y cuáles hiciste a mano. La plantilla del PR te lo pide paso a paso.
 
@@ -34,7 +34,7 @@ Lo que queremos aprender ahora es a *supervisar a una IA sobre código real*, no
 
 *Importante:* no incluyas archivos .env, contraseñas, tokens, datos personales ni copias de chats privados en tu PR.
 
-*Fechas:* la Misión 3 abre el *viernes 30 de octubre*. [PROPUESTA: la Misión 4 abre el viernes 6 de noviembre y la Misión 5 el viernes 13 de noviembre.] El brief de la misión va en un mensaje aparte y en el siguiente mensaje va el instructivo para hacer tu fork y abrir tu PR.
+*Fechas:* la Misión 3 abre el *viernes 30 de octubre* y cierra el *jueves 5 de noviembre a las 23:55*. La Misión 4 abre el viernes 6 y la Misión 5 el viernes 13. El brief de la misión va en un mensaje aparte y en el siguiente mensaje va el instructivo para hacer tu fork y abrir tu PR.
 
 ---
 
@@ -49,7 +49,7 @@ Abre https://github.com/ArturVargas/metro_app y pulsa *Fork*. Desmarca «Copy th
 ```
 git clone https://github.com/TU_USUARIO/metro_app.git
 cd metro_app
-git switch -c mision-3 acd8258ce3dcc45f01c449e47204b10aa7e45b7f
+git switch -c mision-3 1c60eea3b88962768dae0501e2cc9b8f20041b29
 pnpm install
 ```
 
