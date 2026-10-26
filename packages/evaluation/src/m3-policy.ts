@@ -50,6 +50,9 @@ const INJECTION_PATTERNS: readonly RegExp[] = [
 // Zero-width joiners are not flagged: WhatsApp copy-paste inserts them around bullets.
 const BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/;
 
+// File names reach the evaluator inside the diff; no legitimate path carries markup.
+const HTML_IN_PATH = /<!--|<\/?[a-z!][^>]*>/i;
+
 /** Changed file paths from unified-diff file markers, rename/copy metadata, and headers. */
 export function changedPaths(diff: string): string[] {
   const paths = new Set<string>();
@@ -111,9 +114,13 @@ export function detectM3HardFails(
 ): M3HardFailId[] {
   const fails: M3HardFailId[] = [];
   const added = addedLines(submission.diff);
+  // Paths include both sides of renames and copies; the participant chooses every one of them.
+  const paths = changedPaths(submission.diff);
+  const pathText = paths.join("\n");
   const participantText = [
     participantPrompt,
     added,
+    pathText,
     submission.declaredTests,
     submission.changeDeclaration,
   ].join("\n");
@@ -121,10 +128,16 @@ export function detectM3HardFails(
   if (INJECTION_PATTERNS.some((pattern) => pattern.test(participantText))) {
     fails.push("evaluator-injection");
   }
-  if (BIDI_CONTROLS.test(participantPrompt) || participantPrompt.includes("<!--") || BIDI_CONTROLS.test(added)) {
+  if (
+    BIDI_CONTROLS.test(participantPrompt) ||
+    participantPrompt.includes("<!--") ||
+    BIDI_CONTROLS.test(added) ||
+    BIDI_CONTROLS.test(pathText) ||
+    HTML_IN_PATH.test(pathText)
+  ) {
     fails.push("hidden-text");
   }
-  if (changedPaths(submission.diff).some((path) => M3_PROTECTED_PATHS.some((rule) => rule.test(path)))) {
+  if (paths.some((path) => M3_PROTECTED_PATHS.some((rule) => rule.test(path)))) {
     fails.push("protected-path");
   }
   if (!added.trim() && !/^-(?!--)/m.test(submission.diff)) fails.push("empty-diff");
