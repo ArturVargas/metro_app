@@ -42,3 +42,22 @@ Niveles: cobertura / fidelidad / alcance / evidencia / trazabilidad. "Rúbrica" 
 ## Veredicto
 
 `not ready`. No se cambió el umbral, la rúbrica ni el alcance. La decisión queda para Artur.
+
+## Puntaje continuo y `rubric-m3-v2`
+
+Rama `feat/m3-continuous-scoring`. Mismo umbral (> 80), misma escala 0–4 y mismos casos, con diff ampliado a ±25 líneas de contexto. El total usa el valor esperado de cada dimensión y `core-gap` se activa si la probabilidad de niveles 0–2 en cobertura o fidelidad es ≥ 0.6. `rubric-m3-v2` solo cambia el descriptor de fidelidad. Sin `--record`.
+
+Niveles esperados: cobertura / fidelidad / alcance / evidencia / trazabilidad. "P≤2" es la probabilidad de niveles 0–2 en cobertura y fidelidad.
+
+| Rúbrica | Caso | Corrida | Rúbrica | Final | Niveles esperados | P≤2 cob / fid | Califica |
+| --- | --- | --- | ---: | ---: | --- | --- | --- |
+| v1 continuo | Fuerte v2 | 1–3 | 80.9 / 81.9 / 79.4 | igual | fidelidad ≈ 2.55 | — / 0.47 | 2 de 3 |
+| v1 continuo | Débil | 1 | — | 0 | — | 0.71 / 0.97 | no (`core-gap`) |
+| v1 continuo | Medio | 1 | — | 0 | — | 0.30 / 0.94 | no (`core-gap`) |
+| v2 iter. 1 | Fuerte v2 | 1 | 83.8 | 83.8 | 3.49/3.04/3.77/3.19/3.12 | 0.10 / 0.30 | **sí** |
+| v2 iter. 1 | Fuerte v2 | 2 | 83.9 | 83.9 | 3.46/3.01/3.79/3.25/3.19 | 0.09 / 0.33 | **sí** |
+| v2 iter. 1 | Fuerte v2 | 3 | 83.7 | 83.7 | 3.49/3.03/3.78/3.19/3.09 | 0.09 / 0.31 | **sí** |
+| v2 iter. 1 | Débil | 1 | 43.8 | 0 | 1.70/1.72/2.26/0.65/2.62 | 0.81 / 0.80 | no (`core-gap`) |
+| v2 iter. 1 | Medio | 1 | 60.3 | 0 | 2.61/1.74/2.94/2.01/3.06 | 0.46 / 0.94 | no (`core-gap`) |
+
+Con `rubric-m3-v2` se cumple el criterio: fuerte elegible 3 de 3, débil y medio en 0. Se hizo una sola iteración del descriptor. El margen del fuerte sobre el umbral es de unos 4 puntos.
