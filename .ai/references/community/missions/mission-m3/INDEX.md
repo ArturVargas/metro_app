@@ -2,14 +2,14 @@
 
 ## Cómo usar esta sección
 
-En Misión 3 cada participante abre un PR desde su fork hacia `dev`. TypeSafe califica la correspondencia entre el prompt del PR y el diff con `rubric-m3-v1` ([ADR-0011](../../../../adr/0011-participant-forks-and-pr-qualification.md)).
+En Misión 3 cada participante abre un PR desde su fork hacia `dev`. TypeSafe califica la correspondencia entre el prompt del PR y el diff con `rubric-m3-v2` ([ADR-0011](../../../../adr/0011-participant-forks-and-pr-qualification.md)).
 
 ## Orden de lectura
 
 1. [`public-brief.md`](public-brief.md): brief público de "Pasajeros en espera". Borrador para aprobación de Artur; no publicado.
-2. [`internal-contract.md`](internal-contract.md): contrato interno, calendario (apertura aprobada; cierre y Misiones 4–5 en propuesta) y mapeo de criterios a `rubric-m3-v1`.
+2. [`internal-contract.md`](internal-contract.md): contrato interno, calendario (apertura aprobada; cierre y Misiones 4–5 en propuesta) y mapeo de criterios a la rúbrica M3.
 3. [Diseño](../../../../../docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md) y [plan](../../../../../docs/superpowers/plans/2026-10-24-mission-3-passengers.md) de la misión.
-4. [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md): resumen de la calibración con casos débil, medio y fuerte de pasajeros (`not ready`; solo puntajes).
+4. [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md): resumen de la calibración con casos débil, medio y fuerte de pasajeros (`ready` con `rubric-m3-v2`; solo puntajes).
 5. [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md): calibración general de la rúbrica y del umbral 80.
 6. [`public-message-draft.md`](public-message-draft.md): mensaje de WhatsApp y guía de fork/PR con fechas. No enviado; pendiente de aprobación.
 7. [`../../github-project.md`](../../github-project.md): campos de cola del Project.
@@ -35,7 +35,7 @@ Cada misión se diseña para un PR pequeño de alcance acotado: un comportamient
 ## Estado antes de publicar
 
 - Brief, contrato y mensaje: borrador para aprobación de Artur.
-- Calibración de pasajeros: **`not ready`**: el caso fuerte con requisitos numerados califica en 1 de 3 corridas (80.0, 80.0, 87.5); débil y medio quedan en 0. Los fixtures son privados (solo en el VPS). Ver [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md).
+- Calibración de pasajeros: **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 13 de 13 corridas (81.9–84.4, media 83.3); débil, medio y la variante con una desviación quedan en 0. Requiere mergear `feat/m3-continuous-scoring`. Los fixtures son privados (solo en el VPS). Ver [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md).
 - Ensayo desde fork: PR [#47](https://github.com/ArturVargas/metro_app/pull/47) hacia `dev` (no mergear).
 - Pendientes: confirmar fechas en propuesta, Issue principal en el Project, aplicar Hermes en el VPS y activar `mission-m3`, publicar en WhatsApp.
 

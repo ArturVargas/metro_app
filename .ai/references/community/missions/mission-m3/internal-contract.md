@@ -38,9 +38,9 @@ Las tres misiones forman la fase de tres semanas de ADR-0011. La hora de apertur
 
 ## 4. Criterios públicos y evidencia
 
-`rubric-m3-v1` mide la correspondencia entre el prompt del participante y su diff; no tiene criterios propios de la misión. El cumplimiento de las reglas fijas del brief se comprueba en la revisión técnica. La tabla dice dónde se ve cada criterio.
+La rúbrica de M3 (`rubric-m3-v2`; `rubric-m3-v1` en la primera calibración) mide la correspondencia entre el prompt del participante y su diff; no tiene criterios propios de la misión. El cumplimiento de las reglas fijas del brief se comprueba en la revisión técnica. La tabla dice dónde se ve cada criterio.
 
-| Criterio público | Regla fija | Evidencia en `rubric-m3-v1` | Comprobación en revisión técnica |
+| Criterio público | Regla fija | Evidencia en la rúbrica M3 | Comprobación en revisión técnica |
 | --- | --- | --- | --- |
 | Aparecen pasajeros después de asignar un tren y pulsar **Ejecutar**; sin tren, **Ejecutar** se comporta como hoy | 4 | `requirement-coverage`, `behavioral-fidelity` (frecuencia y condición de inicio declaradas en el prompt) | Paso 1 y 2 de la prueba común |
 | Cada pasajero muestra una forma de destino distinta de su estación | 1, 2 | `requirement-coverage`, `behavioral-fidelity` (distribución de destinos declarada) | Paso 3 |
@@ -58,11 +58,11 @@ Fuera de alcance (un diff que lo implemente pierde en `scope-fidelity`): abordaj
 
 ## 5. Evaluación y calificación
 
-- **Rúbrica:** `rubric-m3-v1` + política `m3-policy` (`core-gap` deja el total en 0; los demás hard-fails lo topan en 80).
+- **Rúbrica:** `rubric-m3-v2` (igual que `rubric-m3-v1` salvo el descriptor de fidelidad; puntaje continuo y `core-gap` por probabilidad, de la rama `feat/m3-continuous-scoring`) + política `m3-policy` (`core-gap` deja el total en 0; los demás hard-fails lo topan en 80).
 - **Umbral:** total estrictamente mayor que 80, sin hard-fail, con los dos checks en verde.
 - **Intentos:** máximo cinco evaluaciones por participante en la misión; cada una pertenece al HEAD exacto del PR. Un SHA ya evaluado no se reevalúa.
 - **Identificador:** `p-` + últimos 3 dígitos del teléfono (sufijo de colisión si ya se asignó).
-- **Calibración:** [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md) (general) y [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md) (esta misión): **`not ready`**: el caso fuerte califica en 1 de 3 corridas (80.0, 80.0, 87.5); bloquea la publicación hasta que Artur decida. Los fixtures de calibración son privados y viven solo en el VPS (`~/m3-calib/private/`).
+- **Calibración:** [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md) (general) y [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md) (esta misión): **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 13 de 13 corridas (81.9–84.4); débil, medio y la variante con una desviación quedan en 0. Con `rubric-m3-v1` fue `not ready` (1 de 3). Los fixtures de calibración son privados y viven solo en el VPS (`~/m3-calib/private/`).
 
 ## 6. Revisión técnica y A/B/C
 
@@ -83,7 +83,7 @@ Fuera de alcance (un diff que lo implemente pierde en `scope-fidelity`): abordaj
 
 ## Pendientes antes de publicar
 
-- Decidir qué hacer con la calibración `not ready`.
+- Mergear `feat/m3-continuous-scoring` (`rubric-m3-v2`) y actualizar el checkout del VPS.
 - Aprobación de Artur de este contrato, del brief y del mensaje público.
 - Confirmar cierre de Misión 3 y fechas de Misiones 4 y 5 (hoy son propuesta).
 - Crear el Issue principal de Misión 3 en el Project.

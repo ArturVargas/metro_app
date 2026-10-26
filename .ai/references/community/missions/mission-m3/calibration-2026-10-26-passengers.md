@@ -1,7 +1,8 @@
 # Calibración TypeSafe — Misión 3 (pasajeros en espera) — resumen — 2026-10-26
 
-- **Veredicto: `not ready`.** El caso fuerte califica en 1 de 3 corridas (80.0, 80.0, 87.5): la elegibilidad no es estable en el borde de 80.
-- **Rúbrica:** `rubric-m3-v1` + `m3-policy`, sin cambios. **Modelo:** `jev-1.14.0`. Umbral, rúbrica y alcance sin cambios.
+- **Veredicto vigente: `ready` con `rubric-m3-v2`.** El caso fuerte califica en 13 de 13 corridas (81.9–84.4, media 83.3, desviación estándar 0.9); débil, medio y la variante con una desviación quedan en 0 por `core-gap`. Margen mínimo sobre 80: 1.9 puntos. Ver [`rubric-m3-v2`](#puntaje-continuo-y-rubric-m3-v2).
+- **Veredicto inicial (`rubric-m3-v1`, total redondeado): `not ready`.** El caso fuerte calificó en 1 de 3 corridas (80.0, 80.0, 87.5). Las secciones "Resultados" a "Veredicto" registran esa primera calibración.
+- **Rúbrica:** primero `rubric-m3-v1` + `m3-policy`; después `rubric-m3-v2` (igual que `rubric-m3-v1` salvo el descriptor de fidelidad; puntaje continuo y `core-gap` por probabilidad, de la rama `feat/m3-continuous-scoring`). **Modelo:** `jev-1.14.0`. Umbral (> 80) y alcance sin cambios.
 - **Persistencia:** desactivada (sin `--record`); no se escribió ningún intento en GitHub.
 - **Material:** los fixtures, diffs y salidas completas son privados y viven solo en el VPS del equipo (`~/m3-calib/private/`). Este resumen no incluye código, diffs ni prompts porque revelarían una solución de la misión.
 
@@ -41,7 +42,7 @@ Niveles: cobertura / fidelidad / alcance / evidencia / trazabilidad. "Rúbrica" 
 
 ## Veredicto
 
-`not ready`. No se cambió el umbral, la rúbrica ni el alcance. La decisión queda para Artur.
+`not ready` con `rubric-m3-v1`. No se cambió el umbral ni el alcance. Ese veredicto lo reemplaza el de `rubric-m3-v2`, más abajo.
 
 ## Puntaje continuo y `rubric-m3-v2`
 
