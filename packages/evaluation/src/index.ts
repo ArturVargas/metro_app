@@ -54,7 +54,9 @@ export {
 } from "./rubrics/m3-v1.js";
 export {
   M3_HARD_FAIL_CAP,
+  M3_CORE_GAP_LOW_MASS,
   M3_CORE_GAP_TOTAL,
+  lowLevelMass,
   M3_HARD_FAIL_IDS,
   M3_MAX_DIFF_CHARS,
   M3_PROTECTED_PATHS,
@@ -72,7 +74,7 @@ export {
   applyHardFailPolicy,
   detectM1V2HardFails,
 } from "./hard-fail.js";
-export { normalizeScoreLevel, scoreFromAnswers } from "./score.js";
+export { normalizeScoreLevel, scoreFromAnswers, type ScoreOptions } from "./score.js";
 export {
   validateAnswersForQuestions,
   validateEvaluationState,
@@ -86,6 +88,7 @@ export {
   FEEDBACK_TEMPLATE_M1_V1,
   FEEDBACK_TEMPLATE_M2_V1,
   FEEDBACK_TEMPLATE_M3_V1,
+  FEEDBACK_TEMPLATE_M3_V2,
 } from "./feedback-template.js";
 
 export type {
@@ -107,6 +110,7 @@ export { heuristicScoreLevel, MockJevClient, type MockJevClientOptions } from ".
 export {
   buildSystemOneBody,
   HttpJevClient,
+  parseLevelProbabilities,
   systemOneUrl,
   type FetchLike,
   type HttpJevConfig,

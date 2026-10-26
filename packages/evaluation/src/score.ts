@@ -69,14 +69,19 @@ export function normalizeScoreLevel(level: ScoreLevel): number {
  * - normalize each level / 4 → 0–1
  * - weighted sum with placeholder equal weights (summing to 1) unless overridden
  * - optional confidence on Choice/Score is routing metadata only
+ * - `continuous`: weight the unrounded expected level (expected / 4) instead of the
+ *   rounded level. Used by PR missions (rubric-m3-v1); M1/M2 keep rounded levels.
  * Does not call TypeSafe; no secrets.
  */
+export type ScoreOptions = { continuous?: boolean };
+
 export function scoreFromAnswers(
   state: EvaluationState,
   answers: Answer[],
   scoreQuestions: ScoreQuestion[] = rubricV0Questions.filter(
     (q): q is ScoreQuestion => q.kind === "score",
   ),
+  options: ScoreOptions = {},
 ): ScoreResult {
   const answerById = new Map(answers.map((a) => [a.questionId, a]));
 
@@ -106,6 +111,8 @@ export function scoreFromAnswers(
     const raw = answerById.get(q.id);
     let level: ScoreLevel | null = null;
     let confidence: ConfidenceBand | undefined;
+    let expected: number | undefined;
+    let probabilities: readonly number[] | undefined;
 
     if (raw && raw.kind === "score") {
       const sa = raw as ScoreAnswer;
@@ -114,16 +121,25 @@ export function scoreFromAnswers(
         level = null;
       } else if (sa.value !== null && isScoreLevel(sa.value)) {
         level = sa.value;
+        expected = sa.expected;
+        probabilities = sa.probabilities;
       }
     }
 
-    const normalized = level === null ? null : normalizeScoreLevel(level);
+    const normalized =
+      level === null
+        ? null
+        : options.continuous && expected !== undefined && Number.isFinite(expected)
+          ? Math.min(1, Math.max(0, expected / SCORE_LEVEL_MAX))
+          : normalizeScoreLevel(level);
     dimensions.push({
       questionId: q.id,
       level,
       normalized,
       weight,
       confidence,
+      ...(options.continuous && expected !== undefined ? { expected } : {}),
+      ...(options.continuous && probabilities ? { probabilities } : {}),
     });
 
     if (normalized !== null) {
@@ -144,7 +160,9 @@ export function scoreFromAnswers(
     eligible: null,
     rubricVersion: state.rubricVersion || RUBRIC_V0_ID,
     notes:
-      "Composite Score: normalize level/4 → 0–1, weighted sum → 0–100. " +
+      (options.continuous
+        ? "Composite Score: normalize expected level/4 → 0–1 (unrounded), weighted sum → 0–100. "
+        : "Composite Score: normalize level/4 → 0–1, weighted sum → 0–100. ") +
       "Mission-versioned weights applied. " +
       "Confidence/probability bands are routing metadata only.",
     dimensions,

@@ -1,5 +1,5 @@
 import { M3_QUALIFICATION_THRESHOLD } from "./rubrics/m3-v1.js";
-import type { CodeSubmission, ScoreResult } from "./types.js";
+import type { CodeSubmission, DimensionScore, ScoreResult } from "./types.js";
 
 /** Hard fails other than core-gap cap the total here, which never qualifies (`> 80`). */
 export const M3_HARD_FAIL_CAP = M3_QUALIFICATION_THRESHOLD;
@@ -132,16 +132,38 @@ export function detectM3HardFails(
   return fails;
 }
 
-/** Coverage or fidelity at level 2 or lower means the code does not do what the prompt says. */
+/**
+ * Core gap when the evaluator puts at least this much probability on levels 0–2 of
+ * coverage or fidelity, i.e. it is clearly more likely than not that the code does not
+ * do what the prompt says. Calibration 2026-10-26 (jev-1.14.0): strong PRs stayed at
+ * 0.39–0.48 on fidelity and ≤ 0.11 on coverage; weak and mid were ≥ 0.94 on fidelity.
+ */
+export const M3_CORE_GAP_LOW_MASS = 0.6;
+
+/** Probability of levels 0, 1 and 2, or null when the evaluator sent no distribution. */
+export function lowLevelMass(dimension: Pick<DimensionScore, "probabilities">): number | null {
+  const p = dimension.probabilities;
+  if (!p || p.length !== 5) return null;
+  return (p[0] ?? 0) + (p[1] ?? 0) + (p[2] ?? 0);
+}
+
+/**
+ * Coverage or fidelity in the gap zone means the code does not do what the prompt says.
+ * With a probability distribution the zone is mass on levels ≤ 2 ≥ M3_CORE_GAP_LOW_MASS;
+ * without one (mock, older responses) it is the rounded level ≤ 2.
+ */
 export function detectM3CoreGap(score: ScoreResult): M3HardFailId[] {
   const core = score.dimensions.filter(
     (dimension) =>
       dimension.questionId === "requirement-coverage" ||
       dimension.questionId === "behavioral-fidelity",
   );
-  return core.some((dimension) => dimension.level === null || dimension.level <= 2)
-    ? ["core-gap"]
-    : [];
+  const inGap = (dimension: DimensionScore) => {
+    if (dimension.level === null) return true;
+    const mass = lowLevelMass(dimension);
+    return mass === null ? dimension.level <= 2 : mass >= M3_CORE_GAP_LOW_MASS;
+  };
+  return core.some(inGap) ? ["core-gap"] : [];
 }
 
 export function qualifiesM3(total: number): boolean {

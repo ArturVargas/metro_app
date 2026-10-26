@@ -27,6 +27,8 @@ export type JevScoreDecision = {
   score: number | null;
   confidence: number | null;
   escapeOptionId?: string;
+  /** Probability of levels 0..4; `score` is their expected value. */
+  probabilities?: number[];
 };
 
 export type EvaluatorMetadata = {

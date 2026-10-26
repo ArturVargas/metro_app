@@ -3,7 +3,16 @@ import { describe, it } from "node:test";
 import { formatAttemptCommentMarkdown } from "./comment-format.js";
 import { evaluate } from "./evaluate.js";
 import { MockJevClient } from "./jev/mock.js";
-import { changedPaths, detectM3HardFails, M3_CORE_GAP_TOTAL, M3_HARD_FAIL_CAP, qualifiesM3 } from "./m3-policy.js";
+import { FEEDBACK_TEMPLATE_M3_V2 } from "./feedback-template.js";
+import type { JevClient, JevScoreRequest, JevScoreResult } from "./jev/types.js";
+import {
+  changedPaths,
+  detectM3HardFails,
+  M3_CORE_GAP_LOW_MASS,
+  M3_CORE_GAP_TOTAL,
+  M3_HARD_FAIL_CAP,
+  qualifiesM3,
+} from "./m3-policy.js";
 import { RUBRIC_M3_V1_ID, rubricM3V1Questions } from "./rubrics/m3-v1.js";
 import type { CodeSubmission } from "./types.js";
 
@@ -88,7 +97,8 @@ describe("rubric-m3-v1", () => {
     assert.equal(result.score.dimensions.find((d) => d.questionId === "behavioral-fidelity")?.level, 2);
     assert.match(result.feedback, /Puntaje: 0\/100/);
     assert.match(result.feedback, /no hace lo que pide el prompt/);
-    assert.match(result.feedback, /Sugerencias:/);
+    assert.match(result.feedback, /Por criterio \(0 a 4\):/);
+    assert.match(result.feedback, /Prioridades:/);
   });
 
   it("core-gap wins over the 80 cap when both apply", async () => {
@@ -189,5 +199,100 @@ describe("detectM3HardFails", () => {
       ),
       [],
     );
+  });
+});
+
+/** Jev answer with an unrounded expected level and a level 0..4 distribution. */
+type Answer = { score: number; probabilities: number[] };
+
+class DistributionJevClient implements JevClient {
+  constructor(private readonly answers: Record<string, Answer>) {}
+  async score(request: JevScoreRequest): Promise<JevScoreResult> {
+    return {
+      decisions: request.questions.map((question) => ({
+        questionId: question.id,
+        score: this.answers[question.id]!.score,
+        confidence: 0.5,
+        probabilities: this.answers[question.id]!.probabilities,
+      })),
+      evaluator: { provider: "typesafe", requestedModel: "jev-latest", model: "jev-test" },
+    };
+  }
+}
+
+// Shapes observed in the 2026-10-26 calibration (synthetic numbers, no fixture content).
+const strongAnswers: Record<string, Answer> = {
+  "requirement-coverage": { score: 3.46, probabilities: [0, 0.01, 0.08, 0.34, 0.57] },
+  "behavioral-fidelity": { score: 2.7, probabilities: [0.01, 0.17, 0.23, 0.27, 0.32] },
+  "scope-fidelity": { score: 3.72, probabilities: [0.02, 0.01, 0.05, 0.07, 0.85] },
+  "verification-evidence": { score: 3.24, probabilities: [0, 0.01, 0.17, 0.36, 0.46] },
+  traceability: { score: 3.04, probabilities: [0.07, 0.07, 0.04, 0.38, 0.44] },
+};
+
+describe("rubric-m3-v1 continuous scoring", () => {
+  it("weights the unrounded expected level instead of the rounded one", async () => {
+    const result = await evaluate(input, { client: new DistributionJevClient(strongAnswers) });
+    // Rounded levels 3/3/4/3/3 would give exactly 80 and not qualify.
+    assert.equal(result.score.total, 81.2);
+    assert.equal(result.score.eligible, true);
+    assert.equal(result.hardFails, undefined);
+    const fidelity = result.score.dimensions.find((d) => d.questionId === "behavioral-fidelity");
+    assert.equal(fidelity?.level, 3);
+    assert.equal(fidelity?.expected, 2.7);
+    assert.equal(fidelity?.normalized, 2.7 / 4);
+  });
+
+  it("is a core gap when coverage or fidelity puts enough probability on levels 0-2", async () => {
+    const result = await evaluate(input, {
+      client: new DistributionJevClient({
+        ...strongAnswers,
+        "behavioral-fidelity": { score: 1.5, probabilities: [0.04, 0.5, 0.4, 0.04, 0.02] },
+      }),
+    });
+    assert.equal(result.score.total, M3_CORE_GAP_TOTAL);
+    assert.deepEqual(result.hardFails, ["core-gap"]);
+  });
+
+  it("uses probability mass, not the rounded level, for the core gap", async () => {
+    const below = [0.1, 0.2, 0.25, 0.25, 0.2]; // mass on 0-2 = 0.55 < threshold, expected 2.2
+    const result = await evaluate(input, {
+      client: new DistributionJevClient({ ...strongAnswers, "behavioral-fidelity": { score: 2.2, probabilities: below } }),
+    });
+    assert.ok(0.55 < M3_CORE_GAP_LOW_MASS);
+    assert.equal(result.hardFails, undefined);
+    assert.equal(result.score.dimensions.find((d) => d.questionId === "behavioral-fidelity")?.level, 2);
+  });
+
+  it("gives one line per criterio and at most two priorities without echoing the PR", async () => {
+    const result = await evaluate(input, { client: new DistributionJevClient(strongAnswers) });
+    const lines = result.feedback.split("\n");
+    assert.equal(result.feedbackMetadata.version, FEEDBACK_TEMPLATE_M3_V2);
+    assert.equal(lines[0], "Puntaje: 81,2/100");
+    assert.equal(lines[1], "Elegibilidad: Elegible");
+    assert.equal(lines[2], "Por criterio (0 a 4):");
+    assert.equal(lines.slice(3, 8).filter((line) => line.startsWith("- ")).length, 5);
+    assert.match(lines[4] ?? "", /^- Comportamiento: 2,7\/4 \(a mejorar, con dudas\)$/);
+    assert.equal(lines[8], "Prioridades:");
+    assert.ok(lines.length - 9 >= 1 && lines.length - 9 <= 2);
+    assert.match(result.feedback, /Comportamiento/);
+    assert.doesNotMatch(result.feedback, /contador|Counter|jev|typesafe/i);
+  });
+});
+
+describe("M1/M2 scoring is unchanged", () => {
+  it("rubric-m2-v1 still weights rounded levels", async () => {
+    const answers: Record<string, Answer> = {
+      verifiability: { score: 3.46, probabilities: [0, 0.01, 0.08, 0.34, 0.57] },
+      "actionable-acceptance": { score: 3.46, probabilities: [0, 0.01, 0.08, 0.34, 0.57] },
+      specificity: { score: 3.46, probabilities: [0, 0.01, 0.08, 0.34, 0.57] },
+      "scope-limits": { score: 3.46, probabilities: [0, 0.01, 0.08, 0.34, 0.57] },
+    };
+    const result = await evaluate(
+      { missionId: "mission-m2", participantId: "p-001", publicBrief: "b", participantPrompt: "p", attempt: 1 },
+      { client: new DistributionJevClient(answers) },
+    );
+    assert.equal(result.score.rubricVersion, "rubric-m2-v1");
+    assert.equal(result.score.total, 75);
+    assert.equal(result.score.dimensions[0]?.expected, undefined);
   });
 });

@@ -1,6 +1,11 @@
+import { M3_MAX_DIFF_CHARS } from "@metro/evaluation";
 import { Octokit } from "@octokit/rest";
 import type { GitHubStoreConfig } from "../github/config.js";
+import { oldPathOf, splitDiffFiles, widenDiffContext } from "./diff-context.js";
 import type { ChecksState } from "./queue.js";
+
+/** At most this many base files are fetched to widen a diff; the rest keep GitHub's context. */
+const MAX_WIDENED_FILES = 20;
 
 export type PullRequestInfo = {
   number: number;
@@ -69,7 +74,11 @@ export class GitHubPullRequests {
     };
   }
 
-  /** Diff from the frozen `dev` SHA to the PR head, plus the merge base GitHub computed. */
+  /**
+   * Diff from the frozen `dev` SHA to the PR head, plus the merge base GitHub computed.
+   * Context is widened to PR_DIFF_CONTEXT_LINES using the base files, unless that would
+   * exceed M3_MAX_DIFF_CHARS; then GitHub's 3-line diff is returned unchanged.
+   */
   async diffFromBase(baseSha: string, headSha: string): Promise<{ diff: string; mergeBase: string }> {
     const params = {
       owner: this.config.owner,
@@ -81,7 +90,40 @@ export class GitHubPullRequests {
       ...params,
       mediaType: { format: "diff" },
     });
-    return { diff: String(raw.data), mergeBase: data.merge_base_commit.sha };
+    const diff = String(raw.data);
+    const baseContent = await this.baseFiles(diff, baseSha);
+    const widened = widenDiffContext(diff, baseContent);
+    return {
+      diff: widened.length <= M3_MAX_DIFF_CHARS ? widened : diff,
+      mergeBase: data.merge_base_commit.sha,
+    };
+  }
+
+  /** Raw base-side content of the files a diff modifies; files that fail to load are skipped. */
+  private async baseFiles(diff: string, baseSha: string): Promise<Map<string, string>> {
+    const paths = [
+      ...new Set(
+        splitDiffFiles(diff)
+          .map(oldPathOf)
+          .filter((path): path is string => path !== null),
+      ),
+    ].slice(0, MAX_WIDENED_FILES);
+    const out = new Map<string, string>();
+    for (const path of paths) {
+      try {
+        const response = await this.octokit.rest.repos.getContent({
+          owner: this.config.owner,
+          repo: this.config.repo,
+          path,
+          ref: baseSha,
+          mediaType: { format: "raw" },
+        });
+        if (typeof response.data === "string") out.set(path, response.data);
+      } catch {
+        // Keep GitHub's context for this file.
+      }
+    }
+    return out;
   }
 
   async checks(sha: string): Promise<ChecksSummary> {

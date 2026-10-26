@@ -131,6 +131,10 @@ export type ScoreAnswer = {
   escapeOptionId?: string;
   /** Optional confidence for routing (auto / caution / defer); does not change score. */
   confidence?: ConfidenceBand;
+  /** Unrounded expected level 0–4 as returned by Jev; `value` is its rounding. */
+  expected?: number;
+  /** Probability of levels 0..4 as returned by Jev, when available. */
+  probabilities?: readonly number[];
 };
 
 export type Answer = NoulAnswer | ChoiceAnswer | ScoreAnswer;
@@ -139,10 +143,14 @@ export type DimensionScore = {
   questionId: string;
   /** Raw level 0–4, or null if escaped / missing. */
   level: ScoreLevel | null;
-  /** Normalized level/4 in [0, 1], or null if not scored. */
+  /** Normalized level/4 in [0, 1] (expected/4 under continuous scoring), or null if not scored. */
   normalized: number | null;
   weight: number;
   confidence?: ConfidenceBand;
+  /** Unrounded expected level 0–4, when the evaluator returned one. */
+  expected?: number;
+  /** Probability of levels 0..4, when the evaluator returned them. */
+  probabilities?: readonly number[];
 };
 
 export type ScoreResult = {

@@ -4,6 +4,7 @@ import { readHttpJevConfig, readJevMode } from "./jev/env.js";
 import {
   buildSystemOneBody,
   HttpJevClient,
+  parseLevelProbabilities,
   systemOneUrl,
 } from "./jev/http.js";
 import {
@@ -194,5 +195,40 @@ describe("Jev env", () => {
     assert.equal(config.apiKey, "jv");
     assert.equal(config.baseUrl, "https://api.typesafe.ai");
     assert.equal(config.model, "jev-1.13.0");
+  });
+});
+
+describe("Jev level probabilities", () => {
+  it("reads levels 0..4 in order and normalizes them", () => {
+    assert.deepEqual(parseLevelProbabilities({ "0": 0, "1": 0.1, "2": 0.1, "3": 0.3, "4": 0.5 }), [0, 0.1, 0.1, 0.3, 0.5]);
+    const scaled = parseLevelProbabilities({ "0": 0, "1": 0, "2": 1, "3": 1, "4": 2 });
+    assert.deepEqual(scaled, [0, 0, 0.25, 0.25, 0.5]);
+  });
+
+  it("ignores incomplete or malformed distributions", () => {
+    assert.equal(parseLevelProbabilities({ "3": 1 }), undefined);
+    assert.equal(parseLevelProbabilities({ "0": 0, "1": 0, "2": -1, "3": 1, "4": 1 }), undefined);
+    assert.equal(parseLevelProbabilities([0.2, 0.2, 0.2, 0.2, 0.2]), undefined);
+    assert.equal(parseLevelProbabilities(null), undefined);
+  });
+
+  it("passes probabilities and the unrounded score through the HTTP client", async () => {
+    const probabilities = { "0": 0.01, "1": 0.17, "2": 0.23, "3": 0.27, "4": 0.32 };
+    const client = new HttpJevClient(
+      { apiKey: "k", baseUrl: "https://api.typesafe.ai", model: "jev-latest" },
+      async () =>
+        new Response(
+          JSON.stringify({
+            model: "jev-1.14.0",
+            answers: { verifiability: { type: "score", score: 2.7, confidence: 0, probabilities } },
+          }),
+          { status: 200 },
+        ),
+    );
+    const result = await client.score({ state, questions: rubricToJevQuestions(rubricM1V1Questions).slice(0, 1) });
+    assert.deepEqual(result.decisions[0]?.probabilities, [0.01, 0.17, 0.23, 0.27, 0.32]);
+    const [answer] = decisionsToScoreAnswers(rubricM1V1Questions.slice(0, 1), result.decisions);
+    assert.equal(answer?.kind === "score" ? answer.value : undefined, 3);
+    assert.equal(answer?.kind === "score" ? answer.expected : undefined, 2.7);
   });
 });

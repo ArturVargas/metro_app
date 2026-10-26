@@ -55,6 +55,8 @@ export function decisionsToScoreAnswers(
       kind: "score",
       value: toScoreLevel(decision.score),
       confidence,
+      expected: Math.min(SCORE_LEVEL_MAX, Math.max(0, decision.score)),
+      ...(decision.probabilities ? { probabilities: decision.probabilities } : {}),
     };
   });
 }

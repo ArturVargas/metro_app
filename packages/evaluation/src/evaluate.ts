@@ -125,7 +125,8 @@ export async function evaluate(
   const answers = decisionsToScoreAnswers(questions, evaluation.decisions);
   failValidation(validateAnswersForQuestions(questions, answers));
 
-  let score = scoreFromAnswers(state, answers, questions);
+  // PR missions weight the unrounded expected level; M1/M2 keep rounded levels.
+  let score = scoreFromAnswers(state, answers, questions, { continuous: isM3 });
   let appliedHardFails: string[] = [];
 
   if (isM3) {
