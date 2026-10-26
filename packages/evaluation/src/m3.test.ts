@@ -14,6 +14,7 @@ import {
   qualifiesM3,
 } from "./m3-policy.js";
 import { RUBRIC_M3_V1_ID, rubricM3V1Questions } from "./rubrics/m3-v1.js";
+import { isM3Rubric, RUBRIC_M3_V2_ID, rubricM3V2Questions } from "./rubrics/m3-v2.js";
 import type { CodeSubmission } from "./types.js";
 
 const diff = [
@@ -62,7 +63,7 @@ describe("rubric-m3-v1", () => {
 
   it("is the default for mission-m3 and requires a submission", async () => {
     const result = await evaluate(input, { client: new MockJevClient({ levels: allLevels(4) }) });
-    assert.equal(result.score.rubricVersion, RUBRIC_M3_V1_ID);
+    assert.equal(result.score.rubricVersion, RUBRIC_M3_V2_ID);
     assert.equal(result.score.total, 100);
     assert.equal(result.score.eligible, true);
     await assert.rejects(
@@ -294,5 +295,31 @@ describe("M1/M2 scoring is unchanged", () => {
     assert.equal(result.score.rubricVersion, "rubric-m2-v1");
     assert.equal(result.score.total, 75);
     assert.equal(result.score.dimensions[0]?.expected, undefined);
+  });
+});
+
+describe("rubric-m3-v2", () => {
+  it("changes only behavioral-fidelity and keeps ids, weights and the 0-4 scale", () => {
+    assert.deepEqual(rubricM3V2Questions.map((q) => [q.id, q.weight]), rubricM3V1Questions.map((q) => [q.id, q.weight]));
+    for (const [i, question] of rubricM3V2Questions.entries()) {
+      assert.equal(question.criteria.length, 5);
+      if (question.id === "behavioral-fidelity") assert.notDeepEqual(question, rubricM3V1Questions[i]);
+      else assert.equal(question, rubricM3V1Questions[i]);
+    }
+  });
+
+  it("only counts deviations that changed lines cause, not unstated edge cases", () => {
+    const fidelity = rubricM3V2Questions.find((q) => q.id === "behavioral-fidelity")!;
+    assert.match(fidelity.prompt, /specific changed lines/);
+    assert.match(fidelity.prompt, /Do not penalize behavior or edge cases the prompt does not state/);
+    assert.doesNotMatch(fidelity.criteria[4]!.description, /edge case/);
+  });
+
+  it("keeps v1 available and applies the same M3 policy to both versions", async () => {
+    assert.ok(isM3Rubric(RUBRIC_M3_V1_ID) && isM3Rubric(RUBRIC_M3_V2_ID));
+    const v1 = await evaluate({ ...input, rubricVersion: RUBRIC_M3_V1_ID }, { client: new DistributionJevClient(strongAnswers) });
+    assert.equal(v1.score.rubricVersion, RUBRIC_M3_V1_ID);
+    assert.equal(v1.score.total, 81.2);
+    assert.equal(v1.feedbackMetadata.version, FEEDBACK_TEMPLATE_M3_V2);
   });
 });

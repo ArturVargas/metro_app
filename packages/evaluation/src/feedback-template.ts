@@ -1,5 +1,6 @@
 import { resolveEligible, type FeedbackMetadata } from "./attempt.js";
 import { lowLevelMass, M3_CORE_GAP_LOW_MASS } from "./m3-policy.js";
+import { isM3Rubric } from "./rubrics/m3-v2.js";
 import type { DimensionScore, ScoreResult } from "./types.js";
 
 export const FEEDBACK_TEMPLATE_M1_V1 = "feedback-template-m1-v1" as const;
@@ -202,7 +203,7 @@ export function buildTemplateFeedback(
   text: string;
   metadata: FeedbackMetadata;
 } {
-  if (score.rubricVersion === "rubric-m3-v1") return buildM3Feedback(score, hardFails);
+  if (isM3Rubric(score.rubricVersion)) return buildM3Feedback(score, hardFails);
   const isMission2 = score.rubricVersion === "rubric-m2-v1";
   const copy = isMission2 ? M2_COPY : M1_COPY;
   const ranked = [...score.dimensions]

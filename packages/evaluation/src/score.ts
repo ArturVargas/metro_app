@@ -70,7 +70,7 @@ export function normalizeScoreLevel(level: ScoreLevel): number {
  * - weighted sum with placeholder equal weights (summing to 1) unless overridden
  * - optional confidence on Choice/Score is routing metadata only
  * - `continuous`: weight the unrounded expected level (expected / 4) instead of the
- *   rounded level. Used by PR missions (rubric-m3-v1); M1/M2 keep rounded levels.
+ *   rounded level. Used by PR missions (rubric-m3-v1/v2); M1/M2 keep rounded levels.
  * Does not call TypeSafe; no secrets.
  */
 export type ScoreOptions = { continuous?: boolean };

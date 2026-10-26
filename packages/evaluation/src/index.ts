@@ -52,6 +52,7 @@ export {
   RUBRIC_M3_V1_ID,
   rubricM3V1Questions,
 } from "./rubrics/m3-v1.js";
+export { isM3Rubric, M3_RUBRIC_IDS, RUBRIC_M3_V2_ID, rubricM3V2Questions } from "./rubrics/m3-v2.js";
 export {
   M3_HARD_FAIL_CAP,
   M3_CORE_GAP_LOW_MASS,
