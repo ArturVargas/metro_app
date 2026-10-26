@@ -43,7 +43,7 @@ Tú decides con qué frecuencia aparecen los pasajeros, cómo se reparten entre 
 
 **Estará listo cuando**
 
-- Después de crear una línea, asignarle un tren y pulsar **Ejecutar**, aparecen pasajeros con el paso del tiempo y en cada uno se reconoce su forma de destino, distinta de la de su estación.
+- Después de crear una línea —que ya recibe un tren— y pulsar **Ejecutar**, aparecen pasajeros con el paso del tiempo y en cada uno se reconoce su forma de destino, distinta de la de su estación.
 - Al pulsar **Parar** durante un rato no aparecen pasajeros nuevos; al pulsar **Ejecutar** la llegada continúa sin acumular los de la pausa.
 - Ninguna estación muestra más de doce pasajeros, aunque la simulación corra mucho tiempo.
 - En dos partidas nuevas, los primeros diez pasajeros coinciden en estación de origen y forma de destino, en el mismo orden.
