@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { assertNextAttempt, attemptNumberFromComment } from "./attempt-sequence.js";
+import { assertNextAttempt, attemptNumberFromComment, nextAttemptNumber } from "./attempt-sequence.js";
 
 const marker = (attempt: number) =>
   `<!-- metro-attempt: mission:mission-m1 participant:p-alpha attempt:${attempt} -->`;
@@ -60,5 +60,23 @@ describe("assertNextAttempt", () => {
       ),
       null,
     );
+  });
+});
+
+describe("nextAttemptNumber", () => {
+  it("returns recorded count + 1", () => {
+    assert.equal(nextAttemptNumber([], "mission-m1", "p-alpha"), 1);
+    assert.equal(nextAttemptNumber([marker(1), marker(2), "plain comment"], "mission-m1", "p-alpha"), 3);
+  });
+  it("ignores other participants and missions", () => {
+    assert.equal(nextAttemptNumber([marker(1)], "mission-m2", "p-alpha"), 1);
+    assert.equal(nextAttemptNumber([marker(1)], "mission-m1", "p-beta"), 1);
+  });
+  it("throws at the maximum and on gaps", () => {
+    assert.throws(
+      () => nextAttemptNumber([1, 2, 3, 4, 5].map(marker), "mission-m1", "p-alpha"),
+      /maximum of 5/,
+    );
+    assert.throws(() => nextAttemptNumber([marker(2)], "mission-m1", "p-alpha"), /inconsistent/);
   });
 });

@@ -28,7 +28,7 @@ export type CommunityEvaluateOptions = {
   store?: RecordStore;
   feedback?: EvaluateOptions["feedback"];
   feedbackGenerator?: FeedbackGenerator;
-  /** Forwarded to @metro/evaluation hard-fail policy (m1-v2). */
+  /** Forwarded to a mission rubric's hard-fail policy when one exists. */
   hardFails?: HardFailId[];
 };
 
@@ -95,6 +95,8 @@ export async function evaluate(
     }
 
     let feedback = options.feedback;
+    // The mentor feedback prompt only knows prompt missions; PR missions keep the template.
+    if (input.submission) return scored;
     if (!feedback) {
       try {
         feedback = await (

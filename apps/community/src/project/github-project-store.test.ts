@@ -119,3 +119,48 @@ describe("GitHubProjectStore", () => {
     assert.equal(fake.calls.filter((call) => call.method === "PATCH").length, 2);
   });
 });
+
+describe("GitHubProjectStore with a PR snapshot", () => {
+  const option = (id: string) => ({ id, name: { raw: id } });
+  const prFields = [
+    { id: 20, name: "Pull request", data_type: "text" },
+    { id: 21, name: "Evaluated SHA", data_type: "text" },
+    { id: 22, name: "Base SHA", data_type: "text" },
+    { id: 23, name: "Change origin", data_type: "single_select", options: [option("LLM"), option("Manual"), option("Combined")] },
+    { id: 24, name: "Queue state", data_type: "single_select", options: [option("technical-queue"), option("draft")] },
+    { id: 25, name: "Head SHA", data_type: "text" },
+    { id: 26, name: "Checks", data_type: "single_select", options: [option("Success"), option("Pending"), option("Failure")] },
+    { id: 27, name: "Queued at", data_type: "text" },
+  ];
+
+  it("writes PR, SHA, origin and queue fields instead of Voting", async () => {
+    fields.push(...prFields);
+    try {
+      const fake = fakeGitHub({ existing: true });
+      await new GitHubProjectStore(config, fake.fetchImpl).syncPrompt({
+        ...snapshot,
+        missionId: "mission-m3",
+        pr: {
+          prUrl: "https://github.com/ArturVargas/metro_app/pull/50",
+          evaluatedSha: "a".repeat(40),
+          baseSha: "b".repeat(40),
+          origin: "combined",
+          evaluatedAt: "2026-11-03T09:00:00Z",
+          qualifies: true,
+          labels: [],
+        },
+        queue: { state: "technical-queue", headSha: "a".repeat(40), checks: "success", queuedAt: "2026-11-03T09:05:00Z" },
+      });
+      const patch = fake.calls.find((call) => call.method === "PATCH")?.body as { fields: Array<{ id: number; value: unknown }> };
+      const byId = new Map(patch.fields.map((field) => [field.id, field.value]));
+      assert.equal(byId.has(7), false);
+      assert.equal(byId.get(20), "https://github.com/ArturVargas/metro_app/pull/50");
+      assert.equal(byId.get(23), "Combined");
+      assert.equal(byId.get(24), "technical-queue");
+      assert.equal(byId.get(26), "Success");
+      assert.equal(byId.get(27), "2026-11-03T09:05:00Z");
+    } finally {
+      fields.splice(fields.length - prFields.length, prFields.length);
+    }
+  });
+});

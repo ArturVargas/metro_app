@@ -9,11 +9,11 @@ Usa esta referencia para publicar el estado base o una variante A/B/C. Cada desp
 | Ranura | Proyecto de Cloudflare | URL estable | Uso |
 | --- | --- | --- | --- |
 | Base | `metro-app-base` | https://metro-app-base.pages.dev/ | Estado común que reciben los participantes antes de una misión |
-| A | `metro-app-a` | https://metro-app-a.pages.dev/ | Primer prompt ganador, según el mapeo aleatorio |
-| B | `metro-app-b` | https://metro-app-b.pages.dev/ | Segundo prompt ganador, según el mapeo aleatorio |
-| C | `metro-app-c` | https://metro-app-c.pages.dev/ | Tercer prompt ganador, según el mapeo aleatorio |
+| A | `metro-app-a` | https://metro-app-a.pages.dev/ | Primera variante seleccionada según la modalidad de la misión |
+| B | `metro-app-b` | https://metro-app-b.pages.dev/ | Segunda variante seleccionada según la modalidad de la misión |
+| C | `metro-app-c` | https://metro-app-c.pages.dev/ | Tercera variante seleccionada según la modalidad de la misión |
 
-Los cuatro proyectos existen en Cloudflare Pages. La ranura Base contiene el tablero neutral del commit `e765063f4ac3b0ceda1bb94158bac481fd106e6c`. Las ranuras A/B/C permanecen sin deployment hasta que existan prompts ganadores.
+Los cuatro proyectos existen en Cloudflare Pages. Consulta el contrato de la misión y su reporte de ejecución para conocer el commit vigente de cada ranura; los valores históricos no deben tratarse como estado actual.
 
 ## Despliegue desde GitHub Actions
 
@@ -45,6 +45,8 @@ No uses `--force` al desplegar. Ese indicador solo fue necesario una vez para cr
 
 - Base cambia únicamente después de la aprobación del responsable de producto.
 - A/B/C se construyen desde el mismo commit base y bajo las mismas condiciones.
+- Desde M3, el commit base es el SHA de `dev` publicado. A/B/C permanecen congeladas mientras los participantes trabajan y solo el equipo despliega los tres PRs aprobados.
+- Nunca ejecutes un workflow de fork con secretos. Construye el commit aprobado desde una rama controlada por el repositorio principal.
 - El mapeo entre letra, prompt, autor, issue, rama, pull request, commit y URL se registra en GitHub.
 - No despliegues una ranura desde un árbol de trabajo con cambios sin commitear.
 - A/B/C no promocionan automáticamente una variante a Base.

@@ -20,6 +20,21 @@ type RestItem = {
   };
 };
 
+/** Fields added for PR missions (ADR-0011); only required when a snapshot carries a PR. */
+export const M3_PROJECT_FIELDS = {
+  queueState: { name: "Queue state", type: "single_select" },
+  evaluatedSha: { name: "Evaluated SHA", type: "text" },
+  headSha: { name: "Head SHA", type: "text" },
+  baseSha: { name: "Base SHA", type: "text" },
+  changeOrigin: { name: "Change origin", type: "single_select" },
+  checks: { name: "Checks", type: "single_select" },
+  queuedAt: { name: "Queued at", type: "text" },
+  pullRequest: { name: "Pull request", type: "text" },
+} as const;
+
+export const ORIGIN_OPTIONS = { llm: "LLM", manual: "Manual", combined: "Combined" } as const;
+export const CHECKS_OPTIONS = { pending: "Pending", success: "Success", failure: "Failure" } as const;
+
 type Metadata = {
   itemType: RestField;
   mission: RestField;
@@ -82,29 +97,63 @@ export class GitHubProjectStore implements ProjectStore {
       }
     }
 
+    const fields: Array<{ id: number; value: string | number }> = [
+      { id: metadata.itemType.id, value: requireOption(metadata.itemType, "Prompt") },
+      { id: metadata.mission.id, value: snapshot.missionId },
+      { id: metadata.participant.id, value: snapshot.participantId },
+      { id: metadata.attempts.id, value: snapshot.attempts },
+      { id: metadata.latestScore.id, value: snapshot.latestScore },
+      { id: metadata.eligible.id, value: requireOption(metadata.eligible, snapshot.eligible ? "Yes" : "No") },
+    ];
+    // PR missions select by queue order, not by vote.
+    if (snapshot.pr) fields.push(...(await this.prFields(snapshot)));
+    else fields.push({ id: metadata.voting.id, value: requireOption(metadata.voting, snapshot.voting) });
+
     await this.request(`${projectPath}/items/${item.id}`, {
       method: "PATCH",
-      body: JSON.stringify({
-        fields: [
-          { id: metadata.itemType.id, value: requireOption(metadata.itemType, "Prompt") },
-          { id: metadata.mission.id, value: snapshot.missionId },
-          { id: metadata.participant.id, value: snapshot.participantId },
-          { id: metadata.attempts.id, value: snapshot.attempts },
-          { id: metadata.latestScore.id, value: snapshot.latestScore },
-          { id: metadata.eligible.id, value: requireOption(metadata.eligible, snapshot.eligible ? "Yes" : "No") },
-          { id: metadata.voting.id, value: requireOption(metadata.voting, snapshot.voting) },
-        ],
-      }),
+      body: JSON.stringify({ fields }),
     });
 
     return { itemId: String(item.id), created };
   }
 
-  private async getMetadata(): Promise<Metadata> {
-    if (this.metadata) return this.metadata;
+  private async prFields(snapshot: ProjectPromptSnapshot): Promise<Array<{ id: number; value: string | number }>> {
+    const pr = snapshot.pr!;
+    const fields = await this.getFields();
+    const field = (key: keyof typeof M3_PROJECT_FIELDS) =>
+      requireField(fields, M3_PROJECT_FIELDS[key].name, M3_PROJECT_FIELDS[key].type);
+    const values: Array<{ id: number; value: string | number }> = [
+      { id: field("pullRequest").id, value: pr.prUrl },
+      { id: field("evaluatedSha").id, value: pr.evaluatedSha },
+      { id: field("baseSha").id, value: pr.baseSha },
+      { id: field("changeOrigin").id, value: requireOption(field("changeOrigin"), ORIGIN_OPTIONS[pr.origin]) },
+    ];
+    const queue = snapshot.queue;
+    if (queue) {
+      values.push(
+        { id: field("queueState").id, value: requireOption(field("queueState"), queue.state) },
+        { id: field("headSha").id, value: queue.headSha },
+        { id: field("checks").id, value: requireOption(field("checks"), CHECKS_OPTIONS[queue.checks]) },
+        { id: field("queuedAt").id, value: queue.queuedAt ?? "" },
+      );
+    }
+    return values;
+  }
+
+  private fieldsCache?: RestField[];
+
+  private async getFields(): Promise<RestField[]> {
+    if (this.fieldsCache) return this.fieldsCache;
     const path = `/users/${encodeURIComponent(this.config.owner)}/projectsV2/${this.config.projectNumber}/fields?per_page=100`;
     const fields = await this.request<RestField[]>(path);
     if (!Array.isArray(fields)) throw new Error("GitHub Project fields response is invalid");
+    this.fieldsCache = fields;
+    return fields;
+  }
+
+  private async getMetadata(): Promise<Metadata> {
+    if (this.metadata) return this.metadata;
+    const fields = await this.getFields();
     this.metadata = {
       itemType: requireField(fields, "Item type", "single_select"),
       mission: requireField(fields, "Mission", "text"),

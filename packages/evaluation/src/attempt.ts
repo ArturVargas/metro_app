@@ -26,6 +26,8 @@ export type AttemptResult = {
   /** Participant-facing feedback text (never name Jev). */
   feedback: string;
   feedbackMetadata: FeedbackMetadata;
+  /** Policy caps applied to the total (M3 only). */
+  hardFails?: string[];
   /** Set after find-or-create / comment persist. */
   githubIssueUrl?: string;
   githubCommentUrl?: string;

@@ -4,6 +4,7 @@ export type HttpJevConfig = {
   apiKey: string;
   baseUrl: string;
   model: string;
+  timeoutMs?: number;
 };
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
@@ -12,7 +13,20 @@ type WireScoreAnswer = {
   type?: string;
   score?: unknown;
   confidence?: unknown;
+  probabilities?: unknown;
 };
+
+/** Levels 0..4 as an array, or undefined when Jev omits them or sends something malformed. */
+export function parseLevelProbabilities(raw: unknown): number[] | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const record = raw as Record<string, unknown>;
+  const values = [0, 1, 2, 3, 4].map((level) => record[String(level)]);
+  if (!values.every((v): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0)) {
+    return undefined;
+  }
+  const sum = values.reduce((a, b) => a + b, 0);
+  return sum > 0 ? values.map((v) => v / sum) : undefined;
+}
 
 type WireResponse = {
   model?: unknown;
@@ -71,7 +85,7 @@ export class HttpJevClient implements JevClient {
         Accept: "application/json",
       },
       body: JSON.stringify(buildSystemOneBody(request, this.config.model)),
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(this.config.timeoutMs ?? 20_000),
     });
     const text = await response.text();
     if (!response.ok) {
@@ -92,10 +106,12 @@ export class HttpJevClient implements JevClient {
       if (!raw || raw.type !== "score" || typeof raw.score !== "number") {
         throw new Error(`Jev response missing score answer for ${question.id}`);
       }
+      const probabilities = parseLevelProbabilities(raw.probabilities);
       return {
         questionId: question.id,
         score: raw.score,
         confidence: typeof raw.confidence === "number" ? raw.confidence : null,
+        ...(probabilities ? { probabilities } : {}),
       };
     });
     const inputTokens = parsed.usage?.input_tokens;
