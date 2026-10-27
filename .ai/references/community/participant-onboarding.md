@@ -161,4 +161,4 @@ La comunicación de esta fase debe explicar, sin mencionar Jev:
 - que los primeros tres PRs aprobados se convierten en A, B y C;
 - que el equipo conserva integración y despliegues.
 
-Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo. El mensaje público específico de Misión 3 se redacta después de cerrar su rúbrica y fijar el SHA de apertura de `dev`.
+Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo y [`missions/mission-m3/INDEX.md`](missions/mission-m3/INDEX.md) para el brief, el mensaje público aprobado, el SHA congelado de `dev` y los pendientes de apertura.

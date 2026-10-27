@@ -16,5 +16,5 @@ Este archivo es el punto de entrada para agentes y colaboradores. No leas todas 
 
 - Product Brief: aprobado y versionado.
 - Arquitectura del juego: stack y baseline técnico implementados; la evolución funcional continúa por misiones.
-- Experimento comunitario: Misiones 1 y 2 cerradas; el flujo de forks y PRs para las Misiones 3–5 está aprobado y pendiente de implementación.
-- Implementación: `metro_a`, `metro_b` y `metro_c` contienen los resultados de Misión 2 y quedan congeladas. `dev` fue creada desde la versión B (`p-026`) y apunta al commit `2e3f805b7360d390de11e323a89ca77c8802a309`.
+- Experimento comunitario: Misiones 1 y 2 cerradas; Misión 3 aprobada y en preparación operativa para abrir el 30 de octubre de 2026 con el flujo de forks y PRs.
+- Implementación: `metro_a`, `metro_b` y `metro_c` contienen los resultados de Misión 2 y quedan congeladas. `dev` conserva el juego de la versión B (`p-026`) e incorpora la infraestructura de Misión 3; su baseline congelado es `1c60eea3b88962768dae0501e2cc9b8f20041b29`.

@@ -12,7 +12,7 @@ Que, mientras la simulación corre, aparezcan pasajeros esperando en las estacio
 
 Prueba la versión de partida: https://metro-app-b.pages.dev/ (versión B de la Misión 2).
 
-El código de partida es la rama `dev` del repositorio https://github.com/ArturVargas/metro_app, fija en el commit `acd8258ce3dcc45f01c449e47204b10aa7e45b7f` durante toda la misión. El tablero tiene ocho estaciones con tres formas: círculo, cuadrado y triángulo. **Ejecutar** pone en marcha los trenes asignados y **Parar** los detiene.
+El código de partida es la rama `dev` del repositorio https://github.com/ArturVargas/metro_app, fija en el commit `1c60eea3b88962768dae0501e2cc9b8f20041b29` durante toda la misión. El tablero tiene ocho estaciones con tres formas: círculo, cuadrado y triángulo. **Ejecutar** pone en marcha los trenes asignados y **Parar** los detiene.
 
 **Antes de escribir tu prompt, piensa**
 

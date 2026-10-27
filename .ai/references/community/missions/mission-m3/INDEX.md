@@ -6,19 +6,19 @@ En Misión 3 cada participante abre un PR desde su fork hacia `dev`. TypeSafe ca
 
 ## Orden de lectura
 
-1. [`public-brief.md`](public-brief.md): brief público de "Pasajeros en espera". Borrador para aprobación de Artur; no publicado.
-2. [`internal-contract.md`](internal-contract.md): contrato interno, calendario (apertura del 30 de octubre aprobada, decisión D1; cierre y Misiones 4–5 en **PROPUESTA**), decisiones registradas y mapeo de criterios a la rúbrica M3.
+1. [`public-brief.md`](public-brief.md): brief público aprobado de "Pasajeros en espera"; pendiente de publicación.
+2. [`internal-contract.md`](internal-contract.md): contrato interno, calendario aprobado, decisiones registradas y mapeo de criterios a la rúbrica M3.
 3. [Diseño](../../../../../docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md) y [plan](../../../../../docs/superpowers/plans/2026-10-24-mission-3-passengers.md) de la misión.
 4. [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md): resumen de la calibración con casos débil, medio y fuerte de pasajeros (`ready` con `rubric-m3-v2`; solo puntajes).
 5. [`calibration-2026-10-22-rubric-m3-v1.md`](calibration-2026-10-22-rubric-m3-v1.md): calibración general de la rúbrica y del umbral 80.
-6. [`public-message-draft.md`](public-message-draft.md): mensaje de WhatsApp y guía de fork/PR con fechas. No enviado; pendiente de aprobación.
+6. [`public-message-draft.md`](public-message-draft.md): mensaje de WhatsApp y guía de fork/PR aprobados. No enviados.
 7. [`../../github-project.md`](../../github-project.md): campos de cola del Project.
 8. [`../../../operations/participant-pr-workflows/`](../../../operations/participant-pr-workflows/README.md): checks de PR hacia `dev` (en `.github/workflows/` de `main` y `dev`).
-9. [`../../../operations/hermes-m3/`](../../../operations/hermes-m3/README.md): cambios de Hermes pendientes de aplicar en el VPS.
+9. [`../../../operations/hermes-m3/`](../../../operations/hermes-m3/README.md): cambios de Hermes, aplicados en el VPS el 2026-10-26.
 
 ## Base de la misión
 
-`dev` está fijo en `acd8258ce3dcc45f01c449e47204b10aa7e45b7f`: el segundo commit de tooling sobre `2e3f805` (versión B de Misión 2). Añade los workflows de PR, el checker mínimo de la descripción y lo fija al SHA de la base. Es el `M3_DEV_SHA` y el SHA base que declaran los PRs.
+`dev` está fijo en `1c60eea3b88962768dae0501e2cc9b8f20041b29`. Conserva el juego de la versión B de Misión 2 e incorpora mediante el PR [#51](https://github.com/ArturVargas/metro_app/pull/51) los workflows, el checker de la descripción y la infraestructura de evaluación de Misión 3. Es el `M3_DEV_SHA` y el SHA base que declaran los PRs.
 
 ## Diseño de misiones
 
@@ -30,14 +30,16 @@ Cada misión se diseña para un PR pequeño de alcance acotado: un comportamient
 - **Mismo SHA:** no se reevalúa un SHA ya evaluado; hace falta un commit nuevo.
 - **Rutas protegidas:** `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` y `.nvmrc` siguen protegidos junto con `.github/`, `apps/community/`, `packages/evaluation/` y `.env`.
 - **Identificador:** `p-` seguido de los últimos 3 dígitos del teléfono del participante; quienes tienen sufijo de colisión (por ejemplo `p-123b`) ya lo recibieron. El login de GitHub no tiene que coincidir con el participante; no hay registro de logins.
-- **Fechas:** Misión 3 abre el viernes 30 de octubre de 2026 (aprobado por Artur el 2026-10-26 a las 09:17 America/Mexico_City; decisión D1 en [`internal-contract.md`](internal-contract.md#decisiones-registradas)). El cierre de Misión 3 (jueves 5 de noviembre) y las fechas de Misiones 4 (6 de noviembre) y 5 (13 de noviembre) son **PROPUESTA**; ver [`internal-contract.md`](internal-contract.md#2-calendario).
+- **Fechas:** Misión 3 abre el viernes 30 de octubre de 2026 y cierra el jueves 5 de noviembre a las 23:55. Misión 4 abre el viernes 6 de noviembre y Misión 5 el viernes 13 de noviembre. Calendario aprobado por Artur; ver decisiones D1 y D4 en [`internal-contract.md`](internal-contract.md#decisiones-registradas).
 
 ## Estado antes de publicar
 
-- Brief, contrato y mensaje: borrador para aprobación de Artur.
-- Calibración de pasajeros: **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 16 de 16 corridas (81.9–85.4, media 83.5); débil, medio y la variante con una desviación quedan en 0. Requiere mergear `feat/m3-continuous-scoring`. Los fixtures son privados (solo en el VPS). Ver [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md).
-- Ensayo desde fork: PR [#47](https://github.com/ArturVargas/metro_app/pull/47) hacia `dev` (no mergear).
-- Pendientes: confirmar las fechas en **PROPUESTA** (cierre de M3, M4 y M5), Issue principal en el Project, aplicar Hermes en el VPS y activar `mission-m3`, publicar en WhatsApp.
+- Brief, contrato, calendario y mensaje: aprobados por Artur; pendientes de publicación.
+- Calibración de pasajeros: **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 16 de 16 corridas (81.9–85.4, media 83.5); débil, medio y la variante con una desviación quedan en 0. La implementación fue integrada mediante el PR [#48](https://github.com/ArturVargas/metro_app/pull/48). Los fixtures son privados (solo en el VPS). Ver [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md).
+- Ensayo desde fork: PR [#47](https://github.com/ArturVargas/metro_app/pull/47) cerrado sin mezclar después de comprobar los checks.
+- Infraestructura en `dev`: PR [#51](https://github.com/ArturVargas/metro_app/pull/51) integrado; `apps/game` conserva el baseline B.
+- Hecho: Hermes aplicado en el VPS (checkout en `e4e1b2d`), Issue principal [#50](https://github.com/ArturVargas/metro_app/issues/50) creado y `M3_DEV_SHA` actualizado a `1c60eea3b88962768dae0501e2cc9b8f20041b29` en el VPS (2026-10-27).
+- Pendientes: agregar el Issue #50 al Project; el 30 de octubre, activar `METRO_ACTIVE_MISSION=mission-m3` y `RECORD_ATTEMPTS=1`; publicar el mensaje en WhatsApp.
 
 ## Código
 

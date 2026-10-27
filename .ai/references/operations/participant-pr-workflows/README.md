@@ -7,7 +7,7 @@ Los checks de PR hacia `dev` definidos por ADR-0011 viven en `.github/workflows/
 Un workflow de `pull_request` se lee del commit de merge del PR (rama base + cambios del PR). Por eso deben existir en `dev`, no solo en `main`:
 
 1. `main`: llegan con esta rama. El check de descripción usa el SHA controlado de la rama base del PR.
-2. `dev`: los mismos tres archivos de `.github/workflows/` y el checker mínimo de la descripción en dos commits de tooling sobre `2e3f805b7360d390de11e323a89ca77c8802a309`. El segundo fija el checker al SHA de la base. Su SHA es el que se publica para la Misión 3: `acd8258ce3dcc45f01c449e47204b10aa7e45b7f`.
+2. `dev`: los mismos tres archivos de `.github/workflows/`, el checker de la descripción y la infraestructura de evaluación sincronizada desde `main` mediante el PR [#51](https://github.com/ArturVargas/metro_app/pull/51). El juego conserva la versión B de Misión 2. El SHA publicado para la Misión 3 es `1c60eea3b88962768dae0501e2cc9b8f20041b29`.
 
 ## Checks
 

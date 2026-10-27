@@ -10,6 +10,8 @@
 
 Los tres casos son código real sobre `dev` `acd8258` que solo toca `apps/game/` y pasa lint y typecheck; el fuerte además pasa `build:web`.
 
+`dev` se movió después a `1c60eea3b88962768dae0501e2cc9b8f20041b29` (PR #51), que tiene el mismo `apps/game/` (`git diff acd8258 1c60eea -- apps/game` está vacío). La calibración y los hashes de este reporte siguen siendo válidos para la base nueva.
+
 | Caso | Descripción | Expectativa |
 | --- | --- | --- |
 | Débil | Prompt vago; el código solo dibuja un adorno fijo | `core-gap`, 0 |
