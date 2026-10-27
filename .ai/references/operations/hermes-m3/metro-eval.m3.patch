@@ -1,5 +1,5 @@
---- metro-eval.orig	2026-10-22 20:40:50.918031125 -0600
-+++ metro-eval.m3	2026-10-22 20:41:11.766045507 -0600
+--- metro-eval.orig
++++ metro-eval.m3
 @@ -1,13 +1,15 @@
  #!/usr/bin/env bash
 -# Score the current inbound WhatsApp message for mission M2. Never takes prompt text as input.
@@ -8,7 +8,8 @@
  # Usage: metro-eval | metro-eval --previous | metro-eval --share
  set -uo pipefail
 
- CLOSED_MSG='La ventana de evaluación está cerrada. Evaluamos de martes a domingo, de 6:00 a 23:55 (hora Colombia); los lunes está cerrada.'
+-CLOSED_MSG='La ventana de evaluación está cerrada. Evaluamos de martes a domingo, de 6:00 a 23:55 (hora Colombia); los lunes está cerrada.'
++CLOSED_MSG='La ventana de evaluación está cerrada. Evaluamos de martes a domingo, de 6:00 a 23:55 (hora CDMX); los lunes está cerrada.'
  FAIL_MSG='No pude procesar tu evaluación en este momento. Por favor reenvía tu prompt más tarde.'
  RACE_MSG='Hubo un envío simultáneo de tu prompt; por favor reenvíalo en un momento.'
 +NO_PR_MSG='Para evaluar en esta misión envíame el enlace de tu PR hacia dev (https://github.com/ArturVargas/metro_app/pull/N).'
@@ -18,6 +19,15 @@
  DB=$HOME/.hermes/state.db
  STATE_DIR=$HOME/.hermes/state/metro-eval
  NOW_ARGS=()
+@@ -50,7 +52,7 @@
+   exit 0
+ fi
+
+-d=$(TZ=America/Bogota date "${NOW_ARGS[@]}" +%u); t=$(TZ=America/Bogota date "${NOW_ARGS[@]}" +%H%M)
++d=$(TZ=America/Mexico_City date "${NOW_ARGS[@]}" +%u); t=$(TZ=America/Mexico_City date "${NOW_ARGS[@]}" +%H%M)
+ if ! { [ "$d" -ge 2 ] && [ "$d" -le 7 ] && [ "$((10#$t))" -ge 600 ] && [ "$((10#$t))" -le 2355 ]; }; then
+   echo "$CLOSED_MSG"
+   exit 3
 @@ -140,9 +142,64 @@
  source .env.local || fail "env missing" 1
  set +a
