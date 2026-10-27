@@ -23,7 +23,7 @@
 Las tres misiones forman la fase de tres semanas de ADR-0011. La hora de apertura del viernes y la del mensaje público: `PENDIENTE`.
 
 - **Evaluaciones:** martes a domingo, 06:00–23:55 America/Bogota; lunes cerrado (la ventana que hoy aplica `~/bin/metro-eval`). Si la fase usa otra ventana, cambia aquí y en Hermes a la vez.
-- **Issue principal / Project:** `PENDIENTE`; crear el Issue "Mission mission-m3" en el Project comunitario antes de publicar.
+- **Issue principal / Project:** [#50 — Mission mission-m3 · Misión 3](https://github.com/ArturVargas/metro_app/issues/50), agregado al Project comunitario con `Status = Planned`, `Item type = Mission` y `Mission = mission-m3`.
 
 ## 3. Código base
 
@@ -83,11 +83,10 @@ Fuera de alcance (un diff que lo implemente pierde en `scope-fidelity`): abordaj
 
 ## Pendientes antes de publicar
 
-- Agregar el Issue principal [#50](https://github.com/ArturVargas/metro_app/issues/50) al Project.
 - El 30 de octubre: activar `METRO_ACTIVE_MISSION=mission-m3` y `RECORD_ATTEMPTS=1` en el VPS.
 - Publicar el mensaje en WhatsApp.
 
-Hecho: checkout del VPS con `rubric-m3-v2`, cambios de Hermes aplicados (`../../../operations/hermes-m3/`), Issue #50 creado y `M3_DEV_SHA` en el VPS actualizado a `1c60eea3b88962768dae0501e2cc9b8f20041b29` (2026-10-27).
+Hecho: checkout del VPS con `rubric-m3-v2`, cambios de Hermes aplicados (`../../../operations/hermes-m3/`), Issue #50 creado y agregado al Project, y `M3_DEV_SHA` en el VPS actualizado a `1c60eea3b88962768dae0501e2cc9b8f20041b29` (2026-10-27).
 
 ## Decisiones registradas
 
@@ -98,3 +97,4 @@ Hecho: checkout del VPS con `rubric-m3-v2`, cambios de Hermes aplicados (`../../
 | D3 | 2026-10-26, 10:50 America/Mexico_City | Abrir los PRs de `rubric-m3-v2` (#48) y de esta documentación (#49) contra `main`, sin mergear hasta revisión. | Artur, en el chat de trabajo |
 | D4 | 2026-10-26, antes de las 12:00 America/Mexico_City | Misión 3 cierra el **jueves 5 de noviembre de 2026 a las 23:55**; Misión 4 abre el **viernes 6 de noviembre** y Misión 5 el **viernes 13 de noviembre**. Se aprueban el brief y el mensaje para publicación una vez completada la preparación operativa. | Artur, confirmación explícita en el chat de trabajo |
 | D5 | 2026-10-26 | El PR #51 sincroniza en `dev` la infraestructura de Misión 3 sin cambiar `apps/game`; `1c60eea3b88962768dae0501e2cc9b8f20041b29` reemplaza al SHA anterior como `M3_DEV_SHA`. | Merge aprobado por Artur y verificación del equipo |
+| D6 | 2026-10-27 | El Issue #50 representa `mission-m3` en el Project con estado `Planned`; cambia a `Active` únicamente al abrir la misión el 30 de octubre. | Preparación operativa aprobada por Artur y aplicada por el equipo |
