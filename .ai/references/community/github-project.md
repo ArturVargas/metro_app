@@ -14,14 +14,14 @@ Lee este documento antes de crear, consultar o sincronizar misiones y prompts en
 - Repositorio vinculado: `ArturVargas/metro_app`
 - Verificado: 2026-10-01 mediante las API de GitHub Projects
 
-## Misión activa
+## Misión preparada
 
-- Issue: [#14 — Mission mission-m1 · Misión 1](https://github.com/ArturVargas/metro_app/issues/14)
+- Issue: [#50 — Mission mission-m3 · Misión 3](https://github.com/ArturVargas/metro_app/issues/50)
 - `Item type`: `Mission`
-- `Mission`: `mission-m1`
-- `Status`: `Active`
+- `Mission`: `mission-m3`
+- `Status`: `Planned` hasta su apertura el 30 de octubre de 2026; después cambia a `Active`
 
-El Issue sintético cerrado `#12` no pertenece al Project.
+Verificado el 27 de octubre de 2026 mediante GraphQL después de agregar el Issue y guardar sus tres campos. El Issue sintético cerrado `#12` no pertenece al Project.
 
 ## Campos exactos
 

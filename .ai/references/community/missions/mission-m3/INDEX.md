@@ -38,8 +38,8 @@ Cada misión se diseña para un PR pequeño de alcance acotado: un comportamient
 - Calibración de pasajeros: **`ready` con `rubric-m3-v2`**: el caso fuerte califica en 16 de 16 corridas (81.9–85.4, media 83.5); débil, medio y la variante con una desviación quedan en 0. La implementación fue integrada mediante el PR [#48](https://github.com/ArturVargas/metro_app/pull/48). Los fixtures son privados (solo en el VPS). Ver [`calibration-2026-10-26-passengers.md`](calibration-2026-10-26-passengers.md).
 - Ensayo desde fork: PR [#47](https://github.com/ArturVargas/metro_app/pull/47) cerrado sin mezclar después de comprobar los checks.
 - Infraestructura en `dev`: PR [#51](https://github.com/ArturVargas/metro_app/pull/51) integrado; `apps/game` conserva el baseline B.
-- Hecho: Hermes aplicado en el VPS (checkout en `e4e1b2d`), Issue principal [#50](https://github.com/ArturVargas/metro_app/issues/50) creado y `M3_DEV_SHA` actualizado a `1c60eea3b88962768dae0501e2cc9b8f20041b29` en el VPS (2026-10-27).
-- Pendientes: agregar el Issue #50 al Project; el 30 de octubre, activar `METRO_ACTIVE_MISSION=mission-m3` y `RECORD_ATTEMPTS=1`; publicar el mensaje en WhatsApp.
+- Hecho: Hermes aplicado en el VPS (checkout en `e4e1b2d`), Issue principal [#50](https://github.com/ArturVargas/metro_app/issues/50) creado y agregado al Project con `Status = Planned`, y `M3_DEV_SHA` actualizado a `1c60eea3b88962768dae0501e2cc9b8f20041b29` en el VPS (2026-10-27).
+- Pendientes: el 30 de octubre, activar `METRO_ACTIVE_MISSION=mission-m3` y `RECORD_ATTEMPTS=1`; publicar el mensaje en WhatsApp.
 
 ## Código
 
