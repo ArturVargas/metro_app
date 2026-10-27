@@ -1,6 +1,6 @@
 --- metro-eval.orig
 +++ metro-eval.m3
-@@ -1,13 +1,15 @@
+@@ -1,16 +1,21 @@
  #!/usr/bin/env bash
 -# Score the current inbound WhatsApp message for mission M2. Never takes prompt text as input.
 +# Score the current inbound WhatsApp message for the active mission. Never takes prompt text as input.
@@ -19,7 +19,34 @@
  DB=$HOME/.hermes/state.db
  STATE_DIR=$HOME/.hermes/state/metro-eval
  NOW_ARGS=()
-@@ -50,7 +52,7 @@
++# While this file exists every mode exits 3 with its first line (or PAUSED_MSG); delete it to resume.
++PAUSE_FILE=$HOME/.hermes/state/metro-eval.paused
++PAUSED_MSG="La Misión 2 ya cerró. La Misión 3 abre el viernes 30 de octubre a las 6:00 am (hora CDMX); ese día podrás enviar el enlace de tu PR."
+
+ # Overrides below exist only for offline tests and are ignored unless METRO_EVAL_TEST=1.
+ TEST=0
+@@ -19,6 +24,7 @@
+   DB=${METRO_EVAL_TEST_DB:-$DB}
+   STATE_DIR=${METRO_EVAL_TEST_STATE:-$STATE_DIR}
+   [ -n "${METRO_EVAL_TEST_NOW:-}" ] && NOW_ARGS=(-d "$METRO_EVAL_TEST_NOW")
++  PAUSE_FILE=${METRO_EVAL_TEST_PAUSE:-$PAUSE_FILE}
+ fi
+
+ fail() { echo "$FAIL_MSG"; echo "metro-eval: $1" >&2; exit "${2:-1}"; }
+@@ -31,6 +37,12 @@
+   *) fail "usage" 2 ;;
+ esac
+
++if [ -f "$PAUSE_FILE" ]; then
++  msg=$(head -n 1 "$PAUSE_FILE")
++  echo "${msg:-$PAUSED_MSG}"
++  exit 3
++fi
++
+ KEY=${HERMES_SESSION_KEY:-}
+ [ -n "$KEY" ] || [ -n "${HERMES_SESSION_ID:-}" ] || fail "no session context" 4
+ KEY_HASH=$(printf '%s' "${KEY:-${HERMES_SESSION_ID:-}}" | sha256sum | cut -c1-32)
+@@ -50,7 +62,7 @@
    exit 0
  fi
 
@@ -28,7 +55,7 @@
  if ! { [ "$d" -ge 2 ] && [ "$d" -le 7 ] && [ "$((10#$t))" -ge 600 ] && [ "$((10#$t))" -le 2355 ]; }; then
    echo "$CLOSED_MSG"
    exit 3
-@@ -140,9 +142,64 @@
+@@ -140,9 +152,64 @@
  source .env.local || fail "env missing" 1
  set +a
  [ "$TEST" = 1 ] && RECORD_ATTEMPTS=0
