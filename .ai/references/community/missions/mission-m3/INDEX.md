@@ -30,7 +30,7 @@ Cada misión se diseña para un PR pequeño de alcance acotado: un comportamient
 - **Mismo SHA:** no se reevalúa un SHA ya evaluado; hace falta un commit nuevo.
 - **Rutas protegidas:** `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` y `.nvmrc` siguen protegidos junto con `.github/`, `apps/community/`, `packages/evaluation/` y `.env`.
 - **Identificador:** `p-` seguido de los últimos 3 dígitos del teléfono del participante; quienes tienen sufijo de colisión (por ejemplo `p-123b`) ya lo recibieron. El login de GitHub no tiene que coincidir con el participante; no hay registro de logins.
-- **Fechas:** Misión 3 abre el viernes 30 de octubre de 2026 y cierra el jueves 5 de noviembre a las 23:55. Misión 4 abre el viernes 6 de noviembre y Misión 5 el viernes 13 de noviembre. Calendario aprobado por Artur; ver decisiones D1 y D4 en [`internal-contract.md`](internal-contract.md#decisiones-registradas).
+- **Fechas (hora CDMX):** Misión 3 abre el viernes 30 de octubre de 2026 a las 06:00 hora CDMX y cierra el jueves 5 de noviembre a las 23:55 hora CDMX. Misión 4 abre el viernes 6 de noviembre y Misión 5 el viernes 13 de noviembre. Evaluaciones de martes a domingo, 06:00–23:55 hora CDMX. Calendario aprobado por Artur; ver decisiones D1, D4 y D7 en [`internal-contract.md`](internal-contract.md#decisiones-registradas).
 
 ## Estado antes de publicar
 

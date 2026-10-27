@@ -132,7 +132,7 @@ El mensaje fijado funciona como índice de estas explicaciones e incluye reglas 
 - En el grupo, el bot solo evalúa mensajes que lo mencionen; los participantes autorizados también pueden consultar o evaluar por DM.
 - Las consultas por DM no consumen intentos; los prompts enviados a evaluación sí.
 - Después de una evaluación por DM, el prompt y el puntaje solo se comparten en el grupo con un “sí” explícito.
-- El bot solo realiza evaluaciones de martes a domingo, de 6:00 a 23:55 (hora Colombia; lunes cerrado) en ambos canales.
+- El bot solo realiza evaluaciones de martes a domingo, de 6:00 a 23:55 (lunes cerrado) en ambos canales: en hora Colombia durante las Misiones 1 y 2, y en hora CDMX desde la Misión 3.
 - La comunidad elige tres prompts y estos producen las versiones A, B y C.
 - Las versiones muestran qué participante y qué prompt las originaron.
 - Cada viernes se publican los enlaces A, B y C para probar, comparar y compartir los resultados.
@@ -159,6 +159,7 @@ La comunicación de esta fase debe explicar, sin mencionar Jev:
 - que pueden corregir el resultado con feedback, hasta cinco evaluaciones;
 - que necesitan más de 80 puntos, checks exitosos y revisión técnica;
 - que los primeros tres PRs aprobados se convierten en A, B y C;
-- que el equipo conserva integración y despliegues.
+- que el equipo conserva integración y despliegues;
+- que desde la Misión 3 todas las horas son hora CDMX: la ventana de evaluación es de martes a domingo, de 6:00 a 23:55 hora CDMX (lunes cerrado). El mensaje fijado de arriba, con hora Colombia, corresponde a las Misiones 1 y 2.
 
 Usa [`participant-code-contributions.md`](participant-code-contributions.md) como contexto operativo y [`missions/mission-m3/INDEX.md`](missions/mission-m3/INDEX.md) para el brief, el mensaje público aprobado, el SHA congelado de `dev` y los pendientes de apertura.

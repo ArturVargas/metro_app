@@ -10,19 +10,19 @@
 - **Brief público:** [`public-brief.md`](public-brief.md)
 - **Diseño:** [`docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md`](../../../../../docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md)
 - **Responsable:** `ArturVargas`
-- **Zona horaria operativa:** `America/Bogota` (UTC-5), la misma ventana de evaluación que en Misión 2.
+- **Zona horaria operativa:** `America/Mexico_City` (hora CDMX, UTC-6) desde Misión 3 (decisión D7). Las Misiones 1 y 2 usaron `America/Bogota` (hora Colombia).
 
 ## 2. Calendario
 
 | Misión | Apertura | Cierre | Estado |
 | --- | --- | --- | --- |
-| Misión 3 | viernes 30 de octubre de 2026 | jueves 5 de noviembre de 2026, 23:55 | **APROBADA** por Artur (decisiones D1 y D4) |
-| Misión 4 | viernes 6 de noviembre de 2026 | jueves 12 de noviembre de 2026, 23:55 | **APROBADA** por Artur (decisión D4) |
-| Misión 5 | viernes 13 de noviembre de 2026 | jueves 19 de noviembre de 2026, 23:55 | **APROBADA** por Artur (decisión D4) |
+| Misión 3 | viernes 30 de octubre de 2026, 06:00 hora CDMX | jueves 5 de noviembre de 2026, 23:55 hora CDMX | **APROBADA** por Artur (decisiones D1 y D4) |
+| Misión 4 | viernes 6 de noviembre de 2026 | jueves 12 de noviembre de 2026, 23:55 hora CDMX | **APROBADA** por Artur (decisión D4) |
+| Misión 5 | viernes 13 de noviembre de 2026 | jueves 19 de noviembre de 2026, 23:55 hora CDMX | **APROBADA** por Artur (decisión D4) |
 
-Las tres misiones forman la fase de tres semanas de ADR-0011. La hora de apertura del viernes y la del mensaje público: `PENDIENTE`.
+Las tres misiones forman la fase de tres semanas de ADR-0011. Apertura de Misión 3: viernes 30 de octubre a las 06:00 hora CDMX. El mensaje público sale a la misma hora, en dos mensajes al grupo Prompts: el anuncio y la guía para hacer el fork y abrir el PR ([`public-message-draft.md`](public-message-draft.md)).
 
-- **Evaluaciones:** martes a domingo, 06:00–23:55 America/Bogota; lunes cerrado (la ventana que hoy aplica `~/bin/metro-eval`). Si la fase usa otra ventana, cambia aquí y en Hermes a la vez.
+- **Evaluaciones:** martes a domingo, 06:00–23:55 hora CDMX (`America/Mexico_City`); lunes cerrado. Hasta la activación del 30 de octubre a las 06:00, `~/bin/metro-eval` sigue aplicando la ventana de Misión 2 en hora Colombia; en esa activación Fortgate cambia a hora CDMX (D7). Si la fase usa otra ventana, cambia aquí y en Hermes a la vez.
 - **Issue principal / Project:** [#50 — Mission mission-m3 · Misión 3](https://github.com/ArturVargas/metro_app/issues/50), agregado al Project comunitario con `Status = Planned`, `Item type = Mission` y `Mission = mission-m3`.
 
 ## 3. Código base
@@ -95,6 +95,7 @@ Hecho: checkout del VPS con `rubric-m3-v2`, cambios de Hermes aplicados (`../../
 | D1 | 2026-10-26, 09:17 America/Mexico_City | Misión 3 abre el **viernes 30 de octubre de 2026**. El cierre de Misión 3 (jueves 5 de noviembre) y las fechas de Misiones 4 (viernes 6 de noviembre) y 5 (viernes 13 de noviembre) siguen siendo **PROPUESTA** (reemplazado por D4). | Artur, aprobación explícita en el chat de trabajo con el asistente del equipo |
 | D2 | 2026-10-26 | Los fixtures de calibración de Misión 3 quedan privados en el VPS hasta el cierre de la misión; el reporte publica solo puntajes y hashes SHA-256. Al cerrar, se versionan en `apps/community/fixtures/calibration-m3/`. | Artur, en el chat de trabajo y en la respuesta a la revisión del PR #49 |
 | D3 | 2026-10-26, 10:50 America/Mexico_City | Abrir los PRs de `rubric-m3-v2` (#48) y de esta documentación (#49) contra `main`, sin mergear hasta revisión. | Artur, en el chat de trabajo |
-| D4 | 2026-10-26, antes de las 12:00 America/Mexico_City | Misión 3 cierra el **jueves 5 de noviembre de 2026 a las 23:55**; Misión 4 abre el **viernes 6 de noviembre** y Misión 5 el **viernes 13 de noviembre**. Se aprueban el brief y el mensaje para publicación una vez completada la preparación operativa. | Artur, confirmación explícita en el chat de trabajo |
+| D4 | 2026-10-26, antes de las 12:00 America/Mexico_City | Misión 3 cierra el **jueves 5 de noviembre de 2026 a las 23:55 hora CDMX** (zona fijada por D7); Misión 4 abre el **viernes 6 de noviembre** y Misión 5 el **viernes 13 de noviembre**. Se aprueban el brief y el mensaje para publicación una vez completada la preparación operativa. | Artur, confirmación explícita en el chat de trabajo |
 | D5 | 2026-10-26 | El PR #51 sincroniza en `dev` la infraestructura de Misión 3 sin cambiar `apps/game`; `1c60eea3b88962768dae0501e2cc9b8f20041b29` reemplaza al SHA anterior como `M3_DEV_SHA`. | Merge aprobado por Artur y verificación del equipo |
 | D6 | 2026-10-27 | El Issue #50 representa `mission-m3` en el Project con estado `Planned`; cambia a `Active` únicamente al abrir la misión el 30 de octubre. | Preparación operativa aprobada por Artur y aplicada por el equipo |
+| D7 | 2026-10-27, ~06:56 America/Mexico_City | Todas las horas de Misión 3 en adelante son hora CDMX (`America/Mexico_City`): apertura el viernes 30 de octubre a las 06:00, ventana de evaluación de martes a domingo de 06:00 a 23:55 y cierre el jueves 5 de noviembre a las 23:55. Fortgate (`metro-eval`, avisos de ventana, timers, skill y SOUL) cambia a hora CDMX en la activación del 30 de octubre a las 06:00. | Artur, en el chat de trabajo |
