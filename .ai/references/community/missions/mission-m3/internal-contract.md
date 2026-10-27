@@ -5,7 +5,7 @@
 - **ID de misión:** `mission-m3`
 - **Versión:** `1`
 - **Modalidad:** `participant-pr` ([ADR-0011](../../../../adr/0011-participant-forks-and-pr-qualification.md))
-- **Estado:** `borrador` aprobado; pendiente de publicación
+- **Estado:** `aprobado`; pendiente de publicación
 - **Título:** Pasajeros en espera
 - **Brief público:** [`public-brief.md`](public-brief.md)
 - **Diseño:** [`docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md`](../../../../../docs/superpowers/specs/2026-10-23-mission-3-passengers-design.md)
@@ -83,16 +83,18 @@ Fuera de alcance (un diff que lo implemente pierde en `scope-fidelity`): abordaj
 
 ## Pendientes antes de publicar
 
-- Actualizar el checkout del VPS con `rubric-m3-v2` ya integrada mediante el PR #48.
-- Crear el Issue principal de Misión 3 en el Project.
-- Aplicar y verificar los cambios de Hermes en el VPS (`../../../operations/hermes-m3/`) y activar `METRO_ACTIVE_MISSION=mission-m3` con `RECORD_ATTEMPTS=1` solo el día de apertura.
+- Agregar el Issue principal [#50](https://github.com/ArturVargas/metro_app/issues/50) al Project.
+- El 30 de octubre: activar `METRO_ACTIVE_MISSION=mission-m3` y `RECORD_ATTEMPTS=1` en el VPS.
+- Publicar el mensaje en WhatsApp.
+
+Hecho: checkout del VPS con `rubric-m3-v2`, cambios de Hermes aplicados (`../../../operations/hermes-m3/`), Issue #50 creado y `M3_DEV_SHA` en el VPS actualizado a `1c60eea3b88962768dae0501e2cc9b8f20041b29` (2026-10-27).
 
 ## Decisiones registradas
 
 | ID | Fecha y hora | Decisión | Quién y dónde |
 | --- | --- | --- | --- |
-| D1 | 2026-10-26, 09:17 America/Mexico_City | Misión 3 abre el **viernes 30 de octubre de 2026**. El cierre de Misión 3 (jueves 5 de noviembre) y las fechas de Misiones 4 (viernes 6 de noviembre) y 5 (viernes 13 de noviembre) siguen siendo **PROPUESTA**. | Artur, aprobación explícita en el chat de trabajo con el asistente del equipo |
+| D1 | 2026-10-26, 09:17 America/Mexico_City | Misión 3 abre el **viernes 30 de octubre de 2026**. El cierre de Misión 3 (jueves 5 de noviembre) y las fechas de Misiones 4 (viernes 6 de noviembre) y 5 (viernes 13 de noviembre) siguen siendo **PROPUESTA** (reemplazado por D4). | Artur, aprobación explícita en el chat de trabajo con el asistente del equipo |
 | D2 | 2026-10-26 | Los fixtures de calibración de Misión 3 quedan privados en el VPS hasta el cierre de la misión; el reporte publica solo puntajes y hashes SHA-256. Al cerrar, se versionan en `apps/community/fixtures/calibration-m3/`. | Artur, en el chat de trabajo y en la respuesta a la revisión del PR #49 |
 | D3 | 2026-10-26, 10:50 America/Mexico_City | Abrir los PRs de `rubric-m3-v2` (#48) y de esta documentación (#49) contra `main`, sin mergear hasta revisión. | Artur, en el chat de trabajo |
-| D4 | 2026-10-26 | Misión 3 cierra el **jueves 5 de noviembre de 2026 a las 23:55**; Misión 4 abre el **viernes 6 de noviembre** y Misión 5 el **viernes 13 de noviembre**. Se aprueban el brief y el mensaje para publicación una vez completada la preparación operativa. | Artur, confirmación explícita en el chat de trabajo |
+| D4 | 2026-10-26, antes de las 12:00 America/Mexico_City | Misión 3 cierra el **jueves 5 de noviembre de 2026 a las 23:55**; Misión 4 abre el **viernes 6 de noviembre** y Misión 5 el **viernes 13 de noviembre**. Se aprueban el brief y el mensaje para publicación una vez completada la preparación operativa. | Artur, confirmación explícita en el chat de trabajo |
 | D5 | 2026-10-26 | El PR #51 sincroniza en `dev` la infraestructura de Misión 3 sin cambiar `apps/game`; `1c60eea3b88962768dae0501e2cc9b8f20041b29` reemplaza al SHA anterior como `M3_DEV_SHA`. | Merge aprobado por Artur y verificación del equipo |
