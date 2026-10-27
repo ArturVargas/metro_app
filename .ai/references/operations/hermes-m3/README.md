@@ -31,27 +31,38 @@ Misión 2 cerró antes de que abra Misión 3. Desde el 2026-10-27 a las 07:14 ho
 
 ## Activación de Misión 3
 
-**Jueves 29 de octubre, 23:30 hora CDMX** (la pausa sigue):
+Estos pasos coinciden con las dos rutinas programadas. Ninguna de las dos envía mensajes de WhatsApp antes del paso final del viernes.
 
-1. Respaldar con sufijo `.bak.<fecha>-pre-cdmx` los seis archivos de la lista de zona horaria.
-2. Aplicar los seis `*.tz-cdmx.patch` con `patch`; comprobar `bash -n ~/bin/metro-eval ~/bin/metro-window-notice`.
-3. `systemctl --user daemon-reload` y `systemctl --user start metro-window-open.timer`; su siguiente disparo es el viernes a las 06:00 hora CDMX. **No** arrancar todavía `metro-window-close.timer`: a las 23:30 dispararía a las 23:45 de ese mismo jueves.
-4. Reiniciar `hermes-gateway.service` (no `hermes-gateway-inventario`) y confirmar `is-active`.
-5. No borrar la bandera de pausa.
+**Jueves 29 de octubre, 23:30 hora CDMX** (cambio de zona; la pausa sigue):
 
-**Viernes 30 de octubre, 06:00 hora CDMX:**
+1. Verificar antes de tocar nada: `hermes-gateway.service` está activo, la bandera `~/.hermes/state/metro-eval.paused` existe y los seis `*.tz-cdmx.patch` aplican en seco (`patch --dry-run`).
+2. Respaldar con sufijo `.bak.<fecha>-pre-cdmx` los seis archivos de la lista de zona horaria.
+3. Aplicar los seis `*.tz-cdmx.patch` con `patch` y comprobar `bash -n ~/bin/metro-eval ~/bin/metro-window-notice`.
+4. `systemctl --user daemon-reload`. **Los dos timers (`metro-window-open.timer` y `metro-window-close.timer`) siguen detenidos.**
+5. Reiniciar solo `hermes-gateway.service` (no `hermes-gateway-inventario`) y confirmar `is-active`.
+6. Verificar que `metro-eval` sigue imprimiendo el aviso de pausa y que el script, los timers y el skill usan `America/Mexico_City`.
+7. La bandera de pausa se queda.
 
-1. `rm ~/.hermes/state/metro-eval.paused`.
+Si algo falla: restaurar los `.bak.<fecha>-pre-cdmx`, `systemctl --user daemon-reload`, dejar los dos timers detenidos y la bandera en su lugar, reiniciar `hermes-gateway.service` y reportar. No se envía nada.
+
+**Viernes 30 de octubre, 06:00 hora CDMX** (apertura):
+
+1. Respaldar `~/repos/metro_app/.env.local` con sufijo `.bak.<fecha>-pre-open`.
 2. En `.env.local`: `METRO_ACTIVE_MISSION=mission-m3` y `RECORD_ATTEMPTS=1` (`M3_DEV_SHA` ya está fijado).
-3. `systemctl --user start metro-window-close.timer`.
-4. Reiniciar `hermes-gateway.service` y confirmar `is-active`.
-5. Verificar sin registrar: `metro-eval` ya no imprime el aviso de pausa, `evaluate:pr --pr 47 --participant p-000 --mission mission-m3 --mock` responde, y `systemctl --user list-timers 'metro-window-*'` muestra los dos disparos en hora CDMX.
-6. Pasar el Issue #50 a `Active` en el Project y enviar los dos mensajes aprobados.
+3. `rm ~/.hermes/state/metro-eval.paused`.
+4. `systemctl --user start metro-window-open.timer metro-window-close.timer`. El aviso de apertura de las 06:00 de ese viernes se omite a propósito, porque el anuncio aprobado de Misión 3 lo reemplaza. El primer aviso es el de cierre, a las 23:45 hora CDMX del viernes, y el de apertura vuelve el sábado a las 06:00.
+5. Reiniciar `hermes-gateway.service` y confirmar `is-active`.
+6. Verificar sin registrar: `metro-eval` ya no imprime el aviso de pausa, `evaluate:pr --pr 47 --participant p-000 --mission mission-m3 --mock` responde y `systemctl --user list-timers 'metro-window-*'` muestra los dos disparos en hora CDMX.
+7. Solo si todo pasó, enviar los dos mensajes aprobados en orden: primero el anuncio y después la guía del fork.
+
+Si algo falla antes del paso 7: restaurar `.env.local` desde `.bak.<fecha>-pre-open` (`RECORD_ATTEMPTS=0`, sin `METRO_ACTIVE_MISSION`), volver a crear la bandera, `systemctl --user stop metro-window-open.timer metro-window-close.timer`, reiniciar `hermes-gateway.service` y reportar. No se envía nada.
+
+Fuera de la rutina: pasar el Issue #50 a `Active` en el Project.
 
 ## Rollback
 
-- **Zona horaria:** restaurar los `.bak.<fecha>-pre-cdmx`, `systemctl --user daemon-reload`, reiniciar los timers y `hermes-gateway.service`.
-- **Activación:** volver a `RECORD_ATTEMPTS=0`, quitar `METRO_ACTIVE_MISSION`, crear la bandera de pausa y reiniciar `hermes-gateway.service`.
+- **Zona horaria (29 de octubre):** restaurar los `.bak.<fecha>-pre-cdmx`, `systemctl --user daemon-reload`, mantener detenidos los dos timers y la bandera, y reiniciar `hermes-gateway.service`.
+- **Apertura (30 de octubre):** restaurar `.env.local` desde `.bak.<fecha>-pre-open`, volver a crear la bandera, detener los dos timers y reiniciar `hermes-gateway.service`.
 - **Misión 3 completa:** restaurar los `.bak.<fecha>-pre-m3` de `~/bin/metro-eval`, del skill y de `.env.local`, y reiniciar `hermes-gateway.service`.
 
 ## Variables nuevas en `.env.local`
