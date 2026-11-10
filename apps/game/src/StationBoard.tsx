@@ -42,6 +42,13 @@ type Train = {
 
 type EditState = { lineId: string; fromId: string | null };
 
+/** Waiting passengers per station (destination shapes, in arrival order) plus the spawner state. */
+type Crowd = {
+  waiting: Record<string, StationShape[]>;
+  rngState: number;
+  untilNext: number; // ms of running time until the next arrival
+};
+
 const VIEW_W = 400;
 const VIEW_H = 300;
 const VIEW_BOX = `0 0 ${VIEW_W} ${VIEW_H}`;
@@ -63,6 +70,19 @@ const TRAIN_OUTLINE = "#ffffff";
 const TRAIN_SPEED = 50; // Units per second
 const STOP_DURATION = 2000; // 2 seconds stop time
 const LOCK_MSG = "Pulsa Parar para modificar la red";
+
+const SHAPES: StationShape[] = ["circle", "triangle", "square"];
+const MAX_PASSENGERS_PER_STATION = 12;
+const PASSENGER_SEED = 20261030; // Fixed seed: every new game draws the same sequence
+const FIRST_PASSENGER_MS = 1000;
+const PASSENGER_INTERVAL_MS = 2000;
+const MAX_PASSENGER_STEP_MS = 100; // Long frames (e.g. a hidden tab) never release a burst
+const PASSENGER_SIZE = 4;
+const PASSENGER_COLS = 4;
+const PASSENGER_PITCH = 10;
+const PASSENGER_OFFSET_X = 22; // Grid sits to the right of the station, below the "1" start labels
+const PASSENGER_OFFSET_Y = -3;
+const PASSENGER_FILL = "#4b5563";
 
 const SHAPE_LABEL: Record<StationShape, string> = {
   circle: "círculo",
@@ -150,6 +170,43 @@ function advanceTrain(train: Train, line: MetroLine, ms: number): Train {
     }
   }
   return { ...train, currentStationIndex, progress, direction, waitLeft };
+}
+
+function newCrowd(): Crowd {
+  return { waiting: {}, rngState: PASSENGER_SEED, untilNext: FIRST_PASSENGER_MS };
+}
+
+/** mulberry32: small seeded PRNG, so arrivals do not depend on Math.random(). */
+function nextRandom(state: number): { value: number; state: number } {
+  const next = (state + 0x6d2b79f5) | 0;
+  let t = next;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return { value: ((t ^ (t >>> 14)) >>> 0) / 4294967296, state: next };
+}
+
+/**
+ * Advances arrivals by `ms` of running time: one passenger every PASSENGER_INTERVAL_MS.
+ * Origin is drawn uniformly among stations below the cap; destination uniformly among the
+ * other two shapes. Time only decides when the next draw happens, so the order is the same
+ * in every new game regardless of frame rate. If every station is full, the slot is skipped.
+ */
+function advanceCrowd(crowd: Crowd, ms: number): Crowd {
+  let { waiting, rngState, untilNext } = crowd;
+  untilNext -= ms;
+  while (untilNext <= 0) {
+    untilNext += PASSENGER_INTERVAL_MS;
+    const open = STATIONS.filter((s) => (waiting[s.id]?.length ?? 0) < MAX_PASSENGERS_PER_STATION);
+    if (open.length === 0) continue;
+    let r = nextRandom(rngState);
+    const origin = open[Math.floor(r.value * open.length)];
+    r = nextRandom(r.state);
+    rngState = r.state;
+    const options = SHAPES.filter((shape) => shape !== origin.shape);
+    const destination = options[Math.floor(r.value * options.length)];
+    waiting = { ...waiting, [origin.id]: [...(waiting[origin.id] ?? []), destination] };
+  }
+  return { waiting, rngState, untilNext };
 }
 
 function trainPose(train: Train, line: MetroLine): { x: number; y: number; angle: number } {
@@ -245,6 +302,52 @@ function StationMark({
   }
 }
 
+// --- Component: WaitingPassengers ---
+
+function PassengerMark({ shape, x, y }: { shape: StationShape; x: number; y: number }) {
+  const common = { fill: PASSENGER_FILL, stroke: "#ffffff", strokeWidth: 1 };
+  switch (shape) {
+    case "circle":
+      return <Circle cx={x} cy={y} r={PASSENGER_SIZE} {...common} />;
+    case "triangle": {
+      const h = PASSENGER_SIZE * 2.1;
+      const half = h / Math.sqrt(3);
+      const points = [
+        `${x},${y - h * 0.6}`,
+        `${x - half},${y + h * 0.4}`,
+        `${x + half},${y + h * 0.4}`,
+      ].join(" ");
+      return <Polygon points={points} {...common} />;
+    }
+    case "square":
+      return (
+        <Rect
+          x={x - PASSENGER_SIZE}
+          y={y - PASSENGER_SIZE}
+          width={PASSENGER_SIZE * 2}
+          height={PASSENGER_SIZE * 2}
+          {...common}
+        />
+      );
+  }
+}
+
+/** Up to 12 passengers in a 4×3 grid beside the station; each shows its destination shape. */
+function WaitingPassengers({ station, shapes }: { station: Station; shapes: StationShape[] }) {
+  return (
+    <G pointerEvents="none">
+      {shapes.map((shape, i) => (
+        <PassengerMark
+          key={i}
+          shape={shape}
+          x={station.x + PASSENGER_OFFSET_X + (i % PASSENGER_COLS) * PASSENGER_PITCH}
+          y={station.y + PASSENGER_OFFSET_Y + Math.floor(i / PASSENGER_COLS) * PASSENGER_PITCH}
+        />
+      ))}
+    </G>
+  );
+}
+
 // --- Component: TrainVisualization ---
 
 /** T1: {_}, T2: {_}{_}, T3: {_}{_}{_}; centered on (x, y) and rotated with the segment. */
@@ -287,6 +390,7 @@ export function StationBoard(): React.JSX.Element {
   // --- State Management ---
   const [lines, setLines] = useState<MetroLine[]>([]);
   const [trains, setTrains] = useState<Record<string, Train>>({});
+  const [crowd, setCrowd] = useState<Crowd>(newCrowd);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [guide, setGuide] = useState<{ x: number; y: number } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -341,6 +445,9 @@ export function StationBoard(): React.JSX.Element {
           }
           return updated;
         });
+        // Ejecutar needs an assigned train and trains cannot be retired while running,
+        // so arrivals only advance with at least one train. Stopping halts this loop.
+        setCrowd((prev) => advanceCrowd(prev, Math.min(elapsed, MAX_PASSENGER_STEP_MS)));
       }
       frame = requestAnimationFrame(tick);
     };
@@ -369,6 +476,7 @@ export function StationBoard(): React.JSX.Element {
     setIsSimRunning(false);
     setLines([]);
     setTrains({});
+    setCrowd(newCrowd());
     clearSelection();
     setMenuLineId(null);
     setChooser(null);
@@ -846,6 +954,17 @@ export function StationBoard(): React.JSX.Element {
               selected={station.id === selectedId || station.id === editing?.fromId}
             />
           ))}
+
+          {/* Waiting passengers */}
+          {STATIONS.map((station) =>
+            crowd.waiting[station.id] ? (
+              <WaitingPassengers
+                key={`passengers-${station.id}`}
+                station={station}
+                shapes={crowd.waiting[station.id]}
+              />
+            ) : null,
+          )}
 
           {/* Endpoints of the line being edited */}
           {editLine && !editLine.closed
